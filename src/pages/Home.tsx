@@ -7,7 +7,7 @@ import { MorphingShape } from '../components/MorphingShape';
 const mainFeatures = [
   {
     title: 'Convert to PDF',
-    description: 'Convert images, documents, and more to PDF format',
+    description: 'Convert images, documents , and more to PDF format',
     icon: FileImage,
     path: '/convert-to-pdf'
   },
