@@ -114,7 +114,7 @@ export const ConversionSection: React.FC = () => {
     if (timerInterval) clearInterval(timerInterval); // Clear any existing intervals
 
     const savedTimer = localStorage.getItem("timer");
-    const startingTimer = savedTimer ? Number(savedTimer) : 1;
+    const startingTimer = savedTimer ? Number(savedTimer) : 5;
 
     setTimer(startingTimer); // Use saved timer or default to 5
     const interval = setInterval(() => {
