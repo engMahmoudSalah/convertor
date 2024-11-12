@@ -1,7 +1,7 @@
 import React from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import logoo from "./../../Magic.png";
+import logoo from "./../../Magic0.png";
 
 const menuItems = [
   { name: 'Convert to PDF', path: '/convert-to-pdf' },

@@ -3,7 +3,8 @@ import { FileImage, FileOutput, Edit, FolderKanban, FileSearch } from 'lucide-re
 import { FeatureGrid } from '../components/FeatureGrid';
 import { GlowingOrb } from '../components/GlowingOrb';
 import { MorphingShape } from '../components/MorphingShape';
-
+// import logoo from "./../../Magic0.png";
+import ResizableTitleComponent from '../components/additions/AiDecoration/AiDecoration'
 const mainFeatures = [
   {
     title: 'Convert to PDF',
@@ -43,8 +44,12 @@ export const Home: React.FC = () => {
       <GlowingOrb />
       <MorphingShape />
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-row justify-center">
+        <div className="text-center mb-16 flex-row justify-center">
+        <div className='flex justify-center mb-10'>
+          <ResizableTitleComponent />
+
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             <span className="bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
               All-in-One PDF Tools

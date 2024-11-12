@@ -7,6 +7,7 @@ import { ConvertFromPDF } from './pages/ConvertFromPDF';
 import { EditPDF } from './pages/EditPDF';
 import { OrganizePDF } from './pages/OrganizePDF';
 import { OptimizePDF } from './pages/OptimizePDF';
+import logo from "./../Magic.png"
 
 function App() {
   return (
@@ -21,8 +22,9 @@ function App() {
           <Route path="/organize-pdf/*" element={<OrganizePDF />} />
           <Route path="/optimize-pdf/*" element={<OptimizePDF />} />
         </Routes>
-        <div className="text-xl mb-6 flex justify-center font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
-        by MS 🍉
+        <div className="text-md mb-6 flex justify-center items-center font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
+        Powered By 
+        <img style={{height:"55px"}} src={logo} alt="" />
             </div>
       </div>
     </BrowserRouter>
