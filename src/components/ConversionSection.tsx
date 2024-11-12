@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { DragDropZone } from './DragDropZone';
 import { ConversionStatus } from './ConversionStatus';
 import { jsPDF } from 'jspdf';
 
 export const ConversionSection: React.FC = () => {
-  const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
-  const [isConverting, setIsConverting] = React.useState(false);
-  const [conversionStatus, setConversionStatus] = React.useState<string>('');
-  const [scalingOption, setScalingOption] = React.useState<'fit' | 'full' | 'custom'>('fit');
-  const [customScale, setCustomScale] = React.useState<number>(1);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isConverting, setIsConverting] = useState(false);
+  const [conversionStatus, setConversionStatus] = useState<string>('');
+  const [scalingOption, setScalingOption] = useState<'fit' | 'full' | 'custom'>('fit');
+  const [customScale, setCustomScale] = useState<number>(1);
+  const [isConversionComplete, setIsConversionComplete] = useState<boolean>(false);
+  const [timer, setTimer] = useState<number>(5); // Timer for download delay
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+  const [pdfInstance, setPdfInstance] = useState<jsPDF | null>(null); // Store PDF instance
 
   const handleFileSelect = (files: File[]) => {
-    // Validate selected files are PNG
     const validFiles = files.filter(file => file.type === 'image/png');
     if (validFiles.length === 0) {
       alert('Please select PNG files only.');
@@ -23,103 +26,152 @@ export const ConversionSection: React.FC = () => {
   };
 
   const convertToPDF = async (files: File[]) => {
-  setIsConverting(true);
-  setConversionStatus('Starting Conversion...');
+    setIsConverting(true);
+    setConversionStatus('Starting Conversion...');
+    setIsConversionComplete(false); // Reset on new conversion
 
-  try {
-    const pdf = new jsPDF();
-    const maxPageWidth = 595; // A4 width in points (210mm)
-    const maxPageHeight = 842; // A4 height in points (297mm)
+    try {
+      const pdf = new jsPDF();
+      const maxPageWidth = 595; // A4 width in points (210mm)
+      const maxPageHeight = 842; // A4 height in points (297mm)
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const image = new Image();
-      const imageUrl = URL.createObjectURL(file);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const image = new Image();
+        const imageUrl = URL.createObjectURL(file);
 
-      await new Promise<void>((resolve) => {
-        image.onload = () => {
-          let width = image.width;
-          let height = image.height;
+        await new Promise<void>((resolve) => {
+          image.onload = () => {
+            let width = image.width;
+            let height = image.height;
 
-          // Scaling logic based on user selection
-          if (scalingOption === 'fit') {
-            // Fit to A4 page without distortion
-            const scale = Math.min(maxPageWidth / width, maxPageHeight / height);
-            width = width * scale;
-            height = height * scale;
-          } else if (scalingOption === 'full') {
-            // Full size without scaling down
-            width = image.width;
-            height = image.height;
-          } else if (scalingOption === 'custom') {
-            // Custom scaling by user-selected factor
-            if (customScale < 0.1) {
-              customScale = 0.1; // Minimum scale value
-            } else if (customScale > 3) {
-              customScale = 3; // Maximum scale value
+            if (scalingOption === 'fit') {
+              const scale = Math.min(maxPageWidth / width, maxPageHeight / height);
+              width = width * scale;
+              height = height * scale;
+            } else if (scalingOption === 'full') {
+              width = image.width;
+              height = image.height;
+            } else if (scalingOption === 'custom') {
+              if (customScale < 0.1) customScale = 0.1;
+              else if (customScale > 3) customScale = 3;
+
+              width = image.width * customScale;
+              height = image.height * customScale;
+
+              if (width > maxPageWidth) {
+                width = maxPageWidth;
+                height = (image.height * width) / image.width;
+              }
+              if (height > maxPageHeight) {
+                height = maxPageHeight;
+                width = (image.width * height) / image.height;
+              }
             }
 
-            width = image.width * customScale;
-            height = image.height * customScale;
+            if (i > 0) pdf.addPage();
+            const xOffset = (maxPageWidth - width) / 2;
+            const yOffset = (maxPageHeight - height) / 2;
+            pdf.addImage(image, 'PNG', xOffset, yOffset, width, height);
 
-            // Ensuring the custom scale does not exceed page dimensions
-            if (width > maxPageWidth) {
-              width = maxPageWidth;
-              height = (image.height * width) / image.width;
-            }
-            if (height > maxPageHeight) {
-              height = maxPageHeight;
-              width = (image.width * height) / image.height;
-            }
-          }
+            URL.revokeObjectURL(imageUrl);
+            resolve();
+          };
+          image.src = imageUrl;
+        });
+      }
 
-          // Add a new page for each image except the first
-          if (i > 0) pdf.addPage();
-
-          // Add the image, centered on the page
-          const xOffset = (maxPageWidth - width) / 2;
-          const yOffset = (maxPageHeight - height) / 2;
-          pdf.addImage(image, 'PNG', xOffset, yOffset, width, height);
-
-          URL.revokeObjectURL(imageUrl);
-          resolve();
-        };
-
-        image.src = imageUrl;
-      });
+      setConversionStatus('Conversion Complete');
+      setIsConversionComplete(true);
+      setPdfInstance(pdf); // Save the PDF instance
+      setIsConverting(false);
+    } catch (error) {
+      console.error('Conversion failed:', error);
+      setConversionStatus('Error: Conversion Failed');
+      setIsConverting(false);
     }
+  };
 
-    pdf.save('combined_images.pdf'); // Save as one PDF containing all images
-    setConversionStatus('Conversion Complete');
-    setIsConverting(false);
-  } catch (error) {
-    console.error('Conversion failed:', error);
-    setConversionStatus('Error: Conversion Failed');
-    setIsConverting(false);
-  }
-};
+  const startTimer = () => {
+    if (timerInterval) clearInterval(timerInterval); // Clear any existing intervals
 
+    const savedTimer = localStorage.getItem('timer');
+    const startingTimer = savedTimer ? Number(savedTimer) : 5;
+
+    setTimer(startingTimer); // Use saved timer or default to 5
+    const interval = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setTimerInterval(null);
+          return 0;
+        }
+        return prev - 1;
+      });
+      localStorage.setItem('timer', (startingTimer - 1).toString()); // Save the timer value to localStorage
+    }, 1000);
+
+    setTimerInterval(interval);
+  };
+
+  const handleDownload = () => {
+    startTimer();
+  };
+
+  // Page Visibility API to pause/resume timer on tab switch or page close
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // When the tab is not visible, clear the interval and store the current timer state
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          setTimerInterval(null);
+          localStorage.setItem('timer', timer.toString());
+        }
+      } else {
+        // When the tab is visible again, start the timer
+        const savedTimer = localStorage.getItem('timer');
+        if (savedTimer && Number(savedTimer) > 0) {
+          setTimer(Number(savedTimer));
+          startTimer(); // Resume the timer from where it left off
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [timer, timerInterval]);
+
+  useEffect(() => {
+    if (timer === 0 && pdfInstance) {
+      // Trigger PDF download after the timer finishes
+      pdfInstance.save('downloaded.pdf'); // This triggers the download
+      localStorage.removeItem('timer'); // Clear timer from localStorage after download
+    }
+  }, [timer, pdfInstance]);
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 flex flex-col justify-between">
-      
       {/* Scaling Option Buttons */}
       <div className="flex max-w-xl space-x-4 mb-6 justify-between">
         <button
           onClick={() => setScalingOption('fit')}
-          className={`flex-1 px-6 py-3 text-sm font-medium rounded-lg transition duration-300 transform ${scalingOption === 'fit' ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' : 'bg-gray-200 text-gray-700'} hover:scale-105 shadow-md`}
+          className={`flex-1 px-6 py-1 md:py-3 text-sm font-medium rounded-md  border   transition duration-300 transform ${scalingOption === 'fit' ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white border-none' : 'border-indigo-400 bg-transparent text-indigo-400'} hover:scale-105 shadow-md`}
         >
           Fit to A4
         </button>
         <button
           onClick={() => setScalingOption('full')}
-          className={`flex-1 px-6 py-3 text-sm font-medium rounded-lg transition duration-300 transform ${scalingOption === 'full' ? 'bg-gradient-to-r from-green-500 to-teal-500 text-white' : 'bg-gray-200 text-gray-700'} hover:scale-105 shadow-md`}
+          className={`flex-1 px-6 py-1 md:py-3 text-sm font-medium rounded-md border   transition duration-300 transform ${scalingOption === 'full' ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white border-none' : 'border-indigo-400 bg-transparent text-indigo-400'} hover:scale-105 shadow-md`}
         >
           Full Size
         </button>
         <button
           onClick={() => setScalingOption('custom')}
-          className={`flex-1 px-6 py-3 text-sm font-medium rounded-lg transition duration-300 transform ${scalingOption === 'custom' ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' : 'bg-gray-200 text-gray-700'} hover:scale-105 shadow-md`}
+          className={`flex-1 px-6 py-1 md:py-3 text-sm font-medium rounded-md  border   transition duration-300 transform ${scalingOption === 'custom' ? 'bg-gradient-to-r  from-blue-500 to-purple-500 text-white border-none' : 'border-indigo-400 bg-transparent text-indigo-400'} hover:scale-105 shadow-md`}
         >
           Custom Scale
         </button>
@@ -127,13 +179,14 @@ export const ConversionSection: React.FC = () => {
 
       {/* Custom Scale Input */}
       {scalingOption === 'custom' && (
-        <div className="mb-4 flex justify-center items-center space-x-4">
-          <label className="text-gray-700">Custom Scale Factor:</label>
+        <div className="max-w-xl mb-4 flex justify-center items-center space-x-4">
+          <label className="text-gray-600">Min : 0.1  |  Max : 3</label>
+          <label className="text-gray-600">Custom Scale Factor:</label>
           <input
             type="number"
             value={customScale}
             onChange={(e) => setCustomScale(Number(e.target.value))}
-            className="px-3 py-2 border rounded text-sm"
+            className="px-3 py-2 border bg-gray-600 rounded text-sm"
             min={0.1}
             max={3}
             step={0.1}
@@ -149,13 +202,29 @@ export const ConversionSection: React.FC = () => {
       {/* Conversion Status */}
       {selectedFiles.length > 0 && (
         <div className="space-y-4 max-w-xl">
-          <ConversionStatus 
-            fileName={`${selectedFiles.length} files`} 
-            isConverting={isConverting} 
+          <ConversionStatus
+            fileName={`${selectedFiles.length} files`}
+            isConverting={isConverting}
             statusMessage={conversionStatus}
           />
         </div>
       )}
-    </div>
+
+      {/* Download Section */}
+     
+        {isConversionComplete && !isConverting && (
+          <div className="mt-6 max-w-xl flex justify-end">
+            <button
+              onClick={handleDownload}
+              className="px-6 py-3 bg-indigo-500 rounded-3xl text-white font-semibold rounded-md transition duration-300 hover:bg-indigo-600"
+              disabled={timerInterval !== null}
+            >
+          {timerInterval === null ? `Download ` : `Wait... ${timer}s`}
+      </button>
+          </div>
+        )}
+      </div>
+    
   );
 };
+
