@@ -21,7 +21,7 @@ function App() {
           <Route path="/organize-pdf/*" element={<OrganizePDF />} />
           <Route path="/optimize-pdf/*" element={<OptimizePDF />} />
         </Routes>
-        <div className="text-xl mb-6 font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
+        <div className="text-xl mb-6 flex justify-center font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
         by MS 🍉
             </div>
       </div>

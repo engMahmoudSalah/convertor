@@ -1,7 +1,7 @@
 import React from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { logo } from "./../../Magic.png";
+import logoo from "./../../Magic.png";
 
 const menuItems = [
   { name: 'Convert to PDF', path: '/convert-to-pdf' },
@@ -20,7 +20,7 @@ export const NavBar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <img style={{height:"10px"}} src={logo} alt="" />
+            <img style={{height:"100px"}} src={logoo} alt="" />
             <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
               Magic Convertor
             </Link>
