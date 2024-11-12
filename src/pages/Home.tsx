@@ -1,41 +1,47 @@
-import React from 'react';
-import { FileImage, FileOutput, Edit, FolderKanban, FileSearch } from 'lucide-react';
-import { FeatureGrid } from '../components/FeatureGrid';
-import { GlowingOrb } from '../components/GlowingOrb';
-import { MorphingShape } from '../components/MorphingShape';
-// import logoo from "./../../Magic0.png";
-import ResizableTitleComponent from '../components/additions/AiDecoration/AiDecoration'
+import React from "react";
+import {
+  FileImage,
+  FileOutput,
+  Edit,
+  FolderKanban,
+  FileSearch,
+} from "lucide-react";
+import { FeatureGrid } from "../components/FeatureGrid";
+import { GlowingOrb } from "../components/GlowingOrb";
+import { MorphingShape } from "../components/MorphingShape";
+import logoo from "./../../Magic0.png";
+import ResizableTitleComponent from "../components/additions/AiDecoration/AiDecoration";
 const mainFeatures = [
   {
-    title: 'Convert to PDF',
-    description: 'Convert images, documents , and more to PDF format',
+    title: "Convert to PDF",
+    description: "Convert images, documents , and more to PDF format",
     icon: FileImage,
-    path: '/convert-to-pdf'
+    path: "/convert-to-pdf",
   },
   {
-    title: 'Convert from PDF',
-    description: 'Transform your PDFs into other file formats',
+    title: "Convert from PDF",
+    description: "Transform your PDFs into other file formats",
     icon: FileOutput,
-    path: '/convert-from-pdf'
+    path: "/convert-from-pdf",
   },
   {
-    title: 'Edit PDF',
-    description: 'Modify your PDFs with various editing tools',
+    title: "Edit PDF",
+    description: "Modify your PDFs with various editing tools",
     icon: Edit,
-    path: '/edit-pdf'
+    path: "/edit-pdf",
   },
   {
-    title: 'Organize PDF',
-    description: 'Merge, split, and manage your PDF files',
+    title: "Organize PDF",
+    description: "Merge, split, and manage your PDF files",
     icon: FolderKanban,
-    path: '/organize-pdf'
+    path: "/organize-pdf",
   },
   {
-    title: 'Optimize PDF',
-    description: 'Compress, repair, and enhance your PDFs',
+    title: "Optimize PDF",
+    description: "Compress, repair, and enhance your PDFs",
     icon: FileSearch,
-    path: '/optimize-pdf'
-  }
+    path: "/optimize-pdf",
+  },
 ];
 
 export const Home: React.FC = () => {
@@ -43,12 +49,15 @@ export const Home: React.FC = () => {
     <div className="relative pt-32 pb-24">
       <GlowingOrb />
       <MorphingShape />
-      
+
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-row justify-center">
         <div className="text-center mb-16 flex-row justify-center">
-        <div className='flex justify-center mb-10'>
-          <ResizableTitleComponent />
-
+        
+          <div className="flex justify-start sm:justify-center mb-6">
+            <ResizableTitleComponent />
+          </div>
+          <div className="flex justify-center">
+            <img className="h-40" src={logoo} alt="" />
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             <span className="bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
@@ -56,8 +65,9 @@ export const Home: React.FC = () => {
             </span>
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Convert, edit, organize, and optimize your PDF files with our comprehensive suite of tools.
-            Everything happens in your browser, ensuring complete privacy and security.
+            Convert, edit, organize, and optimize your PDF files with our
+            comprehensive suite of tools. Everything happens in your browser,
+            ensuring complete privacy and security.
           </p>
         </div>
 
