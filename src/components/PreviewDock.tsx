@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { GripVertical, Check } from 'lucide-react';
+import { GripVertical, Check, X, Plus } from 'lucide-react';
+import { fmtSize } from '../lib/util';
 import type { Tool } from '../tools/types';
 import { loadImage } from '../lib/util';
 import { processBackground } from '../tools/imageTools';
@@ -30,15 +31,19 @@ function useDnd(order: number[], setOrder: (o: number[]) => void) {
     onDrop: (e: React.DragEvent) => { e.preventDefault(); const f = from.current; if (f === null || f === i) return; const n = [...order]; const [m] = n.splice(f, 1); n.splice(i, 0, m); setOrder(n); from.current = null; },
   });
 }
-export const FileCards: React.FC<{ files: File[]; setFiles: (f: File[]) => void }> = ({ files, setFiles }) => {
-  const [th, setTh] = useState<Record<string, string>>({});
+export const FileCards: React.FC<{ files: File[]; setFiles: (f: File[]) => void; addMore?: boolean; accept?: string }> = ({ files, setFiles, addMore, accept }) => {
+  const [th, setTh] = useState<Record<string, string>>({}); const [pg, setPg] = useState<Record<string, number>>({}); const add = useRef<HTMLInputElement>(null);
+  useEffect(() => { let dead = false; files.forEach(async (f) => { const k = f.name + f.size; if (pg[k] !== undefined || !(f.type === 'application/pdf' || /\.pdf$/i.test(f.name))) return; try { const { openPdf } = await import('../lib/pdfjs'); const d = await openPdf(f); if (!dead) setPg((p) => ({ ...p, [k]: d.numPages })); } catch { /* unreadable */ } }); return () => { dead = true; }; }, [files]);
+  const totalPages = files.reduce((n, f) => n + (pg[f.name + f.size] ?? 0), 0);
   useEffect(() => { let dead = false; files.forEach((f) => { const k = f.name + f.size; if (th[k]) return; thumbsFor(f, f.name, 1, 0.3, (t) => !dead && setTh((p) => ({ ...p, [k]: t.url })), () => dead); }); return () => { dead = true; }; }, [files]);
   const dnd = useDnd(files.map((_, i) => i), (o) => setFiles(o.map((i) => files[i])));
-  return (<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">{files.map((f, i) => (
+  return (<div>{files.length > 1 && <p className="text-xs opacity-70 mb-2">{files.length} files{totalPages > 0 ? ` · ${totalPages} pages in total` : ''} · {fmtSize(files.reduce((n, f) => n + f.size, 0))}</p>}<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">{files.map((f, i) => (
     <div key={f.name + f.size + i} {...dnd(i)} className="relative group cursor-grab active:cursor-grabbing bg-white/5 border border-white/10 rounded-xl p-2 hover:border-violet-400/60">
       <span className="absolute top-1 left-1 text-[10px] bg-black/60 rounded px-1.5">{i + 1}</span><GripVertical size={14} className="absolute top-1.5 right-1.5 text-gray-400" />
       <div className="h-32 flex items-center justify-center bg-white/90 rounded-lg overflow-hidden">{th[f.name + f.size] ? <img src={th[f.name + f.size]} className="max-h-32 object-contain" draggable={false} /> : <span className="text-gray-500 text-xs">{f.name.split('.').pop()}</span>}</div>
-      <p className="text-[11px] mt-1.5 truncate text-gray-300">{f.name}</p></div>))}</div>);
+      <button type="button" aria-label={`Remove ${f.name}`} onClick={(e) => { e.stopPropagation(); setFiles(files.filter((_, j) => j !== i)); }} className="absolute bottom-7 right-1.5 p-1 rounded-full bg-black/70 text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100"><X size={12} /></button>
+      <p className="text-[11px] mt-1.5 truncate">{f.name}</p><p dir="ltr" className="text-[10px] opacity-60 text-start">{fmtSize(f.size)}{pg[f.name + f.size] ? ` · ${pg[f.name + f.size]}p` : ''}</p></div>))}
+    {addMore && <button type="button" onClick={() => add.current?.click()} className="mc-drop grid place-items-center min-h-[11rem] text-sm font-semibold"><span className="grid place-items-center gap-1"><Plus size={20} />Add files</span><input ref={add} type="file" multiple accept={accept} hidden onChange={(e) => { const n = Array.from(e.target.files ?? []); if (n.length) setFiles([...files, ...n]); e.target.value = ''; }} /></button>}</div></div>);
 };
 export const PageGrid: React.FC<{ file: File; mode: 'select' | 'sort'; selected: Set<number>; onSelect: (s: Set<number>) => void; onOrder: (o: number[]) => void }> = ({ file, mode, selected, onSelect, onOrder }) => {
   const [items, setItems] = useState<Th[]>([]); const [order, setOrder] = useState<number[]>([]);
