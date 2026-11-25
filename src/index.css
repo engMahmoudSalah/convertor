@@ -184,3 +184,5 @@ html.light .bg-clip-text.text-transparent { color: #14110f; }
 html.light .text-4xl.bg-clip-text.text-transparent { color: #b4391f; }
 html:not(.light) .text-4xl.bg-clip-text.text-transparent { color: #f08a6b; }
 h1.font-extrabold, h1.font-bold, h2.font-bold, h2.font-extrabold { font-weight: 600; }
+html.light .bg-violet-500\/20 svg, .text-violet-200 { color: #b4391f; }
+html:not(.light) .border-current.text-\[\#b4391f\] { color: #f08a6b; }

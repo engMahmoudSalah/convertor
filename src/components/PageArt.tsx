@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 export type ArtKind = 'pdf' | 'images' | 'documents' | 'pricing' | 'account' | 'admin';
 const G = () => (<defs>
-  <linearGradient id="ga" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#8b5cf6" /><stop offset="1" stopColor="#3b82f6" /></linearGradient>
-  <linearGradient id="gb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#14b8a6" /><stop offset="1" stopColor="#3b82f6" /></linearGradient>
+  <linearGradient id="ga" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#c2452a" /><stop offset="1" stopColor="#e3a24b" /></linearGradient>
+  <linearGradient id="gb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#2f7f72" /><stop offset="1" stopColor="#e3a24b" /></linearGradient>
   <linearGradient id="gc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f59e0b" /><stop offset="1" stopColor="#ec4899" /></linearGradient></defs>);
 const art: Record<ArtKind, React.ReactNode> = {
   pdf: (<g><rect className="pa-float pa-d1" x="70" y="30" width="80" height="104" rx="10" fill="url(#gb)" opacity=".5" /><rect className="pa-float" x="100" y="22" width="86" height="112" rx="10" fill="url(#ga)" /><path d="M164 22l22 22h-22z" fill="#fff" opacity=".6" /><g fill="#fff"><rect x="114" y="62" width="54" height="6" rx="3" opacity=".9" /><rect x="114" y="76" width="40" height="6" rx="3" opacity=".6" /><rect x="114" y="90" width="48" height="6" rx="3" opacity=".6" /></g><text x="114" y="118" fontSize="14" fontWeight="800" fill="#fff">PDF</text><path className="pa-dash" d="M30 80h50M200 80h50" stroke="#a78bfa" strokeWidth="3" strokeDasharray="6 6" strokeLinecap="round" /></g>),
