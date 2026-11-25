@@ -1,5 +1,6 @@
 // Magic Convertor backend: one Worker + one SQLite-backed Durable Object.
 import { DurableObject } from 'cloudflare:workers';
+import { PROVIDERS } from './payments';
 
 const HEAVY = new Set(['compress-pdf', 'pdf-to-images', 'pdf-to-word', 'pdf-to-excel', 'pdf-to-powerpoint', 'redact-pdf', 'unlock-pdf', 'repair-pdf']);
 const enc = new TextEncoder();
@@ -29,8 +30,10 @@ export class AppDB extends DurableObject<any> {
       CREATE TABLE IF NOT EXISTS plans(id TEXT PRIMARY KEY, name TEXT, price_usd REAL, price_egp REAL, heavy_daily INTEGER, ai_daily INTEGER, max_mb INTEGER, history_days INTEGER, sort INTEGER);
       CREATE TABLE IF NOT EXISTS flags(tool TEXT PRIMARY KEY, enabled INTEGER DEFAULT 1);
       CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER, actor TEXT, action TEXT, target TEXT, detail TEXT);
+      CREATE TABLE IF NOT EXISTS orders(id TEXT PRIMARY KEY, user_id TEXT, plan TEXT, provider TEXT, amount REAL, currency TEXT, status TEXT, ref TEXT, tx_id TEXT, created_at INTEGER, paid_at INTEGER);
       CREATE TABLE IF NOT EXISTS attempts(k TEXT PRIMARY KEY, n INTEGER, reset_at INTEGER);
     `);
+    try { this.sql.exec('ALTER TABLE users ADD COLUMN plan_until INTEGER'); } catch { /* exists */ }
     if (!this.sql.exec('SELECT 1 FROM plans LIMIT 1').toArray().length) {
       const P = this.sql;
       P.exec(`INSERT INTO plans VALUES('guest','Guest',0,0,3,0,25,0,0),('free','Free',0,0,10,3,50,0,1),('pro','Pro',5,249,100000,100,500,30,2),('business','Business',15,749,100000,500,2000,90,3)`);
@@ -42,9 +45,10 @@ export class AppDB extends DurableObject<any> {
   async user(req: Request) {
     const m = /(?:^|;\s*)mc_session=([a-f0-9]{64})/.exec(req.headers.get('cookie') ?? ''); if (!m) return null;
     const r = this.rows('SELECT u.* FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>?', await sha(m[1]), now())[0];
+    if (r && r.plan_until && r.plan_until < now() && r.plan !== 'free') { this.sql.exec("UPDATE users SET plan='free', plan_until=NULL WHERE id=?", r.id); this.audit('system', 'plan_expired', r.email, r.plan); r.plan = 'free'; r.plan_until = null; }
     return r && !r.banned ? r : null;
   }
-  pub(u: any) { return u && { id: u.id, email: u.email, name: u.name, plan: u.plan, role: u.role, created_at: u.created_at }; }
+  pub(u: any) { return u && { id: u.id, email: u.email, name: u.name, plan: u.plan, plan_until: u.plan_until ?? null, role: u.role, created_at: u.created_at }; }
   limit(key: string, max: number, windowMs: number) {
     const r = this.rows('SELECT * FROM attempts WHERE k=?', key)[0];
     if (!r || r.reset_at < now()) { this.sql.exec('INSERT OR REPLACE INTO attempts VALUES(?,?,?)', key, 1, now() + windowMs); return true; }
@@ -120,6 +124,32 @@ export class AppDB extends DurableObject<any> {
       const p = this.plan(u.plan); const since = now() - Math.max(1, p.history_days) * 864e5;
       return json({ history: this.rows('SELECT tool,files,bytes,ms,ts FROM history WHERE subject=? AND ts>? ORDER BY ts DESC LIMIT 100', u.id, since), days: p.history_days });
     }
+    if (path === '/billing/status' && method === 'GET') {
+      return json({ providers: Object.values(PROVIDERS).filter((p) => p.configured(this.env)).map((p) => ({ id: p.id, currency: p.currency })), orders: u ? this.rows('SELECT id,plan,provider,amount,currency,status,created_at,paid_at FROM orders WHERE user_id=? ORDER BY created_at DESC LIMIT 20', u.id) : [] });
+    }
+    if (path === '/billing/checkout' && method === 'POST') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      const prov = PROVIDERS[String(body.provider ?? 'paymob')]; const pl = this.rows("SELECT * FROM plans WHERE id=? AND id NOT IN ('guest','free')", String(body.plan ?? ''))[0];
+      if (!prov || !pl) return json({ error: 'Unknown plan or provider' }, 400);
+      if (!prov.configured(this.env)) return json({ error: 'Payments are not active yet' }, 503);
+      if (!this.limit(`co:${u.id}`, 10, 3600e3)) return json({ error: 'Too many attempts' }, 429);
+      const amount = prov.currency === 'EGP' ? pl.price_egp : pl.price_usd; if (!(amount > 0)) return json({ error: 'This plan has no price set' }, 400);
+      const id = 'ord_' + rnd(10); this.sql.exec('INSERT INTO orders VALUES(?,?,?,?,?,?,?,?,?,?,?)', id, u.id, pl.id, prov.id, amount, prov.currency, 'pending', '', '', now(), null);
+      try { const c = await prov.checkout(this.env, { id, plan: pl.name, amount, currency: prov.currency, email: u.email, name: u.name || '' }, url.origin); this.sql.exec('UPDATE orders SET ref=? WHERE id=?', c.ref, id); return json({ url: c.url }); }
+      catch (e: any) { this.sql.exec("UPDATE orders SET status='failed' WHERE id=?", id); return json({ error: e.message ?? 'Payment failed to start' }, 502); }
+    }
+    if (path.startsWith('/webhooks/') && method === 'POST') {
+      const prov = PROVIDERS[path.slice(10)]; if (!prov) return json({ error: 'Unknown provider' }, 404);
+      const r = await prov.webhook(this.env, url, body); if (!r) return json({ error: 'Invalid signature' }, 401);
+      const o = this.rows('SELECT * FROM orders WHERE id=? AND provider=?', r.orderId, prov.id)[0]; if (!o) return json({ ok: true });
+      if (o.status === 'paid') return json({ ok: true });
+      if (!r.ok) { this.sql.exec("UPDATE orders SET status='failed', tx_id=? WHERE id=? AND status!='paid'", r.txId, o.id); return json({ ok: true }); }
+      if (Math.abs(r.amount - o.amount) > 0.001 || r.currency !== o.currency) { this.audit('payments', 'amount_mismatch', o.id, `${r.amount} ${r.currency}`); return json({ ok: true }); }
+      const usr = this.rows('SELECT * FROM users WHERE id=?', o.user_id)[0];
+      if (usr) { const base = usr.plan === o.plan && usr.plan_until && usr.plan_until > now() ? usr.plan_until : now(); this.sql.exec('UPDATE users SET plan=?, plan_until=? WHERE id=?', o.plan, base + 30 * 864e5, usr.id); }
+      this.sql.exec("UPDATE orders SET status='paid', tx_id=?, paid_at=? WHERE id=?", r.txId, now(), o.id); this.audit('payments', 'paid', usr?.email ?? o.user_id, `${o.plan} ${o.amount} ${o.currency}`);
+      return json({ ok: true });
+    }
     if (path === '/admin/claim' && method === 'POST') {
       if (!u) return json({ error: 'Sign in first' }, 401);
       if (!this.limit(`cl:${ip}`, 5, 3600e3)) return json({ error: 'Too many attempts' }, 429);
@@ -130,6 +160,7 @@ export class AppDB extends DurableObject<any> {
     }
     if (path.startsWith('/admin/')) {
       if (!u || u.role !== 'admin') return json({ error: 'Admins only' }, 403);
+      if (path === '/admin/orders' && method === 'GET') return json({ orders: this.rows('SELECT o.*, u.email FROM orders o LEFT JOIN users u ON u.id=o.user_id ORDER BY o.created_at DESC LIMIT 100') });
       if (path === '/admin/stats') {
         const c = (q: string, ...a: any[]) => this.rows(q, ...a)[0].c as number; const t = now();
         return json({
