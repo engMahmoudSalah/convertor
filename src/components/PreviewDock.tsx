@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { GripVertical, Check, X, Plus } from 'lucide-react';
+import { GripVertical, Check, X, Plus, Scissors } from 'lucide-react';
 import { fmtSize } from '../lib/util';
 import { useT } from '../lib/i18n';
 import type { Tool } from '../tools/types';
@@ -76,6 +76,7 @@ export const PageFrame: React.FC<{ file?: File; opts: Record<string, any> }> = (
 export function usePreviewMode(tool: Tool) {
   if (tool.id === 'image-background') return 'background';
   if (tool.id === 'compress-pdf') return 'compress';
+  if (tool.id === 'split-pdf') return 'split';
   if (tool.id === 'images-to-pdf') return 'frame';
   if (PAGE_SELECT.has(tool.id)) return 'select';
   if (tool.id === 'reorder-pdf') return 'sort';
@@ -116,6 +117,46 @@ export const CompressPreview: React.FC<{ file: File; level: string; setLevel: (k
       </div>
       <p className="text-xs opacity-70">{tr('Original')} {fmtSize(file.size)}{pages ? `, ${pages} ${tr('pages')}` : ''}. {tr('Estimates come from page 1 at each level.')}{busy ? ' ' + tr('Calculating...') : ''}</p>
       {cur && <figure><img src={cur.url} alt={tr('Page 1 at this level.')} className="w-full max-h-[420px] object-contain rounded-xl border border-current/20 bg-white" /><figcaption className="text-xs opacity-70 mt-1">{tr('Page 1 at this level.')}</figcaption></figure>}
+    </div>
+  );
+};
+
+const HUES = [18, 160, 265, 40, 200, 330, 90, 0];
+export const SplitPreview: React.FC<{ file: File; opts: Record<string, any>; setOpts: (f: (o: Record<string, any>) => Record<string, any>) => void }> = ({ file, opts, setOpts }) => {
+  const { t: tr } = useT();
+  const [items, setItems] = useState<Th[]>([]); const [cuts, setCuts] = useState<Set<number>>(new Set());
+  useEffect(() => { let dead = false; setItems([]); setCuts(new Set()); const acc: Th[] = []; thumbsFor(file, file.name, 80, 0.28, (t) => { acc.push(t); if (!dead) setItems([...acc]); }, () => dead); return () => { dead = true; }; }, [file]);
+  const n = items.length; const mode = opts.mode ?? 'ranges';
+  const effCuts = (): Set<number> => {
+    if (mode === 'each') return new Set(Array.from({ length: n - 1 }, (_, i) => i + 1));
+    if (mode === 'every') { const k = Math.max(1, Math.floor(Number(opts.every) || 1)); const s = new Set<number>(); for (let i = k; i < n; i += k) s.add(i); return s; }
+    return cuts;
+  };
+  const ec = effCuts(); const groupOf: number[] = []; let g = 0; for (let i = 1; i <= n; i++) { groupOf[i] = g; if (ec.has(i)) g++; }
+  const groups = n ? g + 1 : 0;
+  const toggle = (after: number) => {
+    if (mode !== 'ranges') return;
+    const s = new Set(cuts); s.has(after) ? s.delete(after) : s.add(after); setCuts(s);
+    const pts = [0, ...[...s].sort((a, b) => a - b), n]; const parts: string[] = [];
+    for (let i = 0; i < pts.length - 1; i++) parts.push(pts[i + 1] - pts[i] === 1 ? `${pts[i] + 1}` : `${pts[i] + 1}-${pts[i + 1]}`);
+    setOpts((o) => ({ ...o, ranges: parts.join(',') }));
+  };
+  return (
+    <div>
+      <p className="text-xs opacity-70 mb-3">{mode === 'ranges' ? tr('Click the scissors between pages to cut there.') : tr('Cuts follow your split mode.')} {n ? `${n} ${tr('pages')} → ${groups} ${tr('files')}` : ''}</p>
+      <div className="flex flex-wrap gap-y-3">
+        {items.map((t, i) => { const p = i + 1; const hue = HUES[groupOf[p] % HUES.length]; return (
+          <React.Fragment key={p}>
+            <div className="w-[84px] shrink-0 rounded-lg overflow-hidden border-2 bg-white" style={{ borderColor: `hsl(${hue} 55% 45%)` }}>
+              <img src={t.url} alt="" className="w-full" draggable={false} />
+              <div className="text-[10px] text-center py-0.5" style={{ background: `hsl(${hue} 55% 32%)`, color: '#fff' }}>{p} · {tr('file')} {groupOf[p] + 1}</div>
+            </div>
+            {p < n && <button type="button" disabled={mode !== 'ranges'} aria-label={`${tr('Cut after page')} ${p}`} aria-pressed={ec.has(p)} onClick={() => toggle(p)} className={`relative w-6 shrink-0 flex items-center justify-center self-stretch ${mode === 'ranges' ? 'cursor-pointer' : 'cursor-default'}`}>
+              <span className="block h-full" style={{ width: 0, borderLeft: ec.has(p) ? '2px dashed #b4391f' : '2px solid rgba(120,110,95,.18)' }} />
+              {mode === 'ranges' && <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full grid place-items-center shadow" style={{ background: ec.has(p) ? '#b4391f' : '#fff', color: ec.has(p) ? '#fff' : '#8a7f70', border: '1px solid rgba(120,110,95,.4)' }}><Scissors size={12} /></span>}
+            </button>}
+          </React.Fragment>); })}
+      </div>
     </div>
   );
 };
