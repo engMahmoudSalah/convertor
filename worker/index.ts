@@ -58,6 +58,8 @@ export class AppDB extends DurableObject<any> {
   }
   rows(q: string, ...a: any[]) { return this.sql.exec(q, ...a).toArray() as any[]; }
   audit(actor: string, action: string, target = '', detail = '') { this.sql.exec('INSERT INTO audit(ts,actor,action,target,detail) VALUES(?,?,?,?,?)', now(), actor, action, target, detail); }
+  private adminSeen = false;
+  adminExists() { if (this.adminSeen) return true; this.adminSeen = this.rows("SELECT 1 FROM users WHERE role='admin' LIMIT 1").length > 0; return this.adminSeen; }
   plan(id: string) { return this.rows('SELECT * FROM plans WHERE id=?', id)[0] ?? this.rows("SELECT * FROM plans WHERE id='free'")[0]; }
   async user(req: Request) {
     const m = /(?:^|;\s*)mc_session=([a-f0-9]{64})/.exec(req.headers.get('cookie') ?? ''); if (!m) return null;
@@ -227,7 +229,7 @@ export class AppDB extends DurableObject<any> {
     }
     if (path === '/me' && method === 'GET') {
       const p = this.plan(u ? u.plan : 'guest');
-      return json({ user: this.pub(u), plan: p, usage: this.usageToday(subject), adminExists: this.rows("SELECT 1 FROM users WHERE role='admin'").length > 0 });
+      return json({ user: this.pub(u), plan: p, usage: this.usageToday(subject), adminExists: this.adminExists() });
     }
     if (path === '/usage/consume' && method === 'POST') {
       const tool = String(body.tool ?? ''); const bytes = Number(body.bytes) || 0; const nfiles = Math.max(0, Math.floor(Number(body.files) || 0));
@@ -315,7 +317,7 @@ export class AppDB extends DurableObject<any> {
     if (path === '/admin/claim' && method === 'POST') {
       if (!u) return json({ error: 'Sign in first' }, 401);
       if (!this.limit(`cl:${ip}`, 5, 3600e3)) return json({ error: 'Too many attempts' }, 429);
-      if (this.rows("SELECT 1 FROM users WHERE role='admin'").length) return json({ error: 'An admin already exists' }, 409);
+      if (this.adminExists()) return json({ error: 'An admin already exists' }, 409);
       if (!this.env.ADMIN_SETUP_KEY || !safeEq(String(body.key ?? ''), this.env.ADMIN_SETUP_KEY)) return json({ error: 'Invalid setup key' }, 403);
       this.sql.exec("UPDATE users SET role='admin' WHERE id=?", u.id); this.audit(u.id, 'admin_claimed', u.email);
       return json({ ok: true });
@@ -406,7 +408,10 @@ async function route(req: Request, env: any): Promise<Response> {
     const url = new URL(req.url);
     if (url.pathname.startsWith('/api/')) {
       const stub = env.DB.get(env.DB.idFromName('main'));
-      try { return await stub.fetch(req); } catch (e) {
+      // /api/config is public and read on every page load: serve it from the edge cache for 60s so it costs no Durable Object reads.
+      const cacheable = url.pathname === '/api/config' && req.method === 'GET'; const ck = new Request(url.origin + '/api/config', { method: 'GET' });
+      if (cacheable) { const hit = await caches.default.match(ck); if (hit) return hit; }
+      try { const r = await stub.fetch(req); if (cacheable && r.ok) { const c = new Response(r.clone().body, r); c.headers.set('cache-control', 'public, max-age=60'); await caches.default.put(ck, c.clone()); return c; } return r; } catch (e) {
         const msg = e instanceof Error ? e.message : '';
         console.error('do_error', msg);
         // Storage quota or outage: keep client-side tools usable instead of blocking everything.
