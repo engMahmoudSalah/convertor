@@ -32,6 +32,6 @@ with sync_playwright() as p:
     pg.goto(B + '/account'); pg.wait_for_selector('text=Merge PDF'); n0 = pg.locator('li.flow-panel').count()
     pg.locator('li.flow-panel').first.get_by_role('button', name='Delete').click(); pg.locator('li.flow-panel').first.get_by_role('button', name='Confirm delete').click(); pg.wait_for_timeout(1500)
     check('delete removes card', pg.locator('li.flow-panel').count() == n0 - 1)
-    pg.locator('summary').click(); pg.locator('input[type=password]').fill(PW); pg.get_by_role('button', name='Delete my account').last.click(); pg.wait_for_timeout(2000)
+    pg.locator('summary', has_text='Delete my account').click(); pg.locator('input[type=password]').last.fill(PW); pg.get_by_role('button', name='Delete my account').last.click(); pg.wait_for_timeout(2000)
     r = pg.evaluate("(a)=>fetch('/api/auth/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:a[0],password:a[1]})}).then(r=>r.status)", [EM, PW]); check('test account purged (login now fails)', r == 401)
 print('ALL OK' if ok else 'SOME FAILED'); sys.exit(0 if ok else 1)

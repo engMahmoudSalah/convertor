@@ -36,12 +36,15 @@ export class AppDB extends DurableObject<any> {
       CREATE TABLE IF NOT EXISTS attempts(k TEXT PRIMARY KEY, n INTEGER, reset_at INTEGER);
     `);
     try { this.sql.exec('ALTER TABLE users ADD COLUMN plan_until INTEGER'); } catch { /* exists */ }
+    for (const c of ['max_files INTEGER', 'saved_max INTEGER', 'saved_mb INTEGER', 'ads INTEGER']) { try { this.sql.exec('ALTER TABLE plans ADD COLUMN ' + c); } catch { /* exists */ } }
+    this.sql.exec("UPDATE plans SET max_files=CASE id WHEN 'guest' THEN 5 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 100 END, saved_max=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 200 END, saved_mb=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 100 ELSE 400 END, ads=CASE id WHEN 'pro' THEN 1 WHEN 'business' THEN 0 ELSE 2 END WHERE max_files IS NULL");
     this.sql.exec('CREATE TABLE IF NOT EXISTS saved_blob(saved_id TEXT, idx INTEGER, data TEXT, PRIMARY KEY(saved_id, idx))');
     for (const c of ['out_name TEXT', 'out_size INTEGER', 'out_mime TEXT', 'has_file INTEGER DEFAULT 0']) { try { this.sql.exec('ALTER TABLE saved ADD COLUMN ' + c); } catch { /* exists */ } }
     if (!this.sql.exec('SELECT 1 FROM plans LIMIT 1').toArray().length) {
       const P = this.sql;
-      P.exec(`INSERT INTO plans VALUES('guest','Guest',0,0,3,0,25,0,0),('free','Free',0,0,10,3,50,0,1),('pro','Pro',5,249,100000,100,500,30,2),('business','Business',15,749,100000,500,2000,90,3)`);
+      P.exec(`INSERT INTO plans(id,name,price_usd,price_egp,heavy_daily,ai_daily,max_mb,history_days,sort) VALUES('guest','Guest',0,0,3,0,25,0,0),('free','Free',0,0,10,3,50,0,1),('pro','Pro',5,249,100000,100,500,30,2),('business','Business',15,749,100000,500,2000,90,3)`);
     }
+    this.sql.exec("UPDATE plans SET max_files=CASE id WHEN 'guest' THEN 5 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 100 END, saved_max=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 200 END, saved_mb=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 100 ELSE 400 END, ads=CASE id WHEN 'pro' THEN 1 WHEN 'business' THEN 0 ELSE 2 END WHERE max_files IS NULL");
   }
   rows(q: string, ...a: any[]) { return this.sql.exec(q, ...a).toArray() as any[]; }
   audit(actor: string, action: string, target = '', detail = '') { this.sql.exec('INSERT INTO audit(ts,actor,action,target,detail) VALUES(?,?,?,?,?)', now(), actor, action, target, detail); }
@@ -131,10 +134,11 @@ export class AppDB extends DurableObject<any> {
       return json({ user: this.pub(u), plan: p, usage: this.usageToday(subject), adminExists: this.rows("SELECT 1 FROM users WHERE role='admin'").length > 0 });
     }
     if (path === '/usage/consume' && method === 'POST') {
-      const tool = String(body.tool ?? ''); const bytes = Number(body.bytes) || 0;
+      const tool = String(body.tool ?? ''); const bytes = Number(body.bytes) || 0; const nfiles = Math.max(0, Math.floor(Number(body.files) || 0));
       if (this.rows('SELECT 1 FROM flags WHERE tool=? AND enabled=0', tool).length) return json({ error: 'This tool is temporarily disabled' }, 503);
       const p = this.plan(u ? u.plan : 'guest');
       if (bytes > p.max_mb * 1048576) return json({ error: `File limit for your plan is ${p.max_mb} MB`, upgrade: true }, 413);
+      if (nfiles > p.max_files) return json({ error: `Your plan allows up to ${p.max_files} files per batch`, upgrade: true, plan: p.id }, 413);
       const kind = body.ai ? 'ai' : HEAVY.has(tool) ? 'heavy' : null;
       if (kind) {
         const used = this.usageToday(subject)[kind] ?? 0; const max = kind === 'ai' ? p.ai_daily : p.heavy_daily;
@@ -158,7 +162,7 @@ export class AppDB extends DurableObject<any> {
     }
     if (path === '/saved' && method === 'POST') {
       if (!u) return json({ error: 'Sign in first' }, 401);
-      if (this.rows('SELECT 1 FROM saved WHERE user_id=?', u.id).length >= 50) return json({ error: 'You can keep up to 50 saved operations. Delete one first.' }, 400);
+      { const pl = this.plan(u.plan); if (pl.saved_max <= 0) return json({ error: 'Saving is not included in your plan', upgrade: true }, 403); if (this.rows('SELECT 1 FROM saved WHERE user_id=?', u.id).length >= pl.saved_max) return json({ error: `Your plan keeps up to ${pl.saved_max} saved operations. Delete one first.`, upgrade: true }, 400); }
       const id = crypto.randomUUID(); const cap = (v: unknown, n: number) => JSON.stringify(v ?? null).slice(0, n);
       this.sql.exec('INSERT INTO saved(id,user_id,tool,name,opts,files,summary,ts,out_name,out_size,out_mime,has_file) VALUES(?,?,?,?,?,?,?,?,?,?,?,0)', id, u.id, String(body.tool ?? '').slice(0, 40), String(body.name ?? '').slice(0, 80), cap(body.opts, 4000), cap(body.files, 4000), cap(body.summary, 1000), now(), String(body.out_name ?? '').slice(0, 120), Number(body.out_size) || 0, String(body.out_mime ?? '').slice(0, 80));
       return json({ ok: true, id });
@@ -169,7 +173,7 @@ export class AppDB extends DurableObject<any> {
       if (!this.rows('SELECT 1 FROM saved WHERE id=? AND user_id=?', id, u.id).length) return json({ error: 'Not found' }, 404);
       if (data.length > 1_000_000 || idx < 0 || idx > 60) return json({ error: 'Chunk too large' }, 400);
       const used = this.rows('SELECT coalesce(sum(length(b.data)),0) n FROM saved_blob b JOIN saved s ON s.id=b.saved_id WHERE s.user_id=?', u.id)[0].n as number;
-      if (used + data.length > 56_000_000) return json({ error: 'Your saved files storage is full (about 40 MB). Delete one first.' }, 413);
+      { const pl = this.plan(u.plan); if (used + data.length > pl.saved_mb * 1_400_000) return json({ error: `Your saved files storage is full (${pl.saved_mb} MB on your plan). Delete one first.`, upgrade: true }, 413); }
       this.sql.exec('INSERT OR REPLACE INTO saved_blob(saved_id,idx,data) VALUES(?,?,?)', id, idx, data);
       if (body.last) this.sql.exec('UPDATE saved SET has_file=1 WHERE id=?', id);
       return json({ ok: true });
@@ -248,7 +252,7 @@ export class AppDB extends DurableObject<any> {
       if (path === '/admin/plan' && method === 'POST') {
         const p = this.rows('SELECT * FROM plans WHERE id=?', String(body.id))[0]; if (!p) return json({ error: 'No such plan' }, 404);
         const n = (k: string, d: number) => (body[k] === undefined ? d : Math.max(0, Number(body[k]) || 0));
-        this.sql.exec('UPDATE plans SET price_usd=?,price_egp=?,heavy_daily=?,ai_daily=?,max_mb=?,history_days=? WHERE id=?', n('price_usd', p.price_usd), n('price_egp', p.price_egp), n('heavy_daily', p.heavy_daily), n('ai_daily', p.ai_daily), n('max_mb', p.max_mb), n('history_days', p.history_days), p.id);
+        this.sql.exec('UPDATE plans SET price_usd=?,price_egp=?,heavy_daily=?,ai_daily=?,max_mb=?,history_days=?,max_files=?,saved_max=?,saved_mb=?,ads=? WHERE id=?', n('price_usd', p.price_usd), n('price_egp', p.price_egp), n('heavy_daily', p.heavy_daily), n('ai_daily', p.ai_daily), n('max_mb', p.max_mb), n('history_days', p.history_days), Math.max(1, n('max_files', p.max_files)), n('saved_max', p.saved_max), n('saved_mb', p.saved_mb), Math.min(2, n('ads', p.ads)), p.id);
         this.audit(u.email, 'edit_plan', p.id, JSON.stringify(body).slice(0, 200)); return json({ ok: true });
       }
       if (path === '/admin/flag' && method === 'POST') {

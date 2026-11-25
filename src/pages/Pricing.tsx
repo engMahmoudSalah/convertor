@@ -6,10 +6,12 @@ import { Link } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { useAuth } from '../lib/auth';
 const feats = (p: any, ar: boolean) => ar ? [
-  `${p.heavy_daily >= 100000 ? 'غير محدودة' : p.heavy_daily} مهمة متقدمة يومياً`, `${p.ai_daily} استخدام للذكاء الاصطناعي يومياً`, `ملفات حتى ${p.max_mb} ميجابايت`,
-  p.history_days ? `سجل المهام ${p.history_days} يوم` : 'بدون سجل مهام', 'كل الأدوات الأساسية بلا حد', 'ملفاتك تبقى في متصفحك'] : [
-  `${p.heavy_daily >= 100000 ? 'Unlimited' : p.heavy_daily} advanced jobs per day`, `${p.ai_daily} AI uses per day`, `Files up to ${p.max_mb} MB`,
-  p.history_days ? `${p.history_days}-day job history` : 'No job history', 'All basic tools, unlimited', 'Files stay in your browser'];
+  `${p.heavy_daily >= 100000 ? 'غير محدودة' : p.heavy_daily} مهمة متقدمة يومياً`, `ملفات حتى ${p.max_mb} ميجابايت`, `حتى ${p.max_files} ملف في الدفعة`,
+  p.saved_max ? `حفظ حتى ${p.saved_max} عملية (${p.saved_mb} ميجابايت)` : 'بدون حفظ العمليات', p.history_days ? `سجل المهام ${p.history_days} يوم` : 'بدون سجل مهام',
+  p.ads === 0 ? 'بدون إعلانات قبل التحميل' : `${p.ads} ${p.ads === 1 ? 'إعلان' : 'إعلانات'} قبل التحميل`, 'كل الأدوات الأساسية بلا حد', 'ملفاتك تبقى في متصفحك'] : [
+  `${p.heavy_daily >= 100000 ? 'Unlimited' : p.heavy_daily} advanced jobs per day`, `Files up to ${p.max_mb} MB`, `Up to ${p.max_files} files per batch`,
+  p.saved_max ? `Save up to ${p.saved_max} operations (${p.saved_mb} MB)` : 'No saved operations', p.history_days ? `${p.history_days}-day job history` : 'No job history',
+  p.ads === 0 ? 'No ads before download' : `${p.ads} ${p.ads === 1 ? 'ad' : 'ads'} before download`, 'All basic tools, unlimited', 'Files stay in your browser'];
 export const Pricing: React.FC = () => {
   const { t, lang } = useT();
   const { plans, user } = useAuth(); const [prov, setProv] = useState<{ id: string; currency: string }[]>([]); const [msg, setMsg] = useState(''); const [busy, setBusy] = useState('');

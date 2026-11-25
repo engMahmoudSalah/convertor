@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { api } from './api';
-export interface Plan { id: string; name: string; price_usd: number; price_egp: number; heavy_daily: number; ai_daily: number; max_mb: number; history_days: number }
+export interface Plan { id: string; name: string; price_usd: number; price_egp: number; heavy_daily: number; ai_daily: number; max_mb: number; history_days: number; max_files: number; saved_max: number; saved_mb: number; ads: number }
 interface Ctx { adminExists: boolean; user: any; plan: Plan | null; usage: Record<string, number>; plans: Plan[]; disabled: string[]; loading: boolean; refresh: () => Promise<void>; logout: () => Promise<void> }
 const C = createContext<Ctx>({} as Ctx);
 export const useAuth = () => useContext(C);

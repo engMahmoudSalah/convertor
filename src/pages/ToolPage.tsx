@@ -42,7 +42,7 @@ export const ToolPage: React.FC = () => {
   const run = async () => {
     setBusy(true); setErr(''); setOuts([]); setUpgrade(false);
     const bytes = files.reduce((a, f) => a + f.size, 0); const t0 = Date.now();
-    const q = await api('/usage/consume', { tool: tool.id, bytes });
+    const q = await api('/usage/consume', { tool: tool.id, bytes, files: files.length });
     if (q._status >= 400 && q._status !== 404) { setErr(q.error ?? 'Not allowed'); setUpgrade(!!q.upgrade); setBusy(false); return; }
     try { setOuts(await tool.run(files, opts, { progress: (d, t, m) => setProg(m ?? `${d + 1} / ${t}`) })); setTab('after'); api('/history', { tool: tool.id, files: files.length, bytes, ms: Date.now() - t0 }).then(refresh); }
     catch (e: any) { if (/dynamically imported module|Importing a module script failed/i.test(String(e?.message))) { window.dispatchEvent(new PromiseRejectionEvent('unhandledrejection', { promise: Promise.resolve(), reason: e })); } setErr(e?.message ?? 'Something went wrong'); }
