@@ -1,4 +1,4 @@
-import { PlanBadge, unlockPlan } from './PlanBadge';
+import { PlanBadge, PaidNotice, unlockPlan } from './PlanBadge';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../lib/i18n';
@@ -54,5 +54,6 @@ export const AdGate: React.FC<{ steps: number; onDone: () => void; onBack: () =>
         <button onClick={onBack} className="flow-ghost px-4 py-3 rounded-xl font-semibold">{t('Back')}</button>
       </div>
       <p className="text-xs opacity-70"><Link className="underline" to="/pricing">{t('Skip ads: see plans')}</Link><PlanBadge plan={unlockPlan(plans, 'ads', 1)} /></p>
+      <PaidNotice plan={unlockPlan(plans, 'ads', 0)}>{t('Ads before download are part of the Free plan. Fewer ads, or none, is a paid feature.')}</PaidNotice>
     </div>);
 };

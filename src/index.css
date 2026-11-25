@@ -399,3 +399,10 @@ html[data-id=forest]:not(.light) .mc-idn.on { border-color: #c6f432; background:
 .plan-badge:hover { background: color-mix(in srgb, var(--ac) 40%, transparent); transform: translateY(-1px); }
 .plan-badge.business:hover { background: var(--ink); opacity: .85; }
 .plan-badge:focus-visible { outline: 3px solid var(--ac); outline-offset: 2px; }
+
+.paid-notice { display: flex; gap: .6rem; align-items: flex-start; flex-wrap: wrap; margin-top: .9rem; padding: .7rem .9rem; border-radius: 14px; font-size: .85rem; line-height: 1.5; border: 1.5px solid var(--ac); background: color-mix(in srgb, var(--ac) 12%, var(--card, transparent)); color: var(--ink); text-align: start; }
+.paid-notice.warn { border-style: solid; border-width: 2px; }
+.paid-notice-link { font-weight: 800; white-space: nowrap; text-decoration: underline; text-underline-offset: 3px; padding: .15rem .6rem; border-radius: 999px; background: var(--ink); color: var(--card, #fff); text-decoration: none; }
+.paid-notice-link:hover { opacity: .85; }
+.paid-notice-link:focus-visible { outline: 3px solid var(--ac); outline-offset: 2px; }
+[dir=rtl] .paid-notice-link span { display: inline-block; transform: scaleX(-1); }

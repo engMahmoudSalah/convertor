@@ -6,7 +6,7 @@ import { addRecent, takePending, guessType } from '../lib/handoff';
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Link, useParams, useLocation } from 'react-router-dom';
-import { PlanBadge, upgradePlan } from '../components/PlanBadge';
+import { PlanBadge, PaidNotice, upgradePlan, unlockPlan } from '../components/PlanBadge';
 import { ArrowLeft, ArrowUp, ArrowDown, Download, Loader2, X, UploadCloud, ShieldCheck } from 'lucide-react';
 import { getTool } from '../tools/registry';
 import { fmtSize } from '../lib/util';
@@ -25,7 +25,7 @@ const save = (b: Blob, name: string) => { const a = document.createElement('a');
 const field = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-400';
 
 export const ToolPage: React.FC = () => {
-  const { t: tr } = useT(); const { id } = useParams(); const tool = getTool(id); const { disabled, refresh, plan: myPlan, plans } = useAuth(); const [upgrade, setUpgrade] = useState(false); const [stage, setStage] = useState<'upload' | 'board' | 'final'>('upload'); const [tab, setTab] = useState<'before' | 'after'>('before'); const [saved, setSaved] = useState<'' | 'ok' | 'login' | 'busy'>(''); const loc = useLocation(); const { user } = useAuth(); const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [adDone, setAdDone] = useState(false);
+  const { t: tr, lang } = useT(); const { id } = useParams(); const tool = getTool(id); const { disabled, refresh, plan: myPlan, plans, heavy, usage: myUsage } = useAuth(); const [upgrade, setUpgrade] = useState(false); const [stage, setStage] = useState<'upload' | 'board' | 'final'>('upload'); const [tab, setTab] = useState<'before' | 'after'>('before'); const [saved, setSaved] = useState<'' | 'ok' | 'login' | 'busy'>(''); const loc = useLocation(); const { user } = useAuth(); const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [adDone, setAdDone] = useState(false);
   const [files, setFiles] = useState<File[]>([]); const [outs, setOuts] = useState<Out[]>([]);
   const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [prog, setProg] = useState('');
   const [opts, setOpts] = useState<Record<string, any>>({}); const [sel, setSel] = useState<Set<number>>(new Set()); const mode = tool ? usePreviewMode(tool) : 'first';
@@ -60,6 +60,16 @@ export const ToolPage: React.FC = () => {
   };
   const inBytes = files.reduce((n, f) => n + f.size, 0);
   const nextOk = files.length >= need && !off;
+  const ar = lang === 'ar'; const mbOf = (n: number) => Math.round(n / 1048576 * 10) / 10;
+  const noticeSize = myPlan && inBytes > myPlan.max_mb * 1048576 ? unlockPlan(plans, 'size', Math.ceil(inBytes / 1048576)) ?? upgradePlan(plans, 'size', myPlan) : null;
+  const noticeFiles = myPlan && files.length > myPlan.max_files ? unlockPlan(plans, 'files', files.length) ?? upgradePlan(plans, 'files', myPlan) : null;
+  const isHeavy = !!heavy?.includes(tool.id) && !!myPlan && myPlan.heavy_daily < 100000; const heavyLeft = myPlan ? Math.max(0, myPlan.heavy_daily - (myUsage?.heavy ?? 0)) : 0;
+  const heavyPlan = upgradePlan(plans, 'heavy', myPlan);
+  const PN = () => (<>
+    {noticeSize && myPlan && <PaidNotice tone="warn" plan={noticeSize}>{ar ? `إجمالي ملفاتك ${mbOf(inBytes)} ميجابايت وخطتك الحالية تسمح بـ ${myPlan.max_mb} ميجابايت. الحجم الأكبر ميزة مدفوعة (حتى ${noticeSize.max_mb} ميجابايت مع ${tr(noticeSize.name)}).` : `Your files total ${mbOf(inBytes)} MB and your plan allows ${myPlan.max_mb} MB. Bigger files are a paid feature (up to ${noticeSize.max_mb} MB on ${noticeSize.name}).`}</PaidNotice>}
+    {noticeFiles && myPlan && <PaidNotice tone="warn" plan={noticeFiles}>{ar ? `اخترت ${files.length} ملف وخطتك تسمح بـ ${myPlan.max_files} في الدفعة. الدفعات الأكبر ميزة مدفوعة (حتى ${noticeFiles.max_files} ملف مع ${tr(noticeFiles.name)}).` : `You picked ${files.length} files and your plan allows ${myPlan.max_files} per batch. Larger batches are a paid feature (up to ${noticeFiles.max_files} files on ${noticeFiles.name}).`}</PaidNotice>}
+    {isHeavy && <PaidNotice plan={heavyPlan}>{ar ? `أداة متقدمة: باقي لك ${heavyLeft} من ${myPlan!.heavy_daily} تشغيل مجاني اليوم. التشغيل غير المحدود ميزة مدفوعة.` : `Advanced tool: ${heavyLeft} of ${myPlan!.heavy_daily} free runs left today. Unlimited runs are a paid feature.`}</PaidNotice>}
+  </>);
   return (
     <div className="pt-24 pb-16 max-w-7xl mx-auto px-4">
       <Link to="/" className="text-sm text-gray-400 hover:text-white inline-flex items-center gap-1 mb-4"><ArrowLeft size={14} className="rtl:rotate-180" /> {tr('All tools')}</Link>
@@ -76,6 +86,7 @@ export const ToolPage: React.FC = () => {
       {myPlan && <ul className="mc-limits mt-3 flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs opacity-80" aria-label={tr('Your limits')}>
         <li>{tr('File size')}: {myPlan.max_mb} MB<PlanBadge plan={upgradePlan(plans, 'size', myPlan)} more /></li>
         <li>{tr('Files per batch')}: {myPlan.max_files}<PlanBadge plan={upgradePlan(plans, 'files', myPlan)} more /></li></ul>}
+      <PN />
       {files.length > 0 && <ul className="mt-4 space-y-2">{files.map((f, i) => (
         <li key={i} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm"><span className="file-badge shrink-0 w-9 text-center text-[10px] font-extrabold tracking-wider rounded-md bg-gradient-to-br from-violet-500/40 to-blue-500/40 py-1">{(f.name.split('.').pop() || 'FILE').slice(0, 4).toUpperCase()}</span>
           <span className="flex-1 truncate">{f.name}</span><span dir="ltr" className="text-gray-400">{fmtSize(f.size)}</span>
@@ -85,6 +96,7 @@ export const ToolPage: React.FC = () => {
       {off && <p className="mt-4 text-amber-300 text-sm">{tr('This tool is temporarily switched off.')}</p>}
       {files.length > 0 && <button disabled={!nextOk} onClick={() => { setStage('board'); setTab('before'); }} className="flow-next mt-6 w-full py-3.5 rounded-xl font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-50">{files.length < need ? `${tr('Add at least')} ${need}` : tr('Next')} <ArrowRight size={18} className="rtl:rotate-180" /></button>}
       </div>}
+      {stage === 'board' && <div className="-mt-3 mb-4"><PN /></div>}
       {stage === 'board' && <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-6 items-start"><div className="space-y-4">
       <div className="flow-panel p-4 text-sm"><p className="font-semibold mb-1">{files.length === 1 ? files[0].name : `${files.length} ${tr('files')}`}</p><p dir="ltr" className="opacity-70 text-start">{fmtSize(inBytes)}</p>{tool.multiple && <p className="mt-2 text-xs opacity-70">{tr('Drag the cards on the right to change the order.')}</p>}</div>
       {tool.options && <div className="mt-5 rounded-2xl bg-white/5 border border-white/10 p-4"><p className="text-xs uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2"><SlidersHorizontal size={13} /> {tr('Options')}</p><div className="grid sm:grid-cols-2 gap-4">{tool.options.filter((o) => !(tool.id === 'image-background' && ((o.key === 'tol' && !(opts.mode === 'remove' || opts.removeOld)) || (o.key === 'removeOld' && opts.mode === 'remove') || (o.key === 'color' && opts.mode !== 'color') || (o.key === 'bgfile' && opts.mode !== 'image') || (o.key === 'format' && opts.mode === 'remove'))) && !(tool.id === 'split-pdf' && ((o.key === 'ranges' && opts.mode !== 'ranges') || (o.key === 'every' && opts.mode !== 'every'))) && !(tool.id === 'resize-image' && ((o.key === 'percent' && opts.mode !== 'percent') || (['width', 'height', 'keep'].includes(o.key) && opts.mode !== 'pixels')))).map((o) => (
@@ -95,7 +107,7 @@ export const ToolPage: React.FC = () => {
             : o.type === 'check' ? <span className="flex gap-2 items-center"><input type="checkbox" className="accent-violet-500 w-4 h-4" checked={!!opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.checked })} />{tr(o.label)}</span>
             : <div className="flex items-center gap-3">{o.type === 'number' && (o as any).min !== undefined && (o as any).max !== undefined && (o as any).max - (o as any).min >= 20 && <input type="range" aria-hidden="true" tabIndex={-1} className="flex-1 accent-violet-500" min={(o as any).min} max={(o as any).max} value={opts[o.key] ?? (o as any).min} onChange={(e) => setOpts({ ...opts, [o.key]: Number(e.target.value) })} />}<input className={o.type === 'number' ? field + ' !w-24 shrink-0' : field} type={o.type} min={(o as any).min} max={(o as any).max} value={opts[o.key] ?? ''} onChange={(e) => setOpts({ ...opts, [o.key]: o.type === 'number' ? Number(e.target.value) : e.target.value })} /></div>}
         </label>))}</div></div>}
-      {upgrade && <div role="status" className="mt-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm"><p className="font-bold text-base">{tr("You've used today's free runs for this tool")}</p><p className="mt-1 opacity-80">{tr('Nothing is wrong. Free visitors get a few advanced runs per day. Your file is untouched and still here.')}</p><div className="mt-3 flex flex-wrap gap-2"><Link className="flow-next px-4 py-2 rounded-xl font-semibold" to="/signup">{tr('Create a free account')}</Link><Link className="px-4 py-2 rounded-xl font-semibold border border-current/30" to="/pricing">{tr('See plans')}</Link></div></div>}
+      {upgrade && <div role="status" className="mt-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm"><p className="font-bold text-base">{tr("You've used today's free runs for this tool")}</p><p className="mt-1 opacity-80">{tr('Nothing is wrong. Free visitors get a few advanced runs per day. Your file is untouched and still here.')}</p><div className="mt-3 flex flex-wrap gap-2"><Link className="flow-next px-4 py-2 rounded-xl font-semibold" to="/signup">{tr('Create a free account')}</Link><Link className="px-4 py-2 rounded-xl font-semibold border border-current/30" to="/pricing">{tr('See plans')}</Link></div>{myPlan && <PaidNotice tone="warn" plan={noticeSize ?? noticeFiles ?? heavyPlan}>{ar ? 'الحد ده بيزيد في الخطط المدفوعة: التشغيل غير المحدود والملفات الأكبر والدفعات الأكبر.' : 'Higher limits are a paid feature: unlimited advanced runs, bigger files and bigger batches.'}</PaidNotice>}</div>}
       {err && !upgrade && <p className="mt-4 text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm">{err}</p>}
       {off && <p className="mt-4 text-amber-300 text-sm">{tr('This tool is temporarily switched off.')}</p>}
       {files.length > 0 && <button disabled={off || busy || files.length < need} onClick={run} className={`w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-violet-500 to-blue-500 disabled:opacity-50 flex items-center justify-center gap-2 relative overflow-hidden ${busy ? 'shimmer' : ''}`}>
@@ -126,6 +138,8 @@ export const ToolPage: React.FC = () => {
           <button onClick={saveProfile} disabled={saved === 'ok' || saved === 'busy'} className="flow-ghost py-3 rounded-xl text-sm font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-70">{saved === 'ok' ? <CheckCircle2 size={16} /> : <BookmarkPlus size={16} />} {tr(saved === 'ok' ? 'Saved to profile' : 'Save to my profile')}</button></div>
         {saved === 'ok' && <p className="mt-3 text-sm">{tr('Saved. Find it in')} <Link className="underline" to="/account">{tr('Account')}</Link>. {tr('Open it later to edit; you will add your files again, settings come back.')}</p>}
         {saved === 'login' && <div className="mt-4 p-4 rounded-xl text-sm flow-note text-start"><p className="mb-2">{tr('Sign in to keep this operation in your profile. Your settings are held on this device until then.')}</p><div className="flex gap-2"><Link to="/login" className="flow-next px-4 py-2 rounded-lg font-semibold">{tr('Sign in')}</Link><Link to="/signup" className="flow-ghost px-4 py-2 rounded-lg font-semibold">{tr('Create account')}</Link></div></div>}
+        {myPlan && !myPlan.history_days && <PaidNotice plan={unlockPlan(plans, 'history', 1)}>{ar ? 'سجل المهام ميزة مدفوعة. حفظ العملية في حسابك مجاني، لكن السجل الكامل لعملياتك السابقة مدفوع.' : 'Job history is a paid feature. Saving this operation to your account is free, but a full history of past jobs is paid.'}</PaidNotice>}
+        {err && /limit|saved|storage|plan/i.test(err) && saved === '' && <PaidNotice tone="warn" plan={upgradePlan(plans, 'saved', myPlan)}>{ar ? 'مساحة العمليات المحفوظة اتملت. المساحة الأكبر ميزة مدفوعة.' : 'Your saved-operations space is full. More saved operations and storage are a paid feature.'}</PaidNotice>}
         {err && <p className="mt-3 text-red-300 text-sm">{err}</p>}
       </div></div>}
       {stage === 'upload' && <ToolInfo id={tool.id} />}

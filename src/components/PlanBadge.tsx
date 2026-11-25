@@ -21,3 +21,10 @@ export const PlanBadge: React.FC<{ plan: Plan | null | undefined; more?: boolean
   const tip = more ? `${t('More with the paid plan')}: ${label}` : `${t('Paid feature')}: ${t('unlocked by')} ${label}`;
   return (<Link to="/pricing" title={tip} aria-label={tip} className={`plan-badge ${plan.id}`}><Sparkles size={11} aria-hidden="true" /><span>{more ? '' : t('Paid') + ' · '}{label}</span></Link>);
 };
+
+/** A notice shown at the moment someone uses or hits something paid. Non-blocking, links to Pricing. */
+export const PaidNotice: React.FC<{ plan: Plan | null | undefined; children: React.ReactNode; tone?: 'info' | 'warn' }> = ({ plan, children, tone = 'info' }) => {
+  const { t } = useT();
+  return (<div role="status" className={`paid-notice ${tone}`}><Sparkles size={16} aria-hidden="true" className="shrink-0 mt-0.5" /><p className="flex-1">{children}</p>
+    {plan && <Link to="/pricing" className="paid-notice-link">{t('Paid')} · {t(plan.name)}<span aria-hidden="true"> →</span></Link>}</div>);
+};
