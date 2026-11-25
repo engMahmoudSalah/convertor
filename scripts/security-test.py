@@ -3,7 +3,7 @@ import sys, json, urllib.request, urllib.error, uuid
 B = sys.argv[1].rstrip('/')
 res = []
 def call(method, path, body=None, cookie=None, origin=None, ctype='application/json', raw=False):
-    h = {}
+    h = {'user-agent': 'Mozilla/5.0 security-test'}
     if cookie: h['cookie'] = cookie
     if origin: h['origin'] = origin
     data = None
