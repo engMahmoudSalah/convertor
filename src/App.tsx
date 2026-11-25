@@ -8,6 +8,7 @@ import { Admin } from './pages/Admin';
 import { Pricing } from './pages/Pricing';
 import { TypePage } from './pages/TypePage';
 import { ToolPage } from './pages/ToolPage';
+import { ByMahmoud } from './pages/ByMahmoud';
 import { SiteFooter } from './components/SiteFooter';
 import logo from "./../Magic.png"
 
@@ -24,6 +25,7 @@ function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/by-mahmoud" element={<ByMahmoud />} />
           <Route path="/:type" element={<TypePage />} />
           <Route path="/tools/:id" element={<ToolPage />} />
         </Routes>

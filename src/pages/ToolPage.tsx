@@ -1,3 +1,4 @@
+import { addRecent, takePending, guessType } from '../lib/handoff';
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Link, useParams } from 'react-router-dom';
@@ -21,10 +22,11 @@ export const ToolPage: React.FC = () => {
   React.useEffect(() => { setFiles([]); setOuts([]); setErr(''); setSel(new Set()); setOpts(Object.fromEntries((tool?.options ?? []).map((o) => [o.key, o.default]))); }, [id]);
   const onDrop = useCallback((acc: File[]) => {
     if (!tool) return;
-    const ok = acc.filter((f) => tool.accept.includes(f.type) || (f.type === '' && tool.accept[0] === 'application/pdf' && /\.pdf$/i.test(f.name)));
+    const ok = acc.filter((f) => tool.accept.includes(guessType(f)) || (f.type === '' && tool.accept[0] === 'application/pdf' && /\.pdf$/i.test(f.name)));
     if (ok.length < acc.length) setErr('Some files were skipped: wrong type for this tool.'); else setErr('');
     setOuts([]); setFiles((p) => (tool.multiple ? [...p, ...ok] : ok.slice(0, 1)));
   }, [tool]);
+  React.useEffect(() => { if (tool) { addRecent(tool.id); const p = takePending(); if (p.length) onDrop(p); } }, [id]);
   const dz = useDropzone({ onDrop, multiple: tool?.multiple });
   if (!tool) return <div className="pt-28 text-center">Tool not found. <Link className="text-violet-300" to="/">Back home</Link></div>;
   const Icon = tool.icon; const off = disabled.includes(tool.id);
