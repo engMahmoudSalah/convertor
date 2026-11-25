@@ -18,11 +18,13 @@ const menuItems = [
 export const NavBar: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const loc = useLocation(); const { user, adminExists } = useAuth(); const { light, toggle } = useTheme(); const { t, lang, setLang } = useT();
+  const [scrolled, setScrolled] = React.useState(false);
+  React.useEffect(() => { const f = () => setScrolled(window.scrollY > 8); f(); window.addEventListener('scroll', f, { passive: true }); return () => window.removeEventListener('scroll', f); }, []);
   React.useEffect(() => setIsOpen(false), [loc.pathname]);
   const items = [...menuItems, ...(user?.role === 'admin' ? [{ name: 'Admin', path: '/admin' }] : user && !adminExists ? [{ name: 'Claim admin', path: '/admin' }] : [])];
   const link = ({ isActive }: { isActive: boolean }) => `px-3.5 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`;
   return (
-    <nav className="fixed w-full z-50 bg-black/20 backdrop-blur-xl border-b border-white/10">
+    <nav data-scrolled={scrolled || isOpen ? '1' : '0'} className="mc-nav fixed w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         <Link to="/" className="flex items-center gap-2 min-w-0" aria-label="Magic Convertor home">
           <img className="h-10 w-10 object-contain" src={logoo} alt="" />
