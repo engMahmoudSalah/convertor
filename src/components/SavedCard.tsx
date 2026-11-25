@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, FolderOpen, Pencil, Trash2, CheckCircle2, FileText, Clock, SlidersHorizontal, ArrowRight } from 'lucide-react';
+import { Download, Pencil, Trash2, CheckCircle2, FileText, Clock, SlidersHorizontal, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { TOOLS } from '../tools/registry';
 import { useT } from '../lib/i18n';
@@ -18,7 +18,6 @@ export const SavedCard: React.FC<{ x: any; onGone: () => void }> = ({ x, onGone 
   const chips = (tool?.options ?? []).flatMap((o) => { const v = opts[o.key]; if (v === undefined || v === null || v === '' || o.type === 'file') return []; const val = o.type === 'check' ? t(v ? 'Yes' : 'No') : o.type === 'select' ? t(o.options.find((q) => q.v === v)?.l ?? String(v)) : String(v); return [[t(o.label), val]]; });
   const Icon = tool?.icon ?? FileText;
   const dl = async () => { setBusy('dl'); setMiss(''); const b = await fetchSavedFile(x.id); setBusy(''); if (!b) { setMiss(t('The stored file is no longer available.')); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = x.out_name || 'result'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
-  const open = () => nav('/tools/' + x.tool, { state: { opts } });
   const edit = async () => { setBusy('ed'); const b = await fetchSavedFile(x.id); setBusy(''); if (!b) { setMiss(t('The stored file is no longer available.')); return; } setPending([new File([b], x.out_name || 'result', { type: x.out_mime || b.type })]); nav('/tools/' + x.tool, { state: { opts, stage: 'board' } }); };
   const del = async () => { await api('/saved/delete', { id: x.id }); onGone(); };
   const btn = 'flow-ghost px-3 py-2 rounded-xl text-sm font-semibold inline-flex items-center gap-1.5 disabled:opacity-40';
@@ -37,7 +36,6 @@ export const SavedCard: React.FC<{ x: any; onGone: () => void }> = ({ x, onGone 
     {miss && <p className="mt-3 text-sm text-red-300">{miss}</p>}
     <div className="flex flex-wrap gap-2 mt-4">
       <button className={btn} disabled={!x.has_file || busy === 'dl'} onClick={dl}><Download size={15} /> {t('Download')}</button>
-      <button className={btn} onClick={open}><FolderOpen size={15} /> {t('Open')}</button>
       <button className={btn} disabled={!x.has_file || busy === 'ed'} onClick={edit}><Pencil size={15} /> {t('Edit again')}</button>
       <span className="flex-1" />
       {ask ? <><button className={btn + ' sv-danger'} onClick={del}><Trash2 size={15} /> {t('Confirm delete')}</button><button className={btn} onClick={() => setAsk(false)}>{t('Cancel')}</button></> : <button className={btn} onClick={() => setAsk(true)} aria-label={t('Delete')}><Trash2 size={15} /> {t('Delete')}</button>}

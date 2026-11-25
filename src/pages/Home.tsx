@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { Wand } from '../components/Wand';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lock, Zap, Languages, ArrowRight, Search, FileText, Image as Img, FileType, UploadCloud, Sparkles, History } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
@@ -19,6 +20,7 @@ export const Home: React.FC = () => {
   return (<div className="pt-24 pb-12 max-w-6xl mx-auto px-4">
     <section className="ed-hero grid lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-16 items-center mb-16 pt-4">
       <div className="text-center lg:text-start rise">
+        <Wand className="hero-wand mb-5 mx-auto lg:mx-0" role="img" label="Magic Convertor" />
         <p className="ed-kicker mb-6 justify-center lg:justify-start">{tr('Free · No upload · Arabic OCR')}</p>
         <h1 className="ed-h1 mb-6">{tr('Every file tool in')} <em>{tr('one place')}<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 40 2, 80 11, 120 5 S 180 4, 198 7" fill="none" stroke="var(--ac)" strokeWidth="3" strokeLinecap="round" /></svg></em></h1>
         <p className="text-gray-400 text-lg max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed">{tr('Drop a file and we suggest what you can do with it. Everything runs in your browser.')}</p>

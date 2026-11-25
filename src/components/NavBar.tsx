@@ -49,9 +49,8 @@ export const NavBar: React.FC = () => {
   return (
     <nav data-scrolled={scrolled || isOpen ? '1' : '0'} className="mc-nav fixed w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-        <Link to="/" className="flex items-center gap-2 min-w-0" aria-label="Magic Convertor home">
-          <Wand className="h-9 w-9 shrink-0" />
-          <span className="font-display text-lg min-[400px]:text-xl sm:text-2xl font-semibold whitespace-nowrap">Magic Convertor</span>
+        <Link to="/" className={`nav-logo flex items-center gap-2 min-w-0 ${loc.pathname === '/' && !scrolled ? 'is-hidden' : ''}`} aria-label="Magic Convertor home" tabIndex={loc.pathname === '/' && !scrolled ? -1 : 0}>
+          <Wand className="h-10 w-10 shrink-0" />
         </Link>
         <div className="hidden md:flex items-center gap-1" role="navigation">
           {items.map((i) => <NavLink key={i.path} to={i.path} className={link}>{t(i.name)}</NavLink>)}
