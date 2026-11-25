@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageArt';
 import React, { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { Link } from 'react-router-dom';
@@ -11,8 +12,7 @@ export const Pricing: React.FC = () => {
   useEffect(() => { api('/billing/status').then((r) => setProv(r.providers ?? [])); }, []);
   const buy = async (plan: string) => { if (!user) { window.location.href = '/signup?next=/pricing'; return; } setBusy(plan); setMsg(''); const r = await api('/billing/checkout', { plan, provider: prov[0]?.id }); setBusy(''); if (r.url) window.location.href = r.url; else setMsg(r.error ?? 'Could not start payment'); };
   return (<div className="pt-28 pb-16 max-w-6xl mx-auto px-4">
-    <h1 className="text-4xl font-extrabold text-center mb-2 bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">Plans</h1>
-    <p className="text-center text-gray-400 mb-10">Start free. Upgrade when you need more.</p>
+    <PageHeader kind="pricing" title="Plans" sub="Start free. Upgrade when you need more." />
     <div className="grid md:grid-cols-3 gap-6">{plans.filter((p) => p.id !== 'guest').map((p) => (
       <div key={p.id} className={`rounded-3xl p-7 border ${p.id === 'pro' ? 'border-violet-400/70 bg-violet-500/10' : 'border-white/10 bg-white/5'}`}>
         <h2 className="text-xl font-bold">{p.name}</h2>

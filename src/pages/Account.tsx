@@ -1,3 +1,4 @@
+import { PageArt } from '../components/PageArt';
 import React, { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { api } from '../lib/api';
@@ -10,7 +11,7 @@ export const Account: React.FC = () => {
   if (loading) return null; if (!user) return <Navigate to="/login" />;
   const bar = (used: number, max: number) => <div className="h-2 rounded bg-white/10 mt-1"><div className="h-2 rounded bg-gradient-to-r from-violet-500 to-blue-500" style={{ width: `${Math.min(100, (used / Math.max(1, max)) * 100)}%` }} /></div>;
   return (<div className="pt-28 pb-16 max-w-3xl mx-auto px-4">
-    <div className="flex items-center justify-between mb-6"><div><h1 className="text-3xl font-bold">{user.name || user.email}</h1><p className="text-gray-400 text-sm">{user.email} · {plan?.name} plan{user.plan_until ? ` until ${new Date(user.plan_until).toLocaleDateString()}` : ''}{user.role === 'admin' && ' · admin'}</p></div>
+    <div className="flex items-center justify-between mb-6"><PageArt kind="account" className="w-28 hidden sm:block order-first mr-4" /><div className="mr-auto"><h1 className="text-3xl font-bold">{user.name || user.email}</h1><p className="text-gray-400 text-sm">{user.email} · {plan?.name} plan{user.plan_until ? ` until ${new Date(user.plan_until).toLocaleDateString()}` : ''}{user.role === 'admin' && ' · admin'}</p></div>
       <div className="flex gap-2">{user.role === 'admin' && <Link to="/admin" className="px-3 py-2 rounded-lg bg-violet-500/30 text-sm">Admin</Link>}<button onClick={logout} className="px-3 py-2 rounded-lg border border-white/20 text-sm">Sign out</button></div></div>
     {plan && <div className="grid sm:grid-cols-2 gap-4 mb-8">
       <div className="p-4 rounded-2xl bg-white/5 border border-white/10"><p className="text-sm text-gray-400">Advanced jobs today</p><p className="text-xl font-bold">{usage.heavy ?? 0} / {plan.heavy_daily >= 100000 ? 'unlimited' : plan.heavy_daily}</p>{bar(usage.heavy ?? 0, plan.heavy_daily)}</div>

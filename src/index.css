@@ -89,3 +89,25 @@ html.light .shadow-lg, html.light .shadow-xl { box-shadow: none; }
 html.light .aurora { opacity: .28; }
 @media (prefers-reduced-motion: reduce) { .stack3d { animation: none; transform: rotateX(58deg) rotateZ(-30deg); } .aurora, .sheet3d { animation: none !important; } }
 @media (max-width: 480px) { .a1, .a2 { width: 160px; height: 160px; } }
+
+/* ---------- Page art ---------- */
+.pageart { overflow: visible; }
+.pa-float { animation: pafloat 4.5s ease-in-out infinite; }
+.pa-d1 { animation-delay: -.6s; } .pa-d2 { animation-delay: -1.2s; } .pa-d3 { animation-delay: -1.8s; } .pa-d4 { animation-delay: -2.4s; }
+@keyframes pafloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.pa-pulse { transform-box: fill-box; transform-origin: center; animation: papulse 2.4s ease-in-out infinite; }
+@keyframes papulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: .7; } }
+.pa-spin { transform-box: fill-box; transform-origin: center; animation: paspin 18s linear infinite; }
+@keyframes paspin { to { transform: rotate(360deg); } }
+.pa-dash { animation: padash 1.6s linear infinite; }
+@keyframes padash { to { stroke-dashoffset: -28; } }
+.pa-bar { transform-box: fill-box; transform-origin: bottom; animation: pabar 3.4s ease-in-out infinite; }
+@keyframes pabar { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.78); } }
+.pa-type { transform-box: fill-box; transform-origin: left; animation: patype 3.6s ease-in-out infinite; }
+@keyframes patype { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.55); } }
+.pa-blink { animation: pablink 1s steps(2) infinite; }
+@keyframes pablink { 50% { opacity: 0; } }
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+.reveal.in { opacity: 1; transform: none; }
+html.light .pageart [fill="#1e293b"] { fill: #cbd5e1; }
+@media (prefers-reduced-motion: reduce) { .pageart *, .reveal { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; } }

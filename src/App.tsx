@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
 import { Home } from './pages/Home';
 import { AuthProvider } from './lib/auth';
@@ -13,12 +14,22 @@ import { Legal } from './pages/Legal';
 import { SiteFooter } from './components/SiteFooter';
 import logo from "./../Magic.png"
 
+const useReveal = () => {
+  const loc = useLocation();
+  useEffect(() => {
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.08 });
+    const t = setTimeout(() => document.querySelectorAll('.grid > a, .grid > div, main section').forEach((el) => { if (el.getBoundingClientRect().top > window.innerHeight * 0.9) { el.classList.add('reveal'); io.observe(el); } }), 120);
+    return () => { clearTimeout(t); io.disconnect(); };
+  }, [loc.pathname]);
+};
+const Reveal = () => { useReveal(); return null; };
 function App() {
   return (
     <BrowserRouter>
     <AuthProvider>
       <div className="min-h-screen bg-gray-900 text-white overflow-hidden">
-        <NavBar />
+        <NavBar /><Reveal />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<AuthPage mode="login" />} />

@@ -1,3 +1,4 @@
+import { PageArt } from '../components/PageArt';
 import { addRecent, takePending, guessType } from '../lib/handoff';
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -45,7 +46,7 @@ export const ToolPage: React.FC = () => {
     <div className="pt-24 pb-16 max-w-7xl mx-auto px-4">
       <Link to="/" className="text-sm text-gray-400 hover:text-white inline-flex items-center gap-1 mb-4"><ArrowLeft size={14} /> All tools</Link>
       <div className="flex items-center gap-3 mb-2"><div className="p-3 rounded-xl bg-gradient-to-br from-violet-500/30 to-blue-500/30"><Icon /></div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">{tool.title}</h1></div>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">{tool.title}</h1><PageArt kind={tool.accept.some((a) => a.startsWith('image/')) ? 'images' : tool.accept.every((a) => a !== 'application/pdf') ? 'documents' : 'pdf'} className="ml-auto w-28 hidden md:block -my-3" /></div>
       <p className="text-gray-400 mb-2">{tool.desc}</p>
       <p className="text-xs text-emerald-300/80 flex items-center gap-1 mb-6"><ShieldCheck size={13} /> Runs in your browser. Your files are not uploaded.</p>
       <div className="grid lg:grid-cols-2 gap-8 items-start"><div>
