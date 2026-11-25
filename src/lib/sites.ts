@@ -1,4 +1,4 @@
-import { Globe, FileCheck2, Smartphone, Video, KanbanSquare, Gem, Briefcase, Feather, Bookmark, ChefHat, ShieldCheck, CalendarDays, ListTodo, Building2, Wand2, Blocks, Languages, Stethoscope, FileUser, GraduationCap, Droplets, KeyRound } from 'lucide-react';
+import { Globe, FileCheck2, Smartphone, Video, KanbanSquare, Gem, Briefcase, Feather, Bookmark, ChefHat, ShieldCheck, CalendarDays, ListTodo, Building2, Wand2, Blocks, Languages, Stethoscope, FileText, GraduationCap, Droplets, KeyRound } from 'lucide-react';
 export const SITES = [
   { name: 'MD Portfolio', desc: 'React frontend portfolio with live telemetry, blog, vouch wall and client project tracking.', icon: Globe, url: 'https://md.mahmodsalah.workers.dev/' },
   { name: 'German File Kit', desc: 'Arabic-first Chancenkarte kit: points calculator, document checklist, cover-letter drafter and embassy step tracker.', icon: FileCheck2, url: 'https://german-file-kit.mahmodsalah.workers.dev/' },
@@ -18,7 +18,7 @@ export const SITES = [
   { name: 'Children Skills', desc: 'Playful skills-learning experience built for kids.', icon: Blocks, url: 'https://children-skills.mahmodsalah.workers.dev/' },
   { name: 'Lerne Deutsch', icon: Languages, desc: 'Arabic-first German course: personal learning path, A1 to B1 lessons with audio, exercises and spaced review.', url: 'https://lerne-deutsch.mahmodsalah.workers.dev/' },
   { name: 'Tabeebi', icon: Stethoscope, desc: 'Doctor booking platform: search, live slots, reviews, video visits and doctor subscription plans.', url: 'https://tabeebi.mahmodsalah.workers.dev/' },
-  { name: 'CV', icon: FileUser, desc: 'Resume page: skills, projects, education and a PDF download.', url: 'https://cv.mahmodsalah.workers.dev/' },
+  { name: 'CV', icon: FileText, desc: 'Resume page: skills, projects, education and a PDF download.', url: 'https://cv.mahmodsalah.workers.dev/' },
   { name: 'Foda Salama', desc: 'School website for Foda Salama Primary School.', icon: GraduationCap, url: 'https://foda-salama.mahmodsalah.workers.dev/' },
   { name: 'Right Water', desc: 'Water services company site with a clean, fresh look.', icon: Droplets, url: 'https://right-water.mahmodsalah.workers.dev/' },
   { name: 'Login Sahl', desc: 'Simplified login and onboarding experience.', icon: KeyRound, url: 'https://login-sahl.mahmodsalah.workers.dev/' },
