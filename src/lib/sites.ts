@@ -1,0 +1,22 @@
+import { Globe, FileCheck2, Smartphone, Video, KanbanSquare, Gem, Briefcase, Feather, Bookmark, ChefHat, ShieldCheck, CalendarDays, ListTodo, Building2, Wand2, Blocks, GraduationCap, Droplets, KeyRound } from 'lucide-react';
+export const SITES = [
+  { name: 'MD Portfolio', icon: Globe, url: 'https://md.mahmodsalah.workers.dev/' },
+  { name: 'German File Kit', icon: FileCheck2, url: 'https://german-file-kit.mahmodsalah.workers.dev/' },
+  { name: 'SIM Services', icon: Smartphone, url: 'https://sim-service.mahmodsalah.workers.dev/' },
+  { name: 'Meetly', icon: Video, url: 'https://meetly.mahmodsalah.workers.dev/' },
+  { name: 'Velocity Workspace', icon: KanbanSquare, url: 'https://project-manageiment-tool-9014.ai.studio/' },
+  { name: 'Fakhama Luxury Store', icon: Gem, url: 'https://fakhama.mahmodsalah.workers.dev/' },
+  { name: 'WASLA', icon: Briefcase, url: 'https://wasla.mahmodsalah.workers.dev/' },
+  { name: 'Quill', icon: Feather, url: 'https://blogging-platform.mahmodsalah.workers.dev/' },
+  { name: 'Stash', icon: Bookmark, url: 'https://stools.mahmodsalah.workers.dev/' },
+  { name: 'Naturix', icon: ChefHat, url: 'https://naturix.mahmodsalah.workers.dev/' },
+  { name: 'TaqwaShield AI', icon: ShieldCheck, url: 'https://taqwa-shield-ai.mahmodsalah.workers.dev/' },
+  { name: 'AI Summit', icon: CalendarDays, url: 'https://event-page.mahmodsalah.workers.dev/' },
+  { name: 'Orbit Tasks', icon: ListTodo, url: 'https://to-do-list.mahmodsalah.workers.dev/' },
+  { name: 'Aqar Real Estate', icon: Building2, url: 'https://real-state.mahmodsalah.workers.dev/' },
+  { name: 'Magic Convertor', icon: Wand2, url: 'https://magic-convertor.mahmodsalah.workers.dev/' },
+  { name: 'Children Skills', icon: Blocks, url: 'https://children-skills.mahmodsalah.workers.dev/' },
+  { name: 'Foda Salama', icon: GraduationCap, url: 'https://foda-salama.mahmodsalah.workers.dev/' },
+  { name: 'Right Water', icon: Droplets, url: 'https://right-water.mahmodsalah.workers.dev/' },
+  { name: 'Login Sahl', icon: KeyRound, url: 'https://login-sahl.mahmodsalah.workers.dev/' },
+];

@@ -8,6 +8,7 @@ import { Admin } from './pages/Admin';
 import { Pricing } from './pages/Pricing';
 import { TypePage } from './pages/TypePage';
 import { ToolPage } from './pages/ToolPage';
+import { SiteFooter } from './components/SiteFooter';
 import logo from "./../Magic.png"
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/:type" element={<TypePage />} />
           <Route path="/tools/:id" element={<ToolPage />} />
         </Routes>
+        <SiteFooter />
         <div className="text-md mb-6 flex justify-center items-center font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
         Powered By 
         <img style={{height:"55px"}} src={logo} alt="" />
