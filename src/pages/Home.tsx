@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, FileText, Image as Img, FileType, UploadCloud, Sparkles, ShieldCheck, Zap, History } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { TOOLS, TYPES, toolsOfType } from '../tools/registry';
+import { HeroScene } from '../components/HeroScene';
 import { setPending, guessType, getRecent } from '../lib/handoff';
 const ICONS: Record<string, any> = { pdf: FileText, images: Img, documents: FileType };
 const card = 'p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-violet-400/60 hover:bg-white/10 transition block';
@@ -13,7 +14,8 @@ export const Home: React.FC = () => {
   const list = q ? TOOLS.filter((t) => (t.title + t.desc).toLowerCase().includes(q.toLowerCase())) : [];
   const suggestions = useMemo(() => { if (!dropped.length) return []; const types = new Set(dropped.map(guessType)); return TOOLS.filter((t) => [...types].some((ty) => t.accept.includes(ty)) && (dropped.length === 1 || t.multiple) && dropped.length >= (t.minFiles ?? 1)); }, [dropped]);
   const recent = getRecent().map((id) => TOOLS.find((t) => t.id === id)).filter(Boolean) as typeof TOOLS;
-  return (<div className="pt-28 pb-12 max-w-6xl mx-auto px-4">
+  return (<div className="pt-20 pb-12 max-w-6xl mx-auto px-4">
+    <HeroScene />
     <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-3 bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">Every file tool in one place</h1>
     <p className="text-center text-gray-400 mb-8">Drop a file and we suggest what you can do with it. Everything runs in your browser.</p>
     <div {...dz.getRootProps()} className={`max-w-2xl mx-auto mb-4 rounded-3xl border-2 border-dashed p-8 text-center cursor-pointer transition ${dz.isDragActive ? 'border-violet-400 bg-violet-500/10' : 'border-white/20 bg-white/5 hover:border-white/40'}`}>

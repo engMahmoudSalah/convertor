@@ -74,3 +74,18 @@ html.light input, html.light select, html.light textarea { color: #0b1220; }
 html.light input::placeholder { color: #7a869c; }
 html.light ::-webkit-scrollbar-track { background: #e8ebf3; }
 html.light .shadow-lg, html.light .shadow-xl { box-shadow: none; }
+
+/* ---------- Hero scene (own CSS 3D + aurora, no assets) ---------- */
+.aurora { position: absolute; border-radius: 9999px; filter: blur(60px); opacity: .45; will-change: transform; }
+.a1 { width: 260px; height: 260px; background: #8b5cf6; left: 8%; top: -60px; animation: drift 14s ease-in-out infinite alternate; }
+.a2 { width: 240px; height: 240px; background: #3b82f6; right: 10%; top: -40px; animation: drift 17s ease-in-out infinite alternate-reverse; }
+.a3 { width: 200px; height: 200px; background: #14b8a6; left: 42%; top: 30px; opacity: .3; animation: drift 20s ease-in-out infinite alternate; }
+@keyframes drift { from { transform: translate3d(-30px, 0, 0) scale(1); } to { transform: translate3d(40px, 24px, 0) scale(1.15); } }
+.scene3d { position: absolute; inset: 0; display: grid; place-items: center; perspective: 900px; }
+.stack3d { position: relative; width: 112px; height: 144px; transform-style: preserve-3d; animation: spin3d 16s linear infinite; }
+.sheet3d { position: absolute; inset: 0; transform: translateZ(calc(var(--i) * 26px - 40px)) rotateZ(calc(var(--i) * 6deg)); animation: float3d 4s ease-in-out infinite; animation-delay: calc(var(--i) * -0.8s); }
+@keyframes spin3d { from { transform: rotateX(58deg) rotateZ(0deg); } to { transform: rotateX(58deg) rotateZ(360deg); } }
+@keyframes float3d { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+html.light .aurora { opacity: .28; }
+@media (prefers-reduced-motion: reduce) { .stack3d { animation: none; transform: rotateX(58deg) rotateZ(-30deg); } .aurora, .sheet3d { animation: none !important; } }
+@media (max-width: 480px) { .a1, .a2 { width: 160px; height: 160px; } }
