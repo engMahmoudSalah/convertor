@@ -4,11 +4,11 @@ import { Link, useLocation } from 'react-router-dom';
 import logoo from "./../../Magic0.png";
 
 const menuItems = [
-  { name: 'Convert to PDF', path: '/convert-to-pdf' },
-  { name: 'Convert from PDF', path: '/convert-from-pdf' },
-  { name: 'Edit PDF', path: '/edit-pdf' },
-  { name: 'Organize PDF', path: '/organize-pdf' },
-  { name: 'Optimize PDF', path: '/optimize-pdf' },
+  { name: 'Merge', path: '/tools/merge-pdf' },
+  { name: 'Split', path: '/tools/split-pdf' },
+  { name: 'Compress', path: '/tools/compress-pdf' },
+  { name: 'Images to PDF', path: '/tools/images-to-pdf' },
+  { name: 'Convert image', path: '/tools/convert-image' },
 ];
 
 export const NavBar: React.FC = () => {
