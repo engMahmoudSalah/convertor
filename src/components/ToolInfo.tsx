@@ -1,3 +1,4 @@
+import { isHeavy } from '../lib/heavy';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../lib/i18n';
@@ -10,7 +11,7 @@ export const ToolInfo: React.FC<{ id: string }> = ({ id }) => {
       <h2 className="ed-h2 text-2xl font-bold mb-3">{lang === 'ar' ? `كيف تستخدم ${m.h1}` : `How to use ${m.h1}`}</h2>
       <ol className="list-decimal ps-6 space-y-1 mb-8 opacity-90">{steps.map((s) => <li key={s}>{s}</li>)}</ol>
       <h2 className="text-2xl font-bold mb-3">{lang === 'ar' ? 'أسئلة شائعة' : 'Frequently asked questions'}</h2>
-      <dl className="space-y-3 mb-8">{qs.map((f) => <div key={f.q}><dt className="font-semibold">{f.q}</dt><dd className="opacity-80">{f.a}</dd></div>)}</dl>
+      <dl className="space-y-3 mb-8">{[...qs, { q: lang === 'ar' ? `هل ${m.h1} محدود يومياً؟` : `Is ${m.h1} limited per day?`, a: isHeavy(tool.id) ? (lang === 'ar' ? 'نعم. هذه أداة متقدمة: لها حد يومي (3 للزوار و10 على الخطة المجانية) وغير محدودة على الخطط المدفوعة.' : 'Yes. This is an advanced tool: 3 runs a day for guests and 10 on Free, unlimited on Pro and Business.') : (lang === 'ar' ? 'لا. هذه أداة أساسية وغير محدودة لكل المستخدمين.' : 'No. This is a basic tool and it is unlimited for everyone.') }].map((f) => <div key={f.q}><dt className="font-semibold">{f.q}</dt><dd className="opacity-80">{f.a}</dd></div>)}</dl>
       <h2 className="text-2xl font-bold mb-3">{lang === 'ar' ? 'أدوات ذات صلة' : 'Related tools'}</h2>
       <ul className="flex flex-wrap gap-2">{related(tool).map((r) => <li key={r.id}><Link className="inline-block px-3 py-1.5 rounded-full border border-current/25 text-sm hover:border-current" to={`/tools/${r.id}`}>{lang === 'ar' && r.ar.title ? r.ar.title : r.title}</Link></li>)}</ul>
     </section>);

@@ -1,3 +1,4 @@
+import { AdvancedMark, AdvancedLegend } from '../components/AdvancedMark';
 import React, { useMemo, useState } from 'react';
 import { Wand } from '../components/Wand';
 import { Link, useNavigate } from 'react-router-dom';
@@ -9,7 +10,7 @@ import { HomeSections } from '../components/HomeSections';
 import { setPending, guessType, getRecent } from '../lib/handoff';
 const ICONS: Record<string, any> = { pdf: FileText, images: Img, documents: FileType };
 const card = 'p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-violet-400/60 hover:bg-white/10 transition block';
-const ToolCard: React.FC<{ t: (typeof TOOLS)[number]; onClick?: () => void }> = ({ t, onClick }) => { const I = t.icon; const { t: tr } = useT(); return <Link to={`/tools/${t.id}`} onClick={onClick} className={card}><I className="text-violet-300 mb-2" size={22} /><h3 className="font-semibold text-sm">{tr(t.title)}</h3><p className="text-xs text-gray-400 mt-1">{tr(t.desc)}</p></Link>; };
+const ToolCard: React.FC<{ t: (typeof TOOLS)[number]; onClick?: () => void }> = ({ t, onClick }) => { const I = t.icon; const { t: tr } = useT(); return <Link to={`/tools/${t.id}`} onClick={onClick} className={card + ' relative'}><AdvancedMark id={t.id} /><I className="text-violet-300 mb-2" size={22} /><h3 className="font-semibold text-sm">{tr(t.title)}</h3><p className="text-xs text-gray-400 mt-1">{tr(t.desc)}</p></Link>; };
 export const Home: React.FC = () => {
   const { t: tr } = useT();
   const [q, setQ] = useState(''); const [dropped, setDropped] = useState<File[]>([]); const nav = useNavigate();
@@ -52,7 +53,7 @@ export const Home: React.FC = () => {
     <div id="all-tools" className="all-tools-head scroll-mt-24 mt-10 mb-6"><h2 className="font-display text-3xl font-bold">{tr('All tools')}</h2><p className="text-sm opacity-70 mt-1">{tr('Search, or pick a category below.')}</p></div>
     <div className="max-w-xl mx-auto mb-8 relative"><Search className="absolute start-3 top-3 text-gray-500" size={18} />
       <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr('Search all tools')} onKeyDown={(e) => { if (e.key === 'Enter' && list[0]) nav(`/tools/${list[0].id}`); }} className="w-full ps-10 pe-3 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:outline-none focus:border-violet-400" /></div>
-    {q ? <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">{list.map((t) => <ToolCard key={t.id} t={t} />)}{!list.length && <p className="text-gray-400">{tr('No tool matches.')}</p>}</div>
+    {q ? <><AdvancedLegend /><div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">{list.map((t) => <ToolCard key={t.id} t={t} />)}{!list.length && <p className="text-gray-400">{tr('No tool matches.')}</p>}</div></>
     : <>
       <div className="grid md:grid-cols-3 gap-6 mb-12">{Object.entries(TYPES).map(([k, t]) => { const I = ICONS[k]; const n = toolsOfType(k);
         return <Link key={k} to={`/${k}`} className="group p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-violet-400/60 hover:bg-white/10 transition">

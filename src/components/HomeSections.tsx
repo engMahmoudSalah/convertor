@@ -1,3 +1,4 @@
+import { AdvancedMark } from './AdvancedMark';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Lock, Zap, Sparkles, ChevronDown, ArrowRight, Check, Laptop, Cloud } from 'lucide-react';
@@ -35,7 +36,7 @@ export const HomeSections: React.FC = () => {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">{popular.map((tl) => { const I = tl.icon; return (
         <Link key={tl.id} to={`/tools/${tl.id}`} className="group relative rounded-2xl border border-white/10 bg-white/5 p-4 hover:border-violet-400/60 hover:bg-white/10 transition overflow-hidden">
           
-          <I className="relative text-violet-300 mb-3 group-hover:-rotate-6 transition" size={26} /><h3 className="relative font-semibold text-sm">{t(tl.title)}</h3></Link>); })}</div></section>
+          <AdvancedMark id={tl.id} /><I className="relative text-violet-300 mb-3 group-hover:-rotate-6 transition" size={26} /><h3 className="relative font-semibold text-sm">{t(tl.title)}</h3></Link>); })}</div></section>
 
     <section><h2 className="ed-h2 text-center">{t('How it works')}</h2>
       <div className="grid md:grid-cols-3 gap-5">

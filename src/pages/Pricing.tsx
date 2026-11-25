@@ -5,6 +5,9 @@ import { api } from '../lib/api';
 import { Link } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { useAuth } from '../lib/auth';
+import { HEAVY_TOOLS } from '../lib/heavy';
+import { TOOLS } from '../tools/registry';
+import { Gauge } from 'lucide-react';
 import { PlanBadge, unlockPlan, Feat } from '../components/PlanBadge';
 const feats = (p: any, ar: boolean) => ar ? [
   `${p.heavy_daily >= 100000 ? 'غير محدودة' : p.heavy_daily} مهمة متقدمة يومياً`, `ملفات حتى ${p.max_mb} ميجابايت`, `حتى ${p.max_files} ملف في الدفعة`,
@@ -33,6 +36,11 @@ export const Pricing: React.FC = () => {
           : prov.length ? <button onClick={() => buy(p.id)} disabled={busy === p.id} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-blue-500 font-semibold disabled:opacity-50">{busy === p.id ? '...' : (lang === 'ar' ? `ادفع ${p.price_egp} جنيه لمدة 30 يوماً` : `Pay ${p.price_egp} EGP for 30 days`)}</button>
           : <button disabled className="w-full py-2.5 rounded-xl bg-white/10 text-gray-400 cursor-not-allowed">{t('Payments opening soon')}</button>}
       </div>))}</div>
+
+      <section className="mt-12" aria-labelledby="adv-h"><h2 id="adv-h" className="font-bold text-lg mb-1">{t('Which tools count as advanced')}</h2>
+        <p className="text-sm opacity-80 max-w-3xl">{t('Advanced tools do heavy work in your browser. They count toward the daily limit: 3 a day for guests and 10 a day on Free, unlimited on Pro and Business. All other tools are unlimited on every plan.')}</p>
+        <ul className="adv-chips">{HEAVY_TOOLS.map((id) => { const tl = TOOLS.find((x) => x.id === id); return tl ? <li key={id}><Link to={`/tools/${id}`}><Gauge size={14} aria-hidden="true" />{t(tl.title)}</Link></li> : null; })}</ul>
+        <p className="text-xs opacity-70">{TOOLS.length - HEAVY_TOOLS.length} {t('other tools are basic and unlimited.')}</p></section>
       <div className="mt-12 overflow-x-auto"><table className="plan-table w-full text-sm"><caption className="text-start font-bold text-lg mb-3">{t('Compare plans')}</caption>
         <thead><tr><th scope="col" className="text-start">{t('Feature')}</th>{shown.map((p) => <th key={p.id} scope="col" className={p.price_usd > 0 ? 'paid' : ''}>{t(p.name)}</th>)}</tr></thead>
         <tbody>{rows.map((r) => <tr key={r.label}><th scope="row" className="text-start font-medium">{t(r.label)}</th>{shown.map((p) => <td key={p.id} className={p.price_usd > 0 ? "paid" : ""}><bdi dir="ltr">{r.get(p)}</bdi>{r.sfx && r.get(p) !== '-' ? ' ' + t(r.sfx) : ''}</td>)}</tr>)}</tbody></table>

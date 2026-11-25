@@ -421,3 +421,11 @@ html[data-id=forest]:not(.light) .mc-idn.on { border-color: #c6f432; background:
 .plan-table .paid { background: color-mix(in srgb, var(--ac) 9%, transparent); }
 .plan-table thead th { font-weight: 800; }
 [dir=rtl] .plan-hint-arrow { display: inline-block; transform: scaleX(-1); }
+
+.adv-mark { position: absolute; top: .6rem; inset-inline-end: .6rem; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--ac) 18%, transparent); }
+.adv-mark.static { position: static; width: 20px; height: 20px; vertical-align: middle; }
+.adv-legend { font-size: .8rem; opacity: .75; margin: .25rem 0 1rem; }
+.adv-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0; padding: 0; list-style: none; }
+.adv-chips a { display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .75rem; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 30%, transparent); font-size: .85rem; text-decoration: none; color: inherit; }
+.adv-chips a:hover { border-color: var(--ac); background: color-mix(in srgb, var(--ac) 12%, transparent); }
+.adv-chips a:focus-visible { outline: 3px solid var(--ac); outline-offset: 2px; }

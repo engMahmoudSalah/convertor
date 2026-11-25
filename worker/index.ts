@@ -1,9 +1,10 @@
 // Magic Convertor backend: one Worker + one SQLite-backed Durable Object.
 import { DurableObject } from 'cloudflare:workers';
 import { PROVIDERS } from './payments';
+import { HEAVY_TOOLS } from '../src/lib/heavy';
 import { seoPage, sitemap, robots, adsTxt } from './seo';
 
-const HEAVY = new Set(['compress-pdf', 'pdf-to-images', 'pdf-to-word', 'pdf-to-excel', 'pdf-to-powerpoint', 'redact-pdf', 'unlock-pdf', 'repair-pdf']);
+const HEAVY = new Set<string>(HEAVY_TOOLS);
 const enc = new TextEncoder();
 const hex = (b: ArrayBuffer | Uint8Array) => [...new Uint8Array(b as ArrayBuffer)].map((x) => x.toString(16).padStart(2, '0')).join('');
 const sha = async (s: string) => hex(await crypto.subtle.digest('SHA-256', enc.encode(s)));
@@ -84,7 +85,8 @@ export class AppDB extends DurableObject<any> {
   limit(key: string, max: number, windowMs: number) {
     const r = this.rows('SELECT * FROM attempts WHERE k=?', key)[0];
     if (!r || r.reset_at < now()) { this.sql.exec('INSERT OR REPLACE INTO attempts VALUES(?,?,?)', key, 1, now() + windowMs); return true; }
-    if (r.n >= max) return false; this.sql.exec('UPDATE attempts SET n=n+1 WHERE k=?', key); return true;
+    if (r.n >= max) { if (r.n === max) { this.sql.exec('UPDATE attempts SET n=n+1 WHERE k=?', key); this.audit('system', 'rate_limited', key.split(':')[0], 'limit ' + max); } return false; }
+    this.sql.exec('UPDATE attempts SET n=n+1 WHERE k=?', key); return true;
   }
   async startSession(uid: string) {
     const t = rnd(32); this.sql.exec('INSERT INTO sessions VALUES(?,?,?,?)', await sha(t), uid, now(), now() + 30 * 864e5);
@@ -358,7 +360,23 @@ export class AppDB extends DurableObject<any> {
         const data = { exported_at: new Date().toISOString(), users: this.rows('SELECT id,email,name,plan,plan_until,role,banned,email_verified,created_at,last_login FROM users'), plans: this.rows('SELECT * FROM plans'), flags: this.rows('SELECT * FROM flags'), orders: this.rows('SELECT * FROM orders'), saved: this.rows('SELECT id,user_id,tool,name,summary,out_name,out_size,has_file,ts FROM saved'), history: this.rows('SELECT * FROM history ORDER BY id DESC LIMIT 5000'), audit: this.rows('SELECT * FROM audit ORDER BY id DESC LIMIT 5000') };
         return new Response(JSON.stringify(data, null, 2), { headers: { 'content-type': 'application/json', 'content-disposition': `attachment; filename="magic-convertor-backup-${day()}.json"`, 'cache-control': 'no-store' } });
       }
-      if (path === '/admin/audit' && method === 'GET') return json({ audit: this.rows('SELECT * FROM audit ORDER BY id DESC LIMIT 100') });
+      if (path === '/admin/overview' && method === 'GET') {
+        const t = now(), since = t - 14 * 864e5, ds = (col: string, tbl: string, extra = '') => this.rows(`SELECT strftime('%Y-%m-%d', ${col}/1000, 'unixepoch') d, count(*) n FROM ${tbl} WHERE ${col}>? ${extra} GROUP BY d ORDER BY d`, since);
+        const c = (q: string, ...a: any[]) => (this.rows(q, ...a)[0]?.c ?? 0) as number;
+        return json({
+          signupsPerDay: ds('created_at', 'users'), jobsPerDay: ds('ts', 'history'),
+          bytesPerDay: this.rows("SELECT strftime('%Y-%m-%d', ts/1000, 'unixepoch') d, sum(bytes) n FROM history WHERE ts>? GROUP BY d ORDER BY d", since),
+          plans: this.rows('SELECT plan id, count(*) n FROM users GROUP BY plan'),
+          topTools30: this.rows('SELECT tool, count(*) n, sum(bytes) bytes, avg(ms) ms FROM history WHERE ts>? GROUP BY tool ORDER BY n DESC LIMIT 12', t - 30 * 864e5),
+          verified: c('SELECT count(*) c FROM users WHERE email_verified=1'), google: c('SELECT count(*) c FROM users WHERE google_sub IS NOT NULL'), total: c('SELECT count(*) c FROM users'),
+          saved: c('SELECT count(*) c FROM saved'), savedBytes: c('SELECT coalesce(sum(out_size),0) c FROM saved'),
+          abuse24: c("SELECT count(*) c FROM audit WHERE action='rate_limited' AND ts>?", t - 864e5),
+          revenue: this.rows("SELECT status, count(*) n, coalesce(sum(amount),0) amt, currency FROM orders GROUP BY status, currency"),
+        });
+      }
+      if (path === '/admin/abuse' && method === 'GET') return json({ events: this.rows("SELECT * FROM audit WHERE action IN ('rate_limited','ban','mail_failed') ORDER BY id DESC LIMIT 100"), byKind: this.rows("SELECT target k, count(*) n FROM audit WHERE action='rate_limited' AND ts>? GROUP BY target ORDER BY n DESC", now() - 7 * 864e5) });
+      if (path === '/admin/system' && method === 'GET') return json({ ads: { publisher: !!this.env.ADSENSE_PUB, live: this.env.ADS_LIVE === '1' }, google: !!(this.env.GOOGLE_CLIENT_ID && this.env.GOOGLE_CLIENT_SECRET), mail: !!this.env.RESEND_KEY, payments: !!(this.env.PAYMOB_SECRET_KEY && this.env.PAYMOB_PUBLIC_KEY), schema: this.rows("SELECT v FROM meta WHERE k='schema'")[0]?.v ?? null, tables: ['users', 'sessions', 'history', 'saved', 'orders', 'audit'].map((n) => ({ n, c: this.rows(`SELECT count(*) c FROM ${n}`)[0].c })) });
+      if (path === '/admin/audit' && method === 'GET') { const q = `%${(url.searchParams.get('q') ?? '').toLowerCase()}%`; return json({ audit: this.rows('SELECT * FROM audit WHERE lower(actor||action||target||detail) LIKE ? ORDER BY id DESC LIMIT 200', q) }); }
     }
     return json({ error: 'Not found' }, 404);
   }
