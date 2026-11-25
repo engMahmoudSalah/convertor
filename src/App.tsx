@@ -43,7 +43,7 @@ function App() {
           <Route path="/:type" element={<TypePage />} />
           <Route path="/tools/:id" element={<ToolPage />} />
         </Routes>
-        <div className="text-md mb-6 flex justify-center items-center font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
+        <div className="text-md mb-6 flex justify-center items-center font-display font-semibold">
         Powered By 
         <img style={{height:"55px"}} src={logo} alt="" />
             </div>

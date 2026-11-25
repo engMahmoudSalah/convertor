@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, Zap, Languages, Check, ArrowRight, Search, FileText, Image as Img, FileType, UploadCloud, Sparkles, History } from 'lucide-react';
+import { Lock, Zap, Languages, ArrowRight, Search, FileText, Image as Img, FileType, UploadCloud, Sparkles, History } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { TOOLS, TYPES, toolsOfType } from '../tools/registry';
 import { useT } from '../lib/i18n';
@@ -17,26 +17,28 @@ export const Home: React.FC = () => {
   const suggestions = useMemo(() => { if (!dropped.length) return []; const types = new Set(dropped.map(guessType)); return TOOLS.filter((t) => [...types].some((ty) => t.accept.includes(ty)) && (dropped.length === 1 || t.multiple) && dropped.length >= (t.minFiles ?? 1)); }, [dropped]);
   const recent = getRecent().map((id) => TOOLS.find((t) => t.id === id)).filter(Boolean) as typeof TOOLS;
   return (<div className="pt-24 pb-12 max-w-6xl mx-auto px-4">
-    <section className="relative grid lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-14">
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true"><div className="aurora a1" /><div className="aurora a2" /><div className="paper-grid" style={{ opacity: .35 }} /></div>
+    <section className="ed-hero grid lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-16 items-center mb-16 pt-4">
       <div className="text-center lg:text-start rise">
-        <p className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/20 bg-white/5 text-xs font-semibold text-violet-300 mb-5"><Sparkles size={14} /> {tr('Free · No upload · Arabic OCR')}</p>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.15] mb-4">{tr('Every file tool in')} <span className="bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">{tr('one place')}</span></h1>
-        <p className="text-gray-400 text-lg max-w-xl mx-auto lg:mx-0 mb-6">{tr('Drop a file and we suggest what you can do with it. Everything runs in your browser.')}</p>
-        <div className="flex flex-wrap gap-3 justify-center lg:justify-start mb-6">
-          <button onClick={() => dz.open()} className="px-6 h-12 rounded-xl font-bold bg-gradient-to-r from-violet-500 to-blue-500 text-white inline-flex items-center gap-2 hover:opacity-90"><UploadCloud size={18} /> {tr('Choose a file')}</button>
-          <Link to="/pdf" className="px-6 h-12 rounded-xl font-semibold border border-white/20 inline-flex items-center gap-2 hover:bg-white/10">{tr('Browse all tools')}</Link></div>
-        <ul className="flex flex-wrap gap-x-5 gap-y-2 justify-center lg:justify-start text-sm text-gray-400">{[[Lock, 'Files stay on your device'], [Zap, 'Instant, no queue'], [Languages, 'Arabic and English']].map(([I, x]: any) => <li key={x} className="inline-flex items-center gap-1.5"><I size={15} className="text-emerald-400" /> {tr(x)}</li>)}</ul>
+        <p className="ed-kicker mb-6 justify-center lg:justify-start">{tr('Free · No upload · Arabic OCR')}</p>
+        <h1 className="ed-h1 mb-6">{tr('Every file tool in')} <em>{tr('one place')}<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 40 2, 80 11, 120 5 S 180 4, 198 7" fill="none" stroke="#b4391f" strokeWidth="3" strokeLinecap="round" /></svg></em></h1>
+        <p className="text-gray-400 text-lg max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed">{tr('Drop a file and we suggest what you can do with it. Everything runs in your browser.')}</p>
+        <div className="flex flex-wrap gap-4 justify-center lg:justify-start mb-8">
+          <button onClick={() => dz.open()} className="btn-ink px-7 h-12 font-bold inline-flex items-center gap-2"><UploadCloud size={18} /> {tr('Choose a file')}</button>
+          <Link to="/pdf" className="px-2 h-12 font-semibold underline underline-offset-8 decoration-2 inline-flex items-center gap-2 hover:text-[#b4391f]">{tr('Browse all tools')} <ArrowRight size={16} className="rtl:rotate-180" /></Link></div>
+        <div className="ed-rule mb-5 max-w-lg mx-auto lg:mx-0" />
+        <ul className="flex flex-wrap gap-x-6 gap-y-2 justify-center lg:justify-start text-sm text-gray-400">{[[Lock, 'Files stay on your device'], [Zap, 'Instant, no queue'], [Languages, 'Arabic and English']].map(([I, x]: any) => <li key={x} className="inline-flex items-center gap-1.5"><I size={15} className="text-[#b4391f]" /> {tr(x)}</li>)}</ul>
       </div>
       <div className="relative rise" style={{ animationDelay: '.1s' }}>
-        <div className="hidden sm:block absolute -top-6 end-2 z-10 chip-float"><span dir="ltr" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-gray-900 text-xs font-bold border border-gray-200">PDF <ArrowRight size={12} className="rtl:rotate-180" /> DOCX <Check size={12} className="text-emerald-600" /></span></div>
-        <div className="hidden sm:block absolute -bottom-5 start-0 z-10 chip-float" style={{ animationDelay: '-2s' }}><span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-bold">{tr('Size')} -62%</span></div>
-        <div {...dz.getRootProps()} className={`relative overflow-hidden rounded-3xl border-2 border-dashed p-6 text-center cursor-pointer transition ${dz.isDragActive ? 'border-violet-400 bg-violet-500/10' : 'border-white/30 bg-white/5 hover:border-violet-400/70'}`}>
+        <div {...dz.getRootProps()} className={`ed-card relative p-6 text-center cursor-pointer ${dz.isDragActive ? 'drag' : ''}`}>
           <input {...dz.getInputProps()} />
-          <div dir="ltr" className="relative h-40 -mt-2 mb-1 pointer-events-none" aria-hidden="true"><div className="aurora a3" style={{ left: '30%' }} /><div className="scene3d"><div className="stack3d"><div className="sheet3d" style={{ ['--i' as any]: 0 }}><div className="w-full h-full rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 p-3 text-xs font-extrabold text-white/90 border border-white/30">PDF</div></div><div className="sheet3d" style={{ ['--i' as any]: 1 }}><div className="w-full h-full rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 p-3 text-xs font-extrabold text-white/90 border border-white/30">IMG</div></div><div className="sheet3d" style={{ ['--i' as any]: 2 }}><div className="w-full h-full rounded-xl bg-gradient-to-br from-emerald-500 to-teal-400 p-3 text-xs font-extrabold text-white/90 border border-white/30">DOC</div></div><div className="sheet3d" style={{ ['--i' as any]: 3 }}><div className="w-full h-full rounded-xl bg-gradient-to-br from-amber-500 to-orange-400 p-3 text-xs font-extrabold text-white/90 border border-white/30">XLS</div></div></div></div></div>
-          <p className="font-bold text-lg">{dropped.length ? `${dropped.length} file(s): ${dropped.map((f) => f.name).slice(0, 3).join(', ')}${dropped.length > 3 ? '...' : ''}` : tr('Drop any file here, or click to choose')}</p>
-          <p className="text-xs text-gray-400 mt-1 mb-3">{tr('PDF, images, Word, Excel, PowerPoint, HTML, text')}</p>
-          <div className="flex flex-wrap justify-center gap-1.5" dir="ltr">{['PDF', 'JPG', 'PNG', 'DOCX', 'XLSX', 'PPTX', 'HTML', 'TXT'].map((x) => <span key={x} className="px-2 py-0.5 rounded-md bg-white/10 text-[10px] font-bold tracking-wider text-gray-300">{x}</span>)}</div>
+          <span className="ed-stamp" dir="ltr">{tr('Free')}</span>
+          <div dir="ltr" className="text-start -mx-6 -mt-6 mb-6 border-b border-current/20" aria-hidden="true">
+            {[['PDF', 'DOCX', 'Word'], ['JPG', 'PNG', 'Image'], ['DOCX', 'PDF', 'Export']].map(([a, b, n], i) => <div key={i} className="ed-row"><span className="ext">{a}</span><ArrowRight size={14} /><span className="ext">{b}</span><span className="opacity-70">{n}</span><span className="bar"><i style={{ animationDelay: `${i * .5}s` }} /></span></div>)}
+          </div>
+          <UploadCloud size={30} className="mx-auto mb-3 text-[#b4391f]" />
+          <p className="font-display text-2xl leading-tight">{dropped.length ? `${dropped.length} file(s): ${dropped.map((f) => f.name).slice(0, 3).join(', ')}${dropped.length > 3 ? '...' : ''}` : tr('Drop any file here, or click to choose')}</p>
+          <p className="text-xs opacity-70 mt-2 mb-4">{tr('PDF, images, Word, Excel, PowerPoint, HTML, text')}</p>
+          <div className="flex flex-wrap justify-center gap-1.5" dir="ltr">{['PDF', 'JPG', 'PNG', 'DOCX', 'XLSX', 'PPTX', 'HTML', 'TXT'].map((x) => <span key={x} className="px-2 py-0.5 border border-current/40 rounded-sm text-[10px] font-bold tracking-wider opacity-80">{x}</span>)}</div>
         </div>
       </div>
     </section>
