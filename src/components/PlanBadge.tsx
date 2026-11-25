@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Lock } from 'lucide-react';
 import { useT } from '../lib/i18n';
 import type { Plan } from '../lib/auth';
 export type Feat = 'heavy' | 'size' | 'files' | 'saved' | 'savedmb' | 'history' | 'ads';
@@ -26,5 +26,12 @@ export const PlanBadge: React.FC<{ plan: Plan | null | undefined; more?: boolean
 export const PaidNotice: React.FC<{ plan: Plan | null | undefined; children: React.ReactNode; tone?: 'info' | 'warn' }> = ({ plan, children, tone = 'info' }) => {
   const { t } = useT();
   return (<div role="status" className={`paid-notice ${tone}`}><Sparkles size={16} aria-hidden="true" className="shrink-0 mt-0.5" /><p className="flex-1">{children}</p>
-    {plan && <Link to="/pricing" className="paid-notice-link">{t('Paid')} · {t(plan.name)}<span aria-hidden="true"> →</span></Link>}</div>);
+    {plan && <Link to="/pricing" className="paid-notice-link">{t('See')} {t(plan.name)}<span aria-hidden="true"> →</span></Link>}</div>);
+};
+
+/** One quiet line: the next paid plan, with a lock glyph. Used once per screen. */
+export const PlanHint: React.FC<{ plan: Plan | null | undefined; plans: Plan[]; children: React.ReactNode }> = ({ plan, plans, children }) => {
+  const { t } = useT();
+  const next = plans.filter((p) => p.price_usd > 0 && p.price_usd > (plan?.price_usd ?? 0)).sort((a, b) => a.price_usd - b.price_usd)[0]; if (!next) return null;
+  return (<Link to="/pricing" className="plan-hint" title={`${t('Paid feature')}: ${t('unlocked by')} ${t(next.name)}`}><Lock size={12} aria-hidden="true" /><span>{children} <b>{t(next.name)}</b><span aria-hidden="true" className="plan-hint-arrow"> →</span></span></Link>);
 };

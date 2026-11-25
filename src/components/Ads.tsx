@@ -1,4 +1,3 @@
-import { PlanBadge, PaidNotice, unlockPlan } from './PlanBadge';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../lib/i18n';
@@ -40,7 +39,6 @@ export const AdSlot: React.FC<{ slot?: string }> = ({ slot }) => {
 
 /** Plan-aware step gate: n steps, each shows one labelled ad and a short countdown. Always skippable by upgrading; never a dead end. */
 export const AdGate: React.FC<{ steps: number; onDone: () => void; onBack: () => void }> = ({ steps, onDone, onBack }) => {
-  const { plans } = useAuth();
   const { t } = useT(); const [i, setI] = useState(0); const [left, setLeft] = useState(5);
   useEffect(() => { setLeft(5); const id = setInterval(() => setLeft((x) => (x > 0 ? x - 1 : 0)), 1000); return () => clearInterval(id); }, [i]);
   const last = i === steps - 1;
@@ -53,7 +51,6 @@ export const AdGate: React.FC<{ steps: number; onDone: () => void; onBack: () =>
         <button onClick={() => (last ? onDone() : setI(i + 1))} disabled={left > 0} className="flow-next px-6 py-3 rounded-xl font-bold disabled:opacity-50">{last ? t('Show my download') : t('Next')}</button>
         <button onClick={onBack} className="flow-ghost px-4 py-3 rounded-xl font-semibold">{t('Back')}</button>
       </div>
-      <p className="text-xs opacity-70"><Link className="underline" to="/pricing">{t('Skip ads: see plans')}</Link><PlanBadge plan={unlockPlan(plans, 'ads', 1)} /></p>
-      <PaidNotice plan={unlockPlan(plans, 'ads', 0)}>{t('Ads before download are part of the Free plan. Fewer ads, or none, is a paid feature.')}</PaidNotice>
+      <p className="text-xs opacity-70"><Link className="underline" to="/pricing">{t('Skip ads: see plans')}</Link></p>
     </div>);
 };

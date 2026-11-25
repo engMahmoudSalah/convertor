@@ -19,16 +19,23 @@ export const Pricing: React.FC = () => {
   const badgeFor = (p: any, i: number) => { const k = KEYS[i]; if (!k) return null; const v = k === 'ads' ? -p.ads : k === 'heavy' ? p.heavy_daily : k === 'size' ? p.max_mb : k === 'files' ? p.max_files : k === 'saved' ? p.saved_max : p.history_days; return <PlanBadge plan={unlockPlan(plans, k, v)} />; }; const [prov, setProv] = useState<{ id: string; currency: string }[]>([]); const [msg, setMsg] = useState(''); const [busy, setBusy] = useState('');
   useEffect(() => { api('/billing/status').then((r) => setProv(r.providers ?? [])); }, []);
   const buy = async (plan: string) => { if (!user) { window.location.href = '/signup?next=/pricing'; return; } setBusy(plan); setMsg(''); const r = await api('/billing/checkout', { plan, provider: prov[0]?.id }); setBusy(''); if (r.url) window.location.href = r.url; else setMsg(r.error ?? 'Could not start payment'); };
+  const shown = plans.filter((p) => p.id !== 'guest'); const unl = (n: number) => (n >= 100000 ? t('Unlimited') : String(n));
+  const rows = [{ label: 'Advanced jobs per day', get: (p: any) => unl(p.heavy_daily) }, { label: 'Max file size', get: (p: any) => p.max_mb + ' MB' }, { label: 'Files per batch', get: (p: any) => String(p.max_files) }, { label: 'Saved operations', get: (p: any) => (p.saved_max ? `${p.saved_max} (${p.saved_mb} MB)` : '-') }, { label: 'Job history', get: (p: any) => (p.history_days ? `${p.history_days} ${t('days')}` : '-') }, { label: 'Ads before download', get: (p: any) => String(p.ads) }];
   return (<div className="pt-28 pb-16 max-w-6xl mx-auto px-4">
     <PageHeader kind="pricing" title={t('Plans')} sub={t('Start free. Upgrade when you need more.')} />
     <div className="grid md:grid-cols-3 gap-6">{plans.filter((p) => p.id !== 'guest').map((p) => (
       <div key={p.id} className={`rounded-3xl p-7 border ${p.id === 'pro' ? 'plan-pro border-violet-400/70 bg-violet-500/10' : 'border-white/10 bg-white/5'}`}>
-        <h2 className="text-xl font-bold">{t(p.name)}</h2>
+        <h2 className="text-xl font-bold flex items-center gap-2">{t(p.name)}{p.price_usd > 0 && <span className="plan-tag">{t('Paid plan')}</span>}</h2>
         <p className="text-3xl font-extrabold my-3">{p.price_usd ? `$${p.price_usd}` : '$0'}<span className="text-sm font-normal text-gray-400">{p.price_usd ? t(' / month') : ''}</span></p>
         {p.price_egp > 0 && <p className="text-xs text-gray-400 -mt-2 mb-3">{lang === 'ar' ? `أو ${p.price_egp} جنيه` : `or ${p.price_egp} EGP`}</p>}
-        <ul className="space-y-2 text-sm text-gray-300 mb-6">{feats(p, lang === 'ar').map((f, i) => <li key={f} className="flex gap-2"><Check size={16} className="text-emerald-300 shrink-0 mt-0.5" /><span>{f}{badgeFor(p, i)}</span></li>)}</ul>
+        <ul className="space-y-2 text-sm text-gray-300 mb-6">{feats(p, lang === 'ar').map((f, i) => <li key={f} className="flex gap-2"><Check size={16} className="text-emerald-300 shrink-0 mt-0.5" /><span>{f}</span></li>)}</ul>
         {p.id === 'free' ? <Link to={user ? '/account' : '/signup'} className="block text-center py-2.5 rounded-xl border border-white/20">{t(user ? 'Your account' : 'Get started')}</Link>
           : prov.length ? <button onClick={() => buy(p.id)} disabled={busy === p.id} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-blue-500 font-semibold disabled:opacity-50">{busy === p.id ? '...' : (lang === 'ar' ? `ادفع ${p.price_egp} جنيه لمدة 30 يوماً` : `Pay ${p.price_egp} EGP for 30 days`)}</button>
           : <button disabled className="w-full py-2.5 rounded-xl bg-white/10 text-gray-400 cursor-not-allowed">{t('Payments opening soon')}</button>}
-      </div>))}</div>{msg && <p className="text-center text-red-300 text-sm mt-4">{msg}</p>}<p className="text-center text-xs text-gray-500 mt-8">Plans are paid for 30 days at a time and do not renew automatically. See <Link className="text-violet-300" to="/legal/terms">Terms</Link>, <Link className="text-violet-300" to="/legal/privacy">Privacy</Link> and <Link className="text-violet-300" to="/legal/refunds">Refunds</Link>.</p></div>);
+      </div>))}</div>
+      <div className="mt-12 overflow-x-auto"><table className="plan-table w-full text-sm"><caption className="text-start font-bold text-lg mb-3">{t('Compare plans')}</caption>
+        <thead><tr><th scope="col" className="text-start">{t('Feature')}</th>{shown.map((p) => <th key={p.id} scope="col" className={p.price_usd > 0 ? 'paid' : ''}>{t(p.name)}</th>)}</tr></thead>
+        <tbody>{rows.map((r) => <tr key={r.label}><th scope="row" className="text-start font-medium">{t(r.label)}</th>{shown.map((p) => <td key={p.id} dir="ltr" className={p.price_usd > 0 ? "paid" : ""}>{r.get(p)}</td>)}</tr>)}</tbody></table>
+        <p className="text-xs opacity-70 mt-2">{t('Shaded columns are paid plans.')}</p></div>
+{msg && <p className="text-center text-red-300 text-sm mt-4">{msg}</p>}<p className="text-center text-xs text-gray-500 mt-8">Plans are paid for 30 days at a time and do not renew automatically. See <Link className="text-violet-300" to="/legal/terms">Terms</Link>, <Link className="text-violet-300" to="/legal/privacy">Privacy</Link> and <Link className="text-violet-300" to="/legal/refunds">Refunds</Link>.</p></div>);
 };
