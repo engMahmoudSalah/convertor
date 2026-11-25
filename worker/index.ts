@@ -37,6 +37,7 @@ export class AppDB extends DurableObject<any> {
       CREATE TABLE IF NOT EXISTS attempts(k TEXT PRIMARY KEY, n INTEGER, reset_at INTEGER);
     `);
     try { this.sql.exec('ALTER TABLE users ADD COLUMN plan_until INTEGER'); } catch { /* exists */ }
+    try { this.sql.exec('ALTER TABLE users ADD COLUMN google_sub TEXT'); } catch { /* exists */ }
     try { this.sql.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0'); } catch { /* exists */ }
     for (const c of ['max_files INTEGER', 'saved_max INTEGER', 'saved_mb INTEGER', 'ads INTEGER']) { try { this.sql.exec('ALTER TABLE plans ADD COLUMN ' + c); } catch { /* exists */ } }
     this.sql.exec("UPDATE plans SET max_files=CASE id WHEN 'guest' THEN 5 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 100 END, saved_max=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 200 END, saved_mb=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 100 ELSE 400 END, ads=CASE id WHEN 'pro' THEN 1 WHEN 'business' THEN 0 ELSE 2 END WHERE max_files IS NULL");
@@ -73,7 +74,7 @@ export class AppDB extends DurableObject<any> {
     const t = await this.makeToken(u.id, 'verify', 48 * 3600e3), link = `${origin}/verify?token=${t}`;
     return this.mail(u.email, 'Confirm your email for Magic Convertor', `Confirm your email: ${link}\n\nThis link works for 48 hours. If you did not sign up, ignore this email.`, `<p>Confirm your email for Magic Convertor:</p><p><a href="${link}">Confirm email</a></p><p>This link works for 48 hours. If you did not sign up, ignore this email.</p>`);
   }
-  pub(u: any) { return u && { id: u.id, email: u.email, name: u.name, plan: u.plan, plan_until: u.plan_until ?? null, role: u.role, created_at: u.created_at, email_verified: !!u.email_verified }; }
+  pub(u: any) { return u && { id: u.id, email: u.email, name: u.name, plan: u.plan, plan_until: u.plan_until ?? null, role: u.role, created_at: u.created_at, email_verified: !!u.email_verified, has_password: !!u.pass_hash, google: !!u.google_sub }; }
   limit(key: string, max: number, windowMs: number) {
     const r = this.rows('SELECT * FROM attempts WHERE k=?', key)[0];
     if (!r || r.reset_at < now()) { this.sql.exec('INSERT OR REPLACE INTO attempts VALUES(?,?,?)', key, 1, now() + windowMs); return true; }
@@ -97,7 +98,7 @@ export class AppDB extends DurableObject<any> {
     const subject = u ? u.id : `ip:${(await sha(ip)).slice(0, 16)}`;
 
     if (path === '/config' && method === 'GET') {
-      return json({ plans: this.rows('SELECT * FROM plans ORDER BY sort'), disabled: this.rows('SELECT tool FROM flags WHERE enabled=0').map((r) => r.tool), heavy: [...HEAVY], ads: { client: this.env.ADSENSE_PUB ? String(this.env.ADSENSE_PUB) : null, live: this.env.ADS_LIVE === '1' } });
+      return json({ plans: this.rows('SELECT * FROM plans ORDER BY sort'), disabled: this.rows('SELECT tool FROM flags WHERE enabled=0').map((r) => r.tool), heavy: [...HEAVY], google: !!(this.env.GOOGLE_CLIENT_ID && this.env.GOOGLE_CLIENT_SECRET), ads: { client: this.env.ADSENSE_PUB ? String(this.env.ADSENSE_PUB) : null, live: this.env.ADS_LIVE === '1' } });
     }
     if (path === '/auth/signup' && method === 'POST') {
       if (!this.limit(`su:${ip}`, 10, 3600e3)) return json({ error: 'Too many attempts, try later' }, 429);
@@ -114,17 +115,55 @@ export class AppDB extends DurableObject<any> {
       if (!u) return json({ error: 'Sign in first' }, 401);
       if (u.role === 'admin') return json({ error: 'Admin accounts cannot be deleted here' }, 400);
       if (!this.limit(`del:${u.id}`, 5, 900e3)) return json({ error: 'Too many attempts, try again later' }, 429);
-      if (!safeEq(await pbkdf2(String(body.password ?? ''), u.salt), u.pass_hash)) return json({ error: 'Wrong password' }, 401);
+      if (u.pass_hash ? !safeEq(await pbkdf2(String(body.password ?? ''), u.salt), u.pass_hash) : String(body.password ?? '').trim().toLowerCase() !== u.email) return json({ error: u.pass_hash ? 'Wrong password' : 'Type your account email to confirm' }, 401);
       this.sql.exec('DELETE FROM saved_blob WHERE saved_id IN (SELECT id FROM saved WHERE user_id=?)', u.id); this.sql.exec('DELETE FROM saved WHERE user_id=?', u.id);
       this.sql.exec('DELETE FROM history WHERE subject=?', u.id); this.sql.exec('DELETE FROM sessions WHERE user_id=?', u.id); this.sql.exec('DELETE FROM users WHERE id=?', u.id);
       this.audit(u.email, 'delete_account', u.email, '');
       return json({ ok: true }, 200, { 'set-cookie': 'mc_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0' });
     }
+    if (path === '/auth/google/start' && method === 'GET') {
+      if (!this.env.GOOGLE_CLIENT_ID || !this.env.GOOGLE_CLIENT_SECRET) return new Response(null, { status: 302, headers: { location: '/login?error=google_off' } });
+      if (!this.limit(`gs:${ip}`, 30, 900e3)) return new Response(null, { status: 302, headers: { location: '/login?error=rate' } });
+      const state = rnd(16), verifier = rnd(32), challenge = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(verifier))))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const nx = url.searchParams.get('next') ?? ''; const next = nx.startsWith('/') && !nx.startsWith('//') && nx.length < 200 ? nx : '/account';
+      const q = new URLSearchParams({ client_id: String(this.env.GOOGLE_CLIENT_ID), redirect_uri: `${url.origin}/api/auth/google/callback`, response_type: 'code', scope: 'openid email profile', state, code_challenge: challenge, code_challenge_method: 'S256', prompt: 'select_account' });
+      const h = new Headers({ location: 'https://accounts.google.com/o/oauth2/v2/auth?' + q });
+      h.append('set-cookie', `mc_oauth=${state}.${verifier}.${encodeURIComponent(next)}; Path=/api/auth/google; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);
+      return new Response(null, { status: 302, headers: h });
+    }
+    if (path === '/auth/google/callback' && method === 'GET') {
+      const fail = (c: string) => { const h = new Headers({ location: '/login?error=' + c }); h.append('set-cookie', 'mc_oauth=; Path=/api/auth/google; HttpOnly; Secure; SameSite=Lax; Max-Age=0'); return new Response(null, { status: 302, headers: h }); };
+      const m = /(?:^|;\s*)mc_oauth=([a-f0-9]{32})\.([a-f0-9]{64})\.([^;]*)/.exec(req.headers.get('cookie') ?? '');
+      const code = url.searchParams.get('code') ?? '', st = url.searchParams.get('state') ?? '';
+      if (!m || !code || !safeEq(m[1], st)) return fail('google_state');
+      let tok: any; try {
+        const r = await fetch(String(this.env.GOOGLE_TOKEN_URL || 'https://oauth2.googleapis.com/token'), { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ code, client_id: String(this.env.GOOGLE_CLIENT_ID), client_secret: String(this.env.GOOGLE_CLIENT_SECRET), redirect_uri: `${url.origin}/api/auth/google/callback`, grant_type: 'authorization_code', code_verifier: m[2] }) });
+        if (!r.ok) return fail('google_token'); tok = await r.json();
+      } catch { return fail('google_token'); }
+      let c: any; try { const b64 = String(tok.id_token).split('.')[1].replace(/-/g, '+').replace(/_/g, '/'); c = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b64), (x) => x.charCodeAt(0)))); } catch { return fail('google_token'); }
+      // The id_token came straight from Google's token endpoint over TLS (OIDC Core 3.1.3.7); still check the claims.
+      if (!['https://accounts.google.com', 'accounts.google.com'].includes(c.iss) || c.aud !== String(this.env.GOOGLE_CLIENT_ID) || !(c.exp * 1000 > now()) || !c.sub || !c.email || c.email_verified !== true) return fail('google_claims');
+      const email = String(c.email).toLowerCase();
+      let r = this.rows('SELECT * FROM users WHERE google_sub=?', String(c.sub))[0] ?? this.rows('SELECT * FROM users WHERE email=?', email)[0];
+      if (r && r.banned) return fail('banned');
+      if (!r) {
+        const id = 'u_' + rnd(8); this.sql.exec('INSERT INTO users(id,email,name,google_sub,email_verified,created_at,last_login) VALUES(?,?,?,?,1,?,?)', id, email, String(c.name ?? '').slice(0, 60), String(c.sub), now(), now());
+        this.audit(id, 'signup_google', email); r = this.rows('SELECT * FROM users WHERE id=?', id)[0];
+      } else if (!r.google_sub) {
+        // Link to the existing email account. An unverified password account could belong to an attacker, so drop its password and sessions.
+        if (!r.email_verified) { this.sql.exec('UPDATE users SET pass_hash=NULL, salt=NULL WHERE id=?', r.id); this.sql.exec('DELETE FROM sessions WHERE user_id=?', r.id); }
+        this.sql.exec('UPDATE users SET google_sub=?, email_verified=1 WHERE id=?', String(c.sub), r.id); this.audit(r.id, 'google_linked', email);
+      }
+      this.sql.exec('UPDATE users SET last_login=? WHERE id=?', now(), r.id);
+      let next = '/account'; try { const n = decodeURIComponent(m[3]); if (n.startsWith('/') && !n.startsWith('//')) next = n; } catch { /* default */ }
+      const h = new Headers({ location: next }); h.append('set-cookie', await this.startSession(r.id)); h.append('set-cookie', 'mc_oauth=; Path=/api/auth/google; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
+      return new Response(null, { status: 302, headers: h });
+    }
     if (path === '/auth/login' && method === 'POST') {
       const email = String(body.email ?? '').trim().toLowerCase();
       if (!this.limit(`li:${ip}:${email}`, 8, 900e3)) return json({ error: 'Too many attempts, try again in 15 minutes' }, 429);
       const r = this.rows('SELECT * FROM users WHERE email=?', email)[0];
-      const ok = r && safeEq(await pbkdf2(String(body.password ?? ''), r.salt), r.pass_hash);
+      const ok = r && r.pass_hash && safeEq(await pbkdf2(String(body.password ?? ''), r.salt), r.pass_hash);
       if (!ok) return json({ error: 'Wrong email or password' }, 401);
       if (r.banned) return json({ error: 'This account is suspended' }, 403);
       this.sql.exec('UPDATE users SET last_login=? WHERE id=?', now(), r.id);

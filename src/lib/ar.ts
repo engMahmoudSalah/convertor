@@ -112,5 +112,7 @@ export const AR: Record<string, string> = {
   'Paid': 'مدفوع', 'Pro': 'احترافي', 'Business': 'أعمال', 'Paid feature': 'ميزة مدفوعة', 'unlocked by': 'تُفتح مع خطة', 'More with the paid plan': 'المزيد مع الخطة المدفوعة', 'Your limits': 'حدودك',
   'Ads before download are part of the Free plan. Fewer ads, or none, is a paid feature.': 'الإعلانات قبل التحميل جزء من الخطة المجانية. تقليل الإعلانات أو إلغاؤها ميزة مدفوعة.',
   'Paid plan': 'خطة مدفوعة', 'Compare plans': 'قارن الخطط', 'Feature': 'الميزة', 'Shaded columns are paid plans.': 'الأعمدة المظللة هي الخطط المدفوعة.', 'Unlimited': 'غير محدود', 'Advanced jobs per day': 'مهام متقدمة يومياً', 'Max file size': 'أقصى حجم للملف', 'Files per batch': 'ملفات في الدفعة', 'Saved operations': 'عمليات محفوظة', 'Job history': 'سجل المهام', 'Ads before download': 'إعلانات قبل التحميل', 'Higher limits, more saved space and job history:': 'حدود أعلى ومساحة حفظ أكبر وسجل مهام:', 'Higher limits:': 'حدود أعلى:', 'See': 'شوف',
+  'Continue with Google': 'المتابعة باستخدام Google', 'or use your email': 'أو استخدم إيميلك', 'Google sign-in did not work. Please try again or use your email.': 'تسجيل الدخول بـ Google لم يعمل. حاول مرة أخرى أو استخدم إيميلك.',
+  'Type your email to confirm': 'اكتب إيميلك للتأكيد',
   'Your files stay yours.': 'ملفاتك تبقى ملكك.', 'History of your jobs': 'سجل بكل عملياتك', 'Higher limits on advanced tools': 'حدود أعلى للأدوات المتقدمة', 'Works in Arabic and English': 'يعمل بالعربية والإنجليزية', 'Magic Convertor': 'ماجيك كونفرتر',
 };
