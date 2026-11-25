@@ -112,6 +112,20 @@ export class AppDB extends DurableObject<any> {
       const m = /mc_session=([a-f0-9]{64})/.exec(req.headers.get('cookie') ?? ''); if (m) this.sql.exec('DELETE FROM sessions WHERE token_hash=?', await sha(m[1]));
       return json({ ok: true }, 200, { 'set-cookie': 'mc_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0' });
     }
+    if (path === '/auth/logout-all' && method === 'POST') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      this.sql.exec('DELETE FROM sessions WHERE user_id=?', u.id); this.audit(u.id, 'logout_all', u.email);
+      return json({ ok: true }, 200, { 'set-cookie': 'mc_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0' });
+    }
+    if (path === '/auth/password' && method === 'POST') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      if (!this.limit(`pw:${u.id}`, 5, 900e3)) return json({ error: 'Too many attempts, try again later' }, 429);
+      const np = String(body.newPassword ?? ''); if (np.length < 8 || np.length > 200) return json({ error: 'New password must be at least 8 characters' }, 400);
+      if (!u.pass_hash || !safeEq(await pbkdf2(String(body.password ?? ''), u.salt), u.pass_hash)) return json({ error: 'Wrong current password' }, 401);
+      const salt = rnd(16); this.sql.exec('UPDATE users SET pass_hash=?, salt=? WHERE id=?', await pbkdf2(np, salt), salt, u.id);
+      this.sql.exec('DELETE FROM sessions WHERE user_id=?', u.id); this.audit(u.id, 'password_changed', u.email);
+      return json({ ok: true }, 200, { 'set-cookie': await this.startSession(u.id) });
+    }
     if (path === '/me' && method === 'GET') {
       const p = this.plan(u ? u.plan : 'guest');
       return json({ user: this.pub(u), plan: p, usage: this.usageToday(subject), adminExists: this.rows("SELECT 1 FROM users WHERE role='admin'").length > 0 });
@@ -169,7 +183,7 @@ export class AppDB extends DurableObject<any> {
     }
     if (path === '/saved/delete' && method === 'POST') {
       if (!u) return json({ error: 'Sign in first' }, 401);
-      { const sid = String(body.id ?? ''); if (this.rows('SELECT 1 FROM saved WHERE id=? AND user_id=?', sid, u.id).length) this.sql.exec('DELETE FROM saved_blob WHERE saved_id=?', sid); this.sql.exec('DELETE FROM saved WHERE id=? AND user_id=?', sid, u.id); }
+      { const sid = String(body.id ?? ''); if (!this.rows('SELECT 1 FROM saved WHERE id=? AND user_id=?', sid, u.id).length) return json({ error: 'Not found' }, 404); if (this.rows('SELECT 1 FROM saved WHERE id=? AND user_id=?', sid, u.id).length) this.sql.exec('DELETE FROM saved_blob WHERE saved_id=?', sid); this.sql.exec('DELETE FROM saved WHERE id=? AND user_id=?', sid, u.id); }
       return json({ ok: true });
     }
     if (path === '/billing/status' && method === 'GET') {
@@ -247,8 +261,27 @@ export class AppDB extends DurableObject<any> {
   }
 }
 
+const ADS = 'https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://*.adtrafficquality.google https://fundingchoicesmessages.google.com https://www.googletagservices.com https://*.google.com';
+const CSP = [
+  "default-src 'self'", `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: ${ADS}`, "style-src 'self' 'unsafe-inline'", "font-src 'self' data:",
+  `img-src 'self' data: blob: https:`, `connect-src 'self' blob: ${ADS}`, `frame-src ${ADS}`, "worker-src 'self' blob:", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'", 'upgrade-insecure-requests',
+].join('; ');
+function harden(res: Response, isApi: boolean): Response {
+  const h = new Headers(res.headers);
+  h.set('strict-transport-security', 'max-age=63072000; includeSubDomains; preload'); h.set('x-content-type-options', 'nosniff'); h.set('x-frame-options', 'DENY');
+  h.set('referrer-policy', 'strict-origin-when-cross-origin'); h.set('permissions-policy', 'camera=(), microphone=(), geolocation=(), payment=(self), interest-cohort=()');
+  h.set('cross-origin-opener-policy', 'same-origin-allow-popups'); if (isApi) h.set('cross-origin-resource-policy', 'same-origin');
+  if ((h.get('content-type') ?? '').includes('text/html') || isApi) h.set('content-security-policy', CSP);
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h });
+}
 export default {
   async fetch(req: Request, env: any): Promise<Response> {
+    const isApi = new URL(req.url).pathname.startsWith('/api/');
+    try { return harden(await route(req, env), isApi); } catch (e) { console.error('unhandled', e instanceof Error ? e.message : 'error'); return harden(new Response(JSON.stringify({ error: 'Something went wrong. Please try again.' }), { status: 500, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } }), isApi); }
+  },
+};
+async function route(req: Request, env: any): Promise<Response> {
+  {
     const url = new URL(req.url);
     if (url.pathname.startsWith('/api/')) {
       const stub = env.DB.get(env.DB.idFromName('main'));
@@ -262,5 +295,5 @@ export default {
       if (!url.pathname.startsWith('/assets/') && !/\.[a-z0-9]{2,5}$/i.test(url.pathname)) { const r = await seoPage(req, env); if (r) return r; }
     }
     return env.ASSETS.fetch(req);
-  },
-};
+  }
+}
