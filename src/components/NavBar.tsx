@@ -1,8 +1,9 @@
 import React from 'react';
-import { Menu, X } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Sun, Moon, User } from 'lucide-react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
-import logoo from "./../../Magic0.png";
+import { useTheme } from '../lib/theme';
+import logoo from './../../Magic0.png';
 
 const menuItems = [
   { name: 'PDF', path: '/pdf' },
@@ -13,67 +14,29 @@ const menuItems = [
 
 export const NavBar: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const location = useLocation();
-  const { user, adminExists } = useAuth();
-  const adminItem = user?.role === 'admin' ? [{ name: 'Admin', path: '/admin' }] : user && !adminExists ? [{ name: 'Claim admin', path: '/admin' }] : [];
-
+  const loc = useLocation(); const { user, adminExists } = useAuth(); const { light, toggle } = useTheme();
+  React.useEffect(() => setIsOpen(false), [loc.pathname]);
+  const items = [...menuItems, ...(user?.role === 'admin' ? [{ name: 'Admin', path: '/admin' }] : user && !adminExists ? [{ name: 'Claim admin', path: '/admin' }] : [])];
+  const link = ({ isActive }: { isActive: boolean }) => `px-3.5 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`;
   return (
-    <nav className="fixed w-full z-50 bg-black/10 backdrop-blur-lg border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <img style={{height:"55px" , marginRight:'10px'}} src={logoo} alt="" />
-            <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
-              Magic Convertor
-            </Link>
-          </div>
-          
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
-              {[...menuItems, ...adminItem, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                    ${location.pathname.startsWith(item.path)
-                      ? 'bg-white/20 text-white'
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                    }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-          
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-300 hover:text-white p-2"
-            >
-              {isOpen ? <X /> : <Menu />}
-            </button>
-          </div>
+    <nav className="fixed w-full z-50 bg-black/20 backdrop-blur-xl border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+        <Link to="/" className="flex items-center gap-2 min-w-0" aria-label="Magic Convertor home">
+          <img className="h-10 w-10 object-contain" src={logoo} alt="" />
+          <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text truncate">Magic Convertor</span>
+        </Link>
+        <div className="hidden md:flex items-center gap-1" role="navigation">
+          {items.map((i) => <NavLink key={i.path} to={i.path} className={link}>{i.name}</NavLink>)}
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={toggle} aria-label={light ? 'Switch to dark theme' : 'Switch to light theme'} title={light ? 'Dark theme' : 'Light theme'} className="w-9 h-9 grid place-items-center rounded-lg border border-white/20 text-gray-300 hover:text-white hover:bg-white/10">{light ? <Moon size={17} /> : <Sun size={17} />}</button>
+          <Link to={user ? '/account' : '/login'} className="hidden sm:flex items-center gap-2 px-3.5 h-9 rounded-lg text-sm font-semibold bg-gradient-to-r from-violet-500 to-blue-500 hover:opacity-90"><User size={15} />{user ? 'Account' : 'Sign in'}</Link>
+          <button className="md:hidden w-9 h-9 grid place-items-center rounded-lg border border-white/20 text-gray-300" onClick={() => setIsOpen(!isOpen)} aria-label="Menu" aria-expanded={isOpen}>{isOpen ? <X size={18} /> : <Menu size={18} />}</button>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black/20 backdrop-blur-lg">
-          {[...menuItems, ...adminItem, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
-                ${location.pathname.startsWith(item.path)
-                  ? 'bg-white/20 text-white'
-                  : 'text-gray-300 hover:text-white hover:bg-white/10'
-                }`}
-              onClick={() => setIsOpen(false)}
-            >
-              {item.name}
-            </Link>
-          ))}
+      <div className={`md:hidden border-t border-white/10 ${isOpen ? 'block' : 'hidden'}`}>
+        <div className="px-3 py-3 space-y-1">
+          {[...items, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((i) => <NavLink key={i.path} to={i.path} className={({ isActive }) => `block ${link({ isActive })} text-base`}>{i.name}</NavLink>)}
         </div>
       </div>
     </nav>
