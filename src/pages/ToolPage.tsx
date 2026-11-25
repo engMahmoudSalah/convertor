@@ -1,3 +1,4 @@
+import { SlidersHorizontal } from 'lucide-react';
 import { Confetti } from '../components/Confetti';
 import { PageArt } from '../components/PageArt';
 import { addRecent, takePending, guessType } from '../lib/handoff';
@@ -56,23 +57,23 @@ export const ToolPage: React.FC = () => {
         <p>{tool.multiple ? 'Drop files here or click to choose' : 'Drop a file here or click to choose'}</p>
       </div>
       {files.length > 0 && <ul className="mt-4 space-y-2">{files.map((f, i) => (
-        <li key={i} className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2 text-sm">
+        <li key={i} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm"><span className="file-badge shrink-0 w-9 text-center text-[10px] font-extrabold tracking-wider rounded-md bg-gradient-to-br from-violet-500/40 to-blue-500/40 py-1">{(f.name.split('.').pop() || 'FILE').slice(0, 4).toUpperCase()}</span>
           <span className="flex-1 truncate">{f.name}</span><span className="text-gray-400">{fmtSize(f.size)}</span>
           {tool.multiple && <><button disabled={i === 0} onClick={() => move(i, -1)} className="p-1 disabled:opacity-30"><ArrowUp size={14} /></button>
             <button disabled={i === files.length - 1} onClick={() => move(i, 1)} className="p-1 disabled:opacity-30"><ArrowDown size={14} /></button></>}
           <button onClick={() => setFiles(files.filter((_, j) => j !== i))} className="p-1 text-red-300"><X size={14} /></button></li>))}</ul>}
-      {files.length > 0 && tool.options && <div className="mt-5 grid sm:grid-cols-2 gap-4">{tool.options.filter((o) => !(tool.id === 'image-background' && ((o.key === 'tol' && !(opts.mode === 'remove' || opts.removeOld)) || (o.key === 'removeOld' && opts.mode === 'remove') || (o.key === 'color' && opts.mode !== 'color') || (o.key === 'bgfile' && opts.mode !== 'image') || (o.key === 'format' && opts.mode === 'remove'))) && !(tool.id === 'split-pdf' && ((o.key === 'ranges' && opts.mode !== 'ranges') || (o.key === 'every' && opts.mode !== 'every'))) && !(tool.id === 'resize-image' && ((o.key === 'percent' && opts.mode !== 'percent') || (['width', 'height', 'keep'].includes(o.key) && opts.mode !== 'pixels')))).map((o) => (
+      {files.length > 0 && tool.options && <div className="mt-5 rounded-2xl bg-white/5 border border-white/10 p-4"><p className="text-xs uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2"><SlidersHorizontal size={13} /> Options</p><div className="grid sm:grid-cols-2 gap-4">{tool.options.filter((o) => !(tool.id === 'image-background' && ((o.key === 'tol' && !(opts.mode === 'remove' || opts.removeOld)) || (o.key === 'removeOld' && opts.mode === 'remove') || (o.key === 'color' && opts.mode !== 'color') || (o.key === 'bgfile' && opts.mode !== 'image') || (o.key === 'format' && opts.mode === 'remove'))) && !(tool.id === 'split-pdf' && ((o.key === 'ranges' && opts.mode !== 'ranges') || (o.key === 'every' && opts.mode !== 'every'))) && !(tool.id === 'resize-image' && ((o.key === 'percent' && opts.mode !== 'percent') || (['width', 'height', 'keep'].includes(o.key) && opts.mode !== 'pixels')))).map((o) => (
         <label key={o.key} className="text-sm text-gray-300 block">{o.type !== 'check' && <span className="block mb-1">{o.label}</span>}
           {o.type === 'select' ? <select className={field} value={opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.value })}>{o.options.map((x) => <option className="bg-gray-900" key={x.v} value={x.v}>{x.l}</option>)}</select>
             : o.type === 'color' ? <input type="color" className="h-10 w-20 bg-transparent" value={opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.value })} />
             : o.type === 'file' ? <input type="file" accept="image/*" className="text-xs" onChange={(e) => setOpts({ ...opts, [o.key]: e.target.files?.[0] ?? null })} />
             : o.type === 'check' ? <span className="flex gap-2 items-center"><input type="checkbox" checked={!!opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.checked })} />{o.label}</span>
             : <input className={field} type={o.type} min={(o as any).min} max={(o as any).max} value={opts[o.key] ?? ''} onChange={(e) => setOpts({ ...opts, [o.key]: o.type === 'number' ? Number(e.target.value) : e.target.value })} />}
-        </label>))}</div>}
+        </label>))}</div></div>}
       {upgrade && <p className="mt-2 text-sm"><Link className="text-violet-300 underline" to="/pricing">See plans</Link> or <Link className="text-violet-300 underline" to="/signup">create a free account</Link> for higher limits.</p>}
       {err && <p className="mt-4 text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm">{err}</p>}
       {off && <p className="mt-4 text-amber-300 text-sm">This tool is temporarily switched off.</p>}
-      {files.length > 0 && <button disabled={off || busy || files.length < need} onClick={run} className="mt-6 w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-violet-500 to-blue-500 disabled:opacity-50 flex items-center justify-center gap-2">
+      {files.length > 0 && <button disabled={off || busy || files.length < need} onClick={run} className={`mt-6 w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-violet-500 to-blue-500 disabled:opacity-50 flex items-center justify-center gap-2 relative overflow-hidden ${busy ? 'shimmer' : ''}`}>
         {busy ? <><Loader2 className="animate-spin" size={18} /> {prog || 'Working...'}</> : files.length < need ? `Add at least ${need} files` : `${tool.title}`}</button>}
       {outs.length > 0 && <div className="mt-6 space-y-2 relative"><Confetti /><h2 className="font-semibold">Done</h2>
         {outs.map((o, i) => <div key={i} className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-400/30 rounded-lg px-3 py-2 text-sm">

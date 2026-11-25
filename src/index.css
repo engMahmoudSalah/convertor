@@ -111,3 +111,7 @@ html.light .aurora { opacity: .28; }
 .reveal.in { opacity: 1; transform: none; }
 html.light .pageart [fill="#1e293b"] { fill: #cbd5e1; }
 @media (prefers-reduced-motion: reduce) { .pageart *, .reveal { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; } }
+.shimmer::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.28) 50%, transparent 70%); transform: translateX(-100%); animation: shim 1.2s linear infinite; }
+@keyframes shim { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .shimmer::after { display: none; } }
+html.light .file-badge { color: #4c1d95; }
