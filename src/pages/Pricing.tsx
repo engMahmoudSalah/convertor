@@ -5,6 +5,7 @@ import { api } from '../lib/api';
 import { Link } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { useAuth } from '../lib/auth';
+import { PlanBadge, unlockPlan, Feat } from '../components/PlanBadge';
 const feats = (p: any, ar: boolean) => ar ? [
   `${p.heavy_daily >= 100000 ? 'غير محدودة' : p.heavy_daily} مهمة متقدمة يومياً`, `ملفات حتى ${p.max_mb} ميجابايت`, `حتى ${p.max_files} ملف في الدفعة`,
   p.saved_max ? `حفظ حتى ${p.saved_max} عملية (${p.saved_mb} ميجابايت)` : 'بدون حفظ العمليات', p.history_days ? `سجل المهام ${p.history_days} يوم` : 'بدون سجل مهام',
@@ -14,7 +15,8 @@ const feats = (p: any, ar: boolean) => ar ? [
   p.ads === 0 ? 'No ads before download' : `${p.ads} ${p.ads === 1 ? 'ad' : 'ads'} before download`, 'All basic tools, unlimited', 'Files stay in your browser'];
 export const Pricing: React.FC = () => {
   const { t, lang } = useT();
-  const { plans, user } = useAuth(); const [prov, setProv] = useState<{ id: string; currency: string }[]>([]); const [msg, setMsg] = useState(''); const [busy, setBusy] = useState('');
+  const { plans, user } = useAuth(); const KEYS: Feat[] = ['heavy', 'size', 'files', 'saved', 'history', 'ads'];
+  const badgeFor = (p: any, i: number) => { const k = KEYS[i]; if (!k) return null; const v = k === 'ads' ? -p.ads : k === 'heavy' ? p.heavy_daily : k === 'size' ? p.max_mb : k === 'files' ? p.max_files : k === 'saved' ? p.saved_max : p.history_days; return <PlanBadge plan={unlockPlan(plans, k, v)} />; }; const [prov, setProv] = useState<{ id: string; currency: string }[]>([]); const [msg, setMsg] = useState(''); const [busy, setBusy] = useState('');
   useEffect(() => { api('/billing/status').then((r) => setProv(r.providers ?? [])); }, []);
   const buy = async (plan: string) => { if (!user) { window.location.href = '/signup?next=/pricing'; return; } setBusy(plan); setMsg(''); const r = await api('/billing/checkout', { plan, provider: prov[0]?.id }); setBusy(''); if (r.url) window.location.href = r.url; else setMsg(r.error ?? 'Could not start payment'); };
   return (<div className="pt-28 pb-16 max-w-6xl mx-auto px-4">
@@ -24,7 +26,7 @@ export const Pricing: React.FC = () => {
         <h2 className="text-xl font-bold">{t(p.name)}</h2>
         <p className="text-3xl font-extrabold my-3">{p.price_usd ? `$${p.price_usd}` : '$0'}<span className="text-sm font-normal text-gray-400">{p.price_usd ? t(' / month') : ''}</span></p>
         {p.price_egp > 0 && <p className="text-xs text-gray-400 -mt-2 mb-3">{lang === 'ar' ? `أو ${p.price_egp} جنيه` : `or ${p.price_egp} EGP`}</p>}
-        <ul className="space-y-2 text-sm text-gray-300 mb-6">{feats(p, lang === 'ar').map((f) => <li key={f} className="flex gap-2"><Check size={16} className="text-emerald-300 shrink-0 mt-0.5" />{f}</li>)}</ul>
+        <ul className="space-y-2 text-sm text-gray-300 mb-6">{feats(p, lang === 'ar').map((f, i) => <li key={f} className="flex gap-2"><Check size={16} className="text-emerald-300 shrink-0 mt-0.5" /><span>{f}{badgeFor(p, i)}</span></li>)}</ul>
         {p.id === 'free' ? <Link to={user ? '/account' : '/signup'} className="block text-center py-2.5 rounded-xl border border-white/20">{t(user ? 'Your account' : 'Get started')}</Link>
           : prov.length ? <button onClick={() => buy(p.id)} disabled={busy === p.id} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-blue-500 font-semibold disabled:opacity-50">{busy === p.id ? '...' : (lang === 'ar' ? `ادفع ${p.price_egp} جنيه لمدة 30 يوماً` : `Pay ${p.price_egp} EGP for 30 days`)}</button>
           : <button disabled className="w-full py-2.5 rounded-xl bg-white/10 text-gray-400 cursor-not-allowed">{t('Payments opening soon')}</button>}

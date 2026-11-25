@@ -6,6 +6,7 @@ import { addRecent, takePending, guessType } from '../lib/handoff';
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Link, useParams, useLocation } from 'react-router-dom';
+import { PlanBadge, upgradePlan } from '../components/PlanBadge';
 import { ArrowLeft, ArrowUp, ArrowDown, Download, Loader2, X, UploadCloud, ShieldCheck } from 'lucide-react';
 import { getTool } from '../tools/registry';
 import { fmtSize } from '../lib/util';
@@ -24,7 +25,7 @@ const save = (b: Blob, name: string) => { const a = document.createElement('a');
 const field = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-400';
 
 export const ToolPage: React.FC = () => {
-  const { t: tr } = useT(); const { id } = useParams(); const tool = getTool(id); const { disabled, refresh } = useAuth(); const [upgrade, setUpgrade] = useState(false); const [stage, setStage] = useState<'upload' | 'board' | 'final'>('upload'); const [tab, setTab] = useState<'before' | 'after'>('before'); const [saved, setSaved] = useState<'' | 'ok' | 'login' | 'busy'>(''); const loc = useLocation(); const { user } = useAuth(); const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [adDone, setAdDone] = useState(false);
+  const { t: tr } = useT(); const { id } = useParams(); const tool = getTool(id); const { disabled, refresh, plan: myPlan, plans } = useAuth(); const [upgrade, setUpgrade] = useState(false); const [stage, setStage] = useState<'upload' | 'board' | 'final'>('upload'); const [tab, setTab] = useState<'before' | 'after'>('before'); const [saved, setSaved] = useState<'' | 'ok' | 'login' | 'busy'>(''); const loc = useLocation(); const { user } = useAuth(); const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [adDone, setAdDone] = useState(false);
   const [files, setFiles] = useState<File[]>([]); const [outs, setOuts] = useState<Out[]>([]);
   const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [prog, setProg] = useState('');
   const [opts, setOpts] = useState<Record<string, any>>({}); const [sel, setSel] = useState<Set<number>>(new Set()); const mode = tool ? usePreviewMode(tool) : 'first';
@@ -72,6 +73,9 @@ export const ToolPage: React.FC = () => {
         <input {...dz.getInputProps()} /><UploadCloud className="mx-auto mb-2 text-violet-300" size={36} />
         <p>{tr(tool.multiple ? 'Drop files here or click to choose' : 'Drop a file here or click to choose')}</p>
       </div>
+      {myPlan && <ul className="mc-limits mt-3 flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs opacity-80" aria-label={tr('Your limits')}>
+        <li>{tr('File size')}: {myPlan.max_mb} MB<PlanBadge plan={upgradePlan(plans, 'size', myPlan)} more /></li>
+        <li>{tr('Files per batch')}: {myPlan.max_files}<PlanBadge plan={upgradePlan(plans, 'files', myPlan)} more /></li></ul>}
       {files.length > 0 && <ul className="mt-4 space-y-2">{files.map((f, i) => (
         <li key={i} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm"><span className="file-badge shrink-0 w-9 text-center text-[10px] font-extrabold tracking-wider rounded-md bg-gradient-to-br from-violet-500/40 to-blue-500/40 py-1">{(f.name.split('.').pop() || 'FILE').slice(0, 4).toUpperCase()}</span>
           <span className="flex-1 truncate">{f.name}</span><span dir="ltr" className="text-gray-400">{fmtSize(f.size)}</span>

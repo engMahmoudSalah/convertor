@@ -392,3 +392,10 @@ html[data-id=forest]:not(.light) .mc-idn.on { border-color: #c6f432; background:
 .nav-logo.mode-icon .nav-word { max-width: 0; opacity: 0; }
 .nav-logo.mode-icon .nav-wand { margin-inline-end: 0; }
 @media (prefers-reduced-motion: reduce) { .nav-wand, .nav-word { transition: opacity .01s; } }
+
+/* Paid-plan annotation badges */
+.plan-badge { display: inline-flex; align-items: center; gap: .25rem; vertical-align: middle; margin-inline-start: .4rem; padding: .1rem .5rem; border-radius: 999px; font-size: .68rem; line-height: 1.5; font-weight: 800; letter-spacing: .03em; white-space: nowrap; text-decoration: none; color: var(--ink); background: color-mix(in srgb, var(--ac) 20%, transparent); border: 1.5px solid var(--ac); transition: background-color .15s, transform .15s; }
+.plan-badge.business { background: var(--ink); color: var(--card, #fff); border-color: var(--ink); }
+.plan-badge:hover { background: color-mix(in srgb, var(--ac) 40%, transparent); transform: translateY(-1px); }
+.plan-badge.business:hover { background: var(--ink); opacity: .85; }
+.plan-badge:focus-visible { outline: 3px solid var(--ac); outline-offset: 2px; }
