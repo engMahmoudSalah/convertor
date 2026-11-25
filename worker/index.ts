@@ -23,6 +23,10 @@ export class AppDB extends DurableObject<any> {
   sql: any;
   constructor(state: DurableObjectState, env: any) {
     super(state, env); this.sql = state.storage.sql;
+    // Migrations run once per schema version. Re-running them on every cold start burned the free Durable Object read quota.
+    this.sql.exec('CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT)');
+    const sv = this.sql.exec("SELECT v FROM meta WHERE k='schema'").toArray()[0]?.v;
+    if (sv !== '4') {
     this.sql.exec(`
       CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL, name TEXT, pass_hash TEXT, salt TEXT, plan TEXT DEFAULT 'free', role TEXT DEFAULT 'user', banned INTEGER DEFAULT 0, created_at INTEGER, last_login INTEGER);
       CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY, user_id TEXT, created_at INTEGER, expires_at INTEGER);
@@ -40,7 +44,7 @@ export class AppDB extends DurableObject<any> {
     try { this.sql.exec('ALTER TABLE users ADD COLUMN google_sub TEXT'); } catch { /* exists */ }
     try { this.sql.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0'); } catch { /* exists */ }
     for (const c of ['max_files INTEGER', 'saved_max INTEGER', 'saved_mb INTEGER', 'ads INTEGER']) { try { this.sql.exec('ALTER TABLE plans ADD COLUMN ' + c); } catch { /* exists */ } }
-    this.sql.exec("UPDATE plans SET max_files=CASE id WHEN 'guest' THEN 5 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 100 END, saved_max=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 200 END, saved_mb=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 100 ELSE 400 END, ads=CASE id WHEN 'pro' THEN 1 WHEN 'business' THEN 0 ELSE 2 END WHERE max_files IS NULL");
+    this.sql.exec("UPDATE plans SET max_files=COALESCE(max_files, CASE id WHEN 'guest' THEN 5 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 100 END), saved_max=COALESCE(saved_max, CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 200 END), saved_mb=COALESCE(saved_mb, CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 100 ELSE 400 END), ads=CASE id WHEN 'pro' THEN 1 WHEN 'business' THEN 0 ELSE 2 END WHERE max_files IS NULL");
     this.sql.exec('CREATE TABLE IF NOT EXISTS saved_blob(saved_id TEXT, idx INTEGER, data TEXT, PRIMARY KEY(saved_id, idx))');
     for (const c of ['out_name TEXT', 'out_size INTEGER', 'out_mime TEXT', 'has_file INTEGER DEFAULT 0']) { try { this.sql.exec('ALTER TABLE saved ADD COLUMN ' + c); } catch { /* exists */ } }
     if (!this.sql.exec('SELECT 1 FROM plans LIMIT 1').toArray().length) {
@@ -48,6 +52,8 @@ export class AppDB extends DurableObject<any> {
       P.exec(`INSERT INTO plans(id,name,price_usd,price_egp,heavy_daily,ai_daily,max_mb,history_days,sort) VALUES('guest','Guest',0,0,3,0,25,0,0),('free','Free',0,0,10,3,50,0,1),('pro','Pro',5,249,100000,100,500,30,2),('business','Business',15,749,100000,500,2000,90,3)`);
     }
     this.sql.exec("UPDATE plans SET max_files=CASE id WHEN 'guest' THEN 5 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 100 END, saved_max=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 200 END, saved_mb=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 100 ELSE 400 END, ads=CASE id WHEN 'pro' THEN 1 WHEN 'business' THEN 0 ELSE 2 END WHERE max_files IS NULL");
+      this.sql.exec("INSERT OR REPLACE INTO meta(k,v) VALUES('schema','4')");
+    }
   }
   rows(q: string, ...a: any[]) { return this.sql.exec(q, ...a).toArray() as any[]; }
   audit(actor: string, action: string, target = '', detail = '') { this.sql.exec('INSERT INTO audit(ts,actor,action,target,detail) VALUES(?,?,?,?,?)', now(), actor, action, target, detail); }
@@ -382,7 +388,16 @@ async function route(req: Request, env: any): Promise<Response> {
     const url = new URL(req.url);
     if (url.pathname.startsWith('/api/')) {
       const stub = env.DB.get(env.DB.idFromName('main'));
-      return stub.fetch(req);
+      try { return await stub.fetch(req); } catch (e) {
+        const msg = e instanceof Error ? e.message : '';
+        console.error('do_error', msg);
+        // Storage quota or outage: keep client-side tools usable instead of blocking everything.
+        if (url.pathname === '/api/usage/consume') return new Response(JSON.stringify({ ok: true, degraded: true }), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
+        if (url.pathname === '/api/config') return new Response(JSON.stringify({ plans: [], disabled: [], heavy: [], google: false, ads: { client: null, live: false }, degraded: true }), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
+        if (url.pathname === '/api/me') return new Response(JSON.stringify({ user: null, plan: null, usage: {}, adminExists: true, degraded: true }), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
+        if (url.pathname === '/api/history') return new Response(JSON.stringify({ ok: true, degraded: true }), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
+        return new Response(JSON.stringify({ error: 'The service is busy right now. Please try again in a little while.' }), { status: 503, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
+      }
     }
     if (req.method === 'GET' || req.method === 'HEAD') {
       const t = (b: string, type: string) => new Response(b, { headers: { 'content-type': type + '; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
