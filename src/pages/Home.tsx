@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, FileText, Image as Img, FileType, UploadCloud, Sparkles, ShieldCheck, Zap, History } from 'lucide-react';
+import { Search, FileText, Image as Img, FileType, UploadCloud, Sparkles, History } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { TOOLS, TYPES, toolsOfType } from '../tools/registry';
+import { HomeSections } from '../components/HomeSections';
 import { HeroScene } from '../components/HeroScene';
 import { setPending, guessType, getRecent } from '../lib/handoff';
 const ICONS: Record<string, any> = { pdf: FileText, images: Img, documents: FileType };
@@ -33,6 +34,7 @@ export const Home: React.FC = () => {
         return <Link key={k} to={`/${k}`} className="group p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-violet-400/60 hover:bg-white/10 transition">
           <I className="text-violet-300 mb-4 group-hover:scale-110 transition" size={40} /><h2 className="text-2xl font-bold mb-1">{t.title}</h2><p className="text-xs text-violet-300 mb-2">{n.length} tools</p><p className="text-gray-400 mb-4">{t.desc}</p>
           <p className="text-xs text-gray-500">{n.slice(0, 6).map((x) => x.title).join(' · ')}{n.length > 6 ? ' · ...' : ''}</p></Link>; })}</div>
-      <div className="grid sm:grid-cols-3 gap-4 text-sm">{[[ShieldCheck, 'Private by design', 'Files never leave your device for the core tools.'], [Zap, 'Fast', 'No upload wait, no queue. Works offline-friendly.'], [Sparkles, 'More than convert', 'OCR, redact, sign, edit, compare, forms and more.']].map(([I, h, d]: any) => <div key={h} className="p-5 rounded-2xl border border-white/10"><I className="text-violet-300 mb-2" size={20} /><p className="font-semibold">{h}</p><p className="text-gray-400 text-xs mt-1">{d}</p></div>)}</div></>}
+      <HomeSections />
+    </>}
   </div>);
 };

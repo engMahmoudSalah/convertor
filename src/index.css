@@ -118,3 +118,5 @@ html.light .file-badge { color: #4c1d95; }
 .paper-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 24px 24px; opacity: .55; mask-image: linear-gradient(90deg, #000, transparent 70%); -webkit-mask-image: linear-gradient(90deg, #000, transparent 70%); }
 .pa-twinkle { transform-box: fill-box; transform-origin: center; animation: patw 2.2s ease-in-out infinite; }
 @keyframes patw { 0%, 100% { transform: scale(.6) rotate(0); opacity: .5; } 50% { transform: scale(1.1) rotate(25deg); opacity: 1; } }
+@keyframes feed2 { from { left: -33%; } to { left: 100%; } }
+html.light details > summary::-webkit-details-marker { display: none; }
