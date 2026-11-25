@@ -102,4 +102,5 @@ export const AR: Record<string, string> = {
   'PDF to PowerPoint': 'PDF إلى PowerPoint', 'Every page as a slide': 'كل صفحة كشريحة',
   'Excel to PDF': 'Excel إلى PDF', 'XLSX, XLS or CSV sheets into PDF tables': 'أوراق XLSX وXLS وCSV إلى جداول PDF',
   'PowerPoint to PDF': 'PowerPoint إلى PDF', 'PPTX slides into PDF pages': 'شرائح PPTX إلى صفحات PDF',
+  'Your files stay yours.': 'ملفاتك تبقى ملكك.', 'History of your jobs': 'سجل بكل عملياتك', 'Higher limits on advanced tools': 'حدود أعلى للأدوات المتقدمة', 'Works in Arabic and English': 'يعمل بالعربية والإنجليزية', 'Magic Convertor': 'ماجيك كونفرتر',
 };
