@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SITES } from '../lib/sites';
-export const ByMahmoud: React.FC = () => { const here = window.location.host; return (<div className="pt-28 pb-12 max-w-6xl mx-auto px-4">
-  <h1 className="text-4xl font-extrabold text-center mb-2 bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">By Mahmoud</h1>
+export const ByMahmoud: React.FC = () => { const here = window.location.host; useEffect(() => { document.title = `By Mahmoud — ${SITES.length} Live Sites & Systems`; }, []); return (<div className="pt-28 pb-12 max-w-6xl mx-auto px-4">
+  <h1 className="text-4xl font-extrabold text-center mb-2 bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">By Mahmoud — {SITES.length} Live Sites & Systems</h1>
   <p className="text-center text-gray-400 mb-10">All projects built by Mahmoud Salah ({SITES.length} live sites).</p>
   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">{SITES.map((s) => { const cur = new URL(s.url).host === here; const I = s.icon;
     return <a key={s.url} href={s.url} className={`p-5 rounded-2xl border transition ${cur ? 'border-violet-400 bg-violet-500/15' : 'border-white/10 bg-white/5 hover:border-violet-400/60 hover:bg-white/10'}`}>

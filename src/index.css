@@ -111,7 +111,10 @@ html.light .aurora { opacity: .28; }
 .reveal.in { opacity: 1; transform: none; }
 html.light .pageart [fill="#1e293b"] { fill: #cbd5e1; }
 @media (prefers-reduced-motion: reduce) { .pageart *, .reveal { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; } }
-.shimmer::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.28) 50%, transparent 70%); transform: translateX(-100%); animation: shim 1.2s linear infinite; }
-@keyframes shim { to { transform: translateX(100%); } }
+.shimmer::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,.16) 0 10px, transparent 10px 20px); background-size: 28px 28px; animation: feed .7s linear infinite; }
+@keyframes feed { to { background-position: 28px 0; } }
 @media (prefers-reduced-motion: reduce) { .shimmer::after { display: none; } }
 html.light .file-badge { color: #4c1d95; }
+.paper-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 24px 24px; opacity: .55; mask-image: linear-gradient(90deg, #000, transparent 70%); -webkit-mask-image: linear-gradient(90deg, #000, transparent 70%); }
+.pa-twinkle { transform-box: fill-box; transform-origin: center; animation: patw 2.2s ease-in-out infinite; }
+@keyframes patw { 0%, 100% { transform: scale(.6) rotate(0); opacity: .5; } 50% { transform: scale(1.1) rotate(25deg); opacity: 1; } }

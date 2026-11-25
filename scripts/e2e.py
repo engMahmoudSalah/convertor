@@ -7,7 +7,7 @@ results=[]
 def tool(p, tid, files, opts=None, label=None):
     p.goto(f'{BASE}/tools/{tid}'); p.set_input_files('input[type=file]', files)
     for k,v in (opts or {}).items():
-        el = p.locator('label').filter(has=p.locator('span', has_text=k)).first.locator('select, input')
+        el = p.locator('label').filter(has=p.locator('span', has_text=k)).first.locator('select, input:not([type=range])')
         if el.evaluate('e=>e.tagName')=='SELECT': el.select_option(v)
         else: el.fill(str(v))
     p.locator('button.bg-gradient-to-r').first.click()

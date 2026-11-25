@@ -18,6 +18,7 @@ export const SITES = [
   { name: 'Children Skills', desc: 'Playful skills-learning experience built for kids.', icon: Blocks, url: 'https://children-skills.mahmodsalah.workers.dev/' },
   { name: 'Lerne Deutsch', icon: Languages, desc: 'Arabic-first German course: personal learning path, A1 to B1 lessons with audio, exercises and spaced review.', url: 'https://lerne-deutsch.mahmodsalah.workers.dev/' },
   { name: 'Tabeebi', icon: Stethoscope, desc: 'Doctor booking platform: search, live slots, reviews, video visits and doctor subscription plans.', url: 'https://tabeebi.mahmodsalah.workers.dev/' },
+  { name: 'Velocity', icon: KanbanSquare, desc: 'Project and task board with real-time sync, roles, comments and activity, on Cloudflare.', url: 'https://velocity.mahmodsalah.workers.dev/' },
   { name: 'CV', icon: FileText, desc: 'Resume page: skills, projects, education and a PDF download.', url: 'https://cv.mahmodsalah.workers.dev/' },
   { name: 'Foda Salama', desc: 'School website for Foda Salama Primary School.', icon: GraduationCap, url: 'https://foda-salama.mahmodsalah.workers.dev/' },
   { name: 'Right Water', desc: 'Water services company site with a clean, fresh look.', icon: Droplets, url: 'https://right-water.mahmodsalah.workers.dev/' },
