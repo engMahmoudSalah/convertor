@@ -20,6 +20,7 @@ export const AuthPage: React.FC<{ mode: 'login' | 'signup' }> = ({ mode }) => {
       {mode === 'signup' && <input className={field} placeholder={t('Name')} autoComplete="name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />}
       <input className={field} type="email" required placeholder={t('Email')} autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
       <input className={field} type="password" required minLength={8} placeholder={t('Password (8+ characters)')} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+      {mode === 'login' && <p className="text-sm -mt-2"><Link className="text-violet-300" to="/forgot">{t('Forgot password?')}</Link></p>}
       {err && <p className="text-red-300 text-sm bg-red-500/10 border border-red-400/30 rounded-lg p-2">{err}</p>}
       <button disabled={busy} className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-violet-500 to-blue-500 disabled:opacity-50">{busy ? '...' : t(mode === 'login' ? 'Sign in' : 'Sign up free')}</button>
     </form>

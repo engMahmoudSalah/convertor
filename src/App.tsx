@@ -1,3 +1,4 @@
+import { Forgot, Reset, Verify } from './pages/AuthExtra';
 import { useEffect } from 'react';
 import { LangProvider, AR_PREFIX } from './lib/i18n';
 import { About, Contact } from './pages/Static';
@@ -38,6 +39,9 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<AuthPage mode="login" />} />
           <Route path="/signup" element={<AuthPage mode="signup" />} />
+          <Route path="/forgot" element={<Forgot />} />
+          <Route path="/reset" element={<Reset />} />
+          <Route path="/verify" element={<Verify />} />
           <Route path="/account" element={<Account />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/pricing" element={<Pricing />} />

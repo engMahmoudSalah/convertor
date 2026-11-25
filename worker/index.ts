@@ -33,9 +33,11 @@ export class AppDB extends DurableObject<any> {
       CREATE TABLE IF NOT EXISTS flags(tool TEXT PRIMARY KEY, enabled INTEGER DEFAULT 1);
       CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER, actor TEXT, action TEXT, target TEXT, detail TEXT);
       CREATE TABLE IF NOT EXISTS orders(id TEXT PRIMARY KEY, user_id TEXT, plan TEXT, provider TEXT, amount REAL, currency TEXT, status TEXT, ref TEXT, tx_id TEXT, created_at INTEGER, paid_at INTEGER);
+      CREATE TABLE IF NOT EXISTS tokens(hash TEXT PRIMARY KEY, user_id TEXT, kind TEXT, expires_at INTEGER);
       CREATE TABLE IF NOT EXISTS attempts(k TEXT PRIMARY KEY, n INTEGER, reset_at INTEGER);
     `);
     try { this.sql.exec('ALTER TABLE users ADD COLUMN plan_until INTEGER'); } catch { /* exists */ }
+    try { this.sql.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0'); } catch { /* exists */ }
     for (const c of ['max_files INTEGER', 'saved_max INTEGER', 'saved_mb INTEGER', 'ads INTEGER']) { try { this.sql.exec('ALTER TABLE plans ADD COLUMN ' + c); } catch { /* exists */ } }
     this.sql.exec("UPDATE plans SET max_files=CASE id WHEN 'guest' THEN 5 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 100 END, saved_max=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 50 ELSE 200 END, saved_mb=CASE id WHEN 'guest' THEN 0 WHEN 'free' THEN 10 WHEN 'pro' THEN 100 ELSE 400 END, ads=CASE id WHEN 'pro' THEN 1 WHEN 'business' THEN 0 ELSE 2 END WHERE max_files IS NULL");
     this.sql.exec('CREATE TABLE IF NOT EXISTS saved_blob(saved_id TEXT, idx INTEGER, data TEXT, PRIMARY KEY(saved_id, idx))');
@@ -55,7 +57,23 @@ export class AppDB extends DurableObject<any> {
     if (r && r.plan_until && r.plan_until < now() && r.plan !== 'free') { this.sql.exec("UPDATE users SET plan='free', plan_until=NULL WHERE id=?", r.id); this.audit('system', 'plan_expired', r.email, r.plan); r.plan = 'free'; r.plan_until = null; }
     return r && !r.banned ? r : null;
   }
-  pub(u: any) { return u && { id: u.id, email: u.email, name: u.name, plan: u.plan, plan_until: u.plan_until ?? null, role: u.role, created_at: u.created_at }; }
+  async mail(to: string, subject: string, text: string, html: string) {
+    const key = this.env.RESEND_KEY; if (!key) { if (this.env.MAIL_DEBUG) console.log('MAILDEBUG ' + text); this.audit('system', 'mail_skipped', to, subject); return false; }
+    try {
+      const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { authorization: 'Bearer ' + key, 'content-type': 'application/json' }, body: JSON.stringify({ from: this.env.MAIL_FROM || 'Magic Convertor <onboarding@resend.dev>', to: [to], subject, text, html }) });
+      if (!r.ok) { this.audit('system', 'mail_failed', to, String(r.status)); return false; }
+      return true;
+    } catch { this.audit('system', 'mail_failed', to, 'network'); return false; }
+  }
+  async makeToken(userId: string, kind: string, ttlMs: number) {
+    this.sql.exec('DELETE FROM tokens WHERE user_id=? AND kind=?', userId, kind);
+    const t = rnd(32); this.sql.exec('INSERT INTO tokens(hash,user_id,kind,expires_at) VALUES(?,?,?,?)', await sha(t), userId, kind, now() + ttlMs); return t;
+  }
+  async sendVerify(u: any, origin: string) {
+    const t = await this.makeToken(u.id, 'verify', 48 * 3600e3), link = `${origin}/verify?token=${t}`;
+    return this.mail(u.email, 'Confirm your email for Magic Convertor', `Confirm your email: ${link}\n\nThis link works for 48 hours. If you did not sign up, ignore this email.`, `<p>Confirm your email for Magic Convertor:</p><p><a href="${link}">Confirm email</a></p><p>This link works for 48 hours. If you did not sign up, ignore this email.</p>`);
+  }
+  pub(u: any) { return u && { id: u.id, email: u.email, name: u.name, plan: u.plan, plan_until: u.plan_until ?? null, role: u.role, created_at: u.created_at, email_verified: !!u.email_verified }; }
   limit(key: string, max: number, windowMs: number) {
     const r = this.rows('SELECT * FROM attempts WHERE k=?', key)[0];
     if (!r || r.reset_at < now()) { this.sql.exec('INSERT OR REPLACE INTO attempts VALUES(?,?,?)', key, 1, now() + windowMs); return true; }
@@ -89,6 +107,7 @@ export class AppDB extends DurableObject<any> {
       if (this.rows('SELECT 1 FROM users WHERE email=?', email).length) return json({ error: 'Email already registered' }, 409);
       const id = 'u_' + rnd(8), salt = rnd(16); this.sql.exec('INSERT INTO users(id,email,name,pass_hash,salt,created_at,last_login) VALUES(?,?,?,?,?,?,?)', id, email, name, await pbkdf2(pw, salt), salt, now(), now());
       this.audit(id, 'signup', email);
+      this.ctx.waitUntil(this.sendVerify({ id, email }, new URL(req.url).origin));
       return json({ user: this.pub(this.rows('SELECT * FROM users WHERE id=?', id)[0]) }, 200, { 'set-cookie': await this.startSession(id) });
     }
     if (path === '/auth/delete' && method === 'POST') {
@@ -110,6 +129,36 @@ export class AppDB extends DurableObject<any> {
       if (r.banned) return json({ error: 'This account is suspended' }, 403);
       this.sql.exec('UPDATE users SET last_login=? WHERE id=?', now(), r.id);
       return json({ user: this.pub(r) }, 200, { 'set-cookie': await this.startSession(r.id) });
+    }
+    if (path === '/auth/forgot' && method === 'POST') {
+      const email = String(body.email ?? '').trim().toLowerCase();
+      if (!this.limit(`fg:${ip}`, 5, 3600e3) || !this.limit(`fgm:${email}`, 3, 3600e3)) return json({ error: 'Too many attempts, try again later' }, 429);
+      const r = this.rows('SELECT * FROM users WHERE email=? AND banned=0', email)[0];
+      if (r) { const t = await this.makeToken(r.id, 'reset', 3600e3), link = `${new URL(req.url).origin}/reset?token=${t}`; this.audit(r.id, 'reset_requested', r.email); this.ctx.waitUntil(this.mail(r.email, 'Reset your Magic Convertor password', `Reset your password: ${link}\n\nThis link works for 1 hour. If you did not ask for it, ignore this email.`, `<p>Reset your Magic Convertor password:</p><p><a href="${link}">Choose a new password</a></p><p>This link works for 1 hour. If you did not ask for it, ignore this email.</p>`)); }
+      return json({ ok: true });
+    }
+    if (path === '/auth/reset' && method === 'POST') {
+      if (!this.limit(`rs:${ip}`, 10, 900e3)) return json({ error: 'Too many attempts, try again later' }, 429);
+      const np = String(body.newPassword ?? ''); if (np.length < 8 || np.length > 200) return json({ error: 'New password must be at least 8 characters' }, 400);
+      const h = await sha(String(body.token ?? '')), t = this.rows("SELECT * FROM tokens WHERE hash=? AND kind='reset' AND expires_at>?", h, now())[0];
+      if (!t) return json({ error: 'This link is invalid or expired' }, 400);
+      const salt = rnd(16); this.sql.exec('UPDATE users SET pass_hash=?, salt=?, email_verified=1 WHERE id=?', await pbkdf2(np, salt), salt, t.user_id);
+      this.sql.exec('DELETE FROM tokens WHERE user_id=?', t.user_id); this.sql.exec('DELETE FROM sessions WHERE user_id=?', t.user_id); this.audit(t.user_id, 'password_reset', '');
+      return json({ ok: true });
+    }
+    if (path === '/auth/verify' && method === 'POST') {
+      if (!this.limit(`vf:${ip}`, 20, 900e3)) return json({ error: 'Too many attempts, try again later' }, 429);
+      const t = this.rows("SELECT * FROM tokens WHERE hash=? AND kind='verify' AND expires_at>?", await sha(String(body.token ?? '')), now())[0];
+      if (!t) return json({ error: 'This link is invalid or expired' }, 400);
+      this.sql.exec('UPDATE users SET email_verified=1 WHERE id=?', t.user_id); this.sql.exec('DELETE FROM tokens WHERE hash=?', t.hash); this.audit(t.user_id, 'email_verified', '');
+      return json({ ok: true });
+    }
+    if (path === '/auth/resend-verify' && method === 'POST') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      if (u.email_verified) return json({ ok: true, already: true });
+      if (!this.limit(`rv:${u.id}`, 3, 3600e3)) return json({ error: 'Too many attempts, try again later' }, 429);
+      const sent = await this.sendVerify(u, new URL(req.url).origin);
+      return json({ ok: true, sent });
     }
     if (path === '/auth/logout' && method === 'POST') {
       const m = /mc_session=([a-f0-9]{64})/.exec(req.headers.get('cookie') ?? ''); if (m) this.sql.exec('DELETE FROM sessions WHERE token_hash=?', await sha(m[1]));
