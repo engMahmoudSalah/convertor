@@ -3,7 +3,7 @@ import type { Tool } from './types';
 import { Lock, Unlock, Wrench, Crop, PenLine, EyeOff, GitCompare, FileCode2, Sheet, Presentation, FileSpreadsheet } from 'lucide-react';
 import { FileType, FileCode, FileOutput, FileType2 } from 'lucide-react';
 
-const loaders: Record<string, () => Promise<any>> = { P: () => import('./pdfTools'), I: () => import('./imageTools'), D: () => import('./docTools'), O: () => import('./ocrTools'), M: () => import('./moreTools') };
+const loaders: Record<string, () => Promise<any>> = { P: () => import('./pdfTools'), I: () => import('./imageTools'), D: () => import('./docTools'), O: () => import('./ocrTools'), M: () => import('./moreTools'), E: () => import('./editTools') };
 const L = (m: string, fn: string) => async (...a: any[]) => (await loaders[m]())[fn](...a);
 const IMG = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/bmp', 'image/svg+xml'];
 const PDF = ['application/pdf'];
@@ -70,6 +70,14 @@ TOOLS.push(
   { id: 'unlock-pdf', title: 'Unlock PDF', desc: 'Remove the password from a PDF you own', category: 'security', icon: Unlock, accept: PDF, multiple: false, run: L('M', 'unlock'), options: [{ key: 'password', label: 'Password (if you know it)', type: 'text', default: '' }] },
   { id: 'sign-pdf', title: 'Sign PDF', desc: 'Add a typed signature with date', category: 'security', icon: PenLine, accept: PDF, multiple: false, run: L('M', 'sign'),
     options: [{ key: 'name', label: 'Your name', type: 'text', default: '' }, pagesOpt('Pages', '1'), { key: 'position', label: 'Position', type: 'select', default: 'right', options: [{ v: 'left', l: 'Left' }, { v: 'center', l: 'Center' }, { v: 'right', l: 'Right' }] }, { key: 'y', label: 'Height from bottom (pt)', type: 'number', default: 80, min: 20, max: 800 }, { key: 'date', label: 'Add date', type: 'check', default: true }] },
+  { id: 'edit-pdf', title: 'Edit PDF', desc: 'Add text, shapes, highlights and images onto pages', category: 'edit', icon: PenLine, accept: PDF, multiple: false, run: L('E', 'editPdf'),
+    options: [pagesOpt('Pages', 'all'),
+      { key: 'text', label: 'Text (new lines allowed)', type: 'text', default: '' }, { key: 'font', label: 'Font', type: 'select', default: 'sans', options: [{ v: 'sans', l: 'Sans' }, { v: 'bold', l: 'Bold' }, { v: 'serif', l: 'Serif' }, { v: 'mono', l: 'Mono' }] },
+      { key: 'size', label: 'Text size (pt)', type: 'number', default: 18, min: 4, max: 200 }, { key: 'color', label: 'Text colour', type: 'color', default: '#111111' }, { key: 'rotate', label: 'Text rotation (deg)', type: 'number', default: 0, min: -180, max: 180 },
+      { key: 'x', label: 'Left position (% of page width)', type: 'number', default: 10, min: 0, max: 100 }, { key: 'y', label: 'Top position (% of page height)', type: 'number', default: 10, min: 0, max: 100 },
+      { key: 'shape', label: 'Shape at the same position', type: 'select', default: 'none', options: [{ v: 'none', l: 'None' }, { v: 'fill', l: 'Filled rectangle / highlight' }, { v: 'box', l: 'Outlined box' }, { v: 'line', l: 'Line' }] },
+      { key: 'sw', label: 'Shape width (%)', type: 'number', default: 30, min: 1, max: 100 }, { key: 'sh', label: 'Shape height (%)', type: 'number', default: 5, min: 0, max: 100 }, { key: 'scolor', label: 'Shape colour', type: 'color', default: '#ffe14d' }, { key: 'opacity', label: 'Shape opacity (%)', type: 'number', default: 50, min: 5, max: 100 },
+      { key: 'image', label: 'Image to place (logo, stamp, signature)', type: 'file', default: null }, { key: 'ix', label: 'Image left (%)', type: 'number', default: 60, min: 0, max: 100 }, { key: 'iy', label: 'Image top (%)', type: 'number', default: 80, min: 0, max: 100 }, { key: 'iw', label: 'Image width (%)', type: 'number', default: 25, min: 2, max: 100 }, { key: 'opacity2', label: 'Image opacity (%)', type: 'number', default: 100, min: 5, max: 100 }] },
   { id: 'redact-pdf', title: 'Redact PDF', desc: 'Permanently black out words and phrases', category: 'security', icon: EyeOff, accept: PDF, multiple: false, run: L('M', 'redact'), options: [{ key: 'terms', label: 'Words to remove (comma separated)', type: 'text', default: '' }] },
   { id: 'compare-pdf', title: 'Compare PDF', desc: 'See added and removed lines between two PDFs', category: 'security', icon: GitCompare, accept: PDF, multiple: true, minFiles: 2, run: L('M', 'compare') },
   { id: 'repair-pdf', title: 'Repair PDF', desc: 'Recover pages from a damaged PDF', category: 'optimize', icon: Wrench, accept: PDF, multiple: false, run: L('M', 'repair') },
