@@ -308,6 +308,11 @@ export class AppDB extends DurableObject<any> {
         this.sql.exec('INSERT INTO flags VALUES(?,?) ON CONFLICT(tool) DO UPDATE SET enabled=?', String(body.tool), body.enabled ? 1 : 0, body.enabled ? 1 : 0);
         this.audit(u.email, body.enabled ? 'enable_tool' : 'disable_tool', String(body.tool)); return json({ ok: true });
       }
+      if (path === '/admin/export' && method === 'GET') {
+        this.audit(u.email, 'admin_export', '', '');
+        const data = { exported_at: new Date().toISOString(), users: this.rows('SELECT id,email,name,plan,plan_until,role,banned,email_verified,created_at,last_login FROM users'), plans: this.rows('SELECT * FROM plans'), flags: this.rows('SELECT * FROM flags'), orders: this.rows('SELECT * FROM orders'), saved: this.rows('SELECT id,user_id,tool,name,summary,out_name,out_size,has_file,ts FROM saved'), history: this.rows('SELECT * FROM history ORDER BY id DESC LIMIT 5000'), audit: this.rows('SELECT * FROM audit ORDER BY id DESC LIMIT 5000') };
+        return new Response(JSON.stringify(data, null, 2), { headers: { 'content-type': 'application/json', 'content-disposition': `attachment; filename="magic-convertor-backup-${day()}.json"`, 'cache-control': 'no-store' } });
+      }
       if (path === '/admin/audit' && method === 'GET') return json({ audit: this.rows('SELECT * FROM audit ORDER BY id DESC LIMIT 100') });
     }
     return json({ error: 'Not found' }, 404);
@@ -316,7 +321,7 @@ export class AppDB extends DurableObject<any> {
 
 const ADS = 'https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://*.adtrafficquality.google https://fundingchoicesmessages.google.com https://www.googletagservices.com https://*.google.com';
 const CSP = [
-  "default-src 'self'", `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: ${ADS}`, "style-src 'self' 'unsafe-inline'", "font-src 'self' data:",
+  "default-src 'self'", `script-src 'self' 'wasm-unsafe-eval' blob: ${ADS}`, "style-src 'self' 'unsafe-inline'", "font-src 'self' data:",
   `img-src 'self' data: blob: https:`, `connect-src 'self' blob: ${ADS}`, `frame-src ${ADS}`, "worker-src 'self' blob:", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'", 'upgrade-insecure-requests',
 ].join('; ');
 function harden(res: Response, isApi: boolean): Response {

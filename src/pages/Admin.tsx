@@ -36,6 +36,9 @@ export const Admin: React.FC = () => {
         <td className="text-gray-400">{new Date(x.created_at).toLocaleDateString()}</td><td><button className="text-xs px-2 py-1 rounded border border-white/20" onClick={() => act('/admin/user', { id: x.id, banned: !x.banned })}>{x.banned ? 'Restore' : 'Suspend'}</button></td></tr>)}</tbody></table></div>
     <h2 className="font-semibold mb-3">Tool switches</h2>
     <div className="flex flex-wrap gap-2 mb-8">{TOOLS.map((t) => { const off = disabled.includes(t.id); return <button key={t.id} onClick={() => act('/admin/flag', { tool: t.id, enabled: off })} className={`text-xs px-2.5 py-1 rounded-full border ${off ? 'border-red-400/50 text-red-300 line-through' : 'border-emerald-400/40 text-emerald-200'}`}>{t.title}</button>; })}</div>
+    <h2 className="font-semibold mb-3">Backup</h2>
+    <p className="text-sm text-gray-400 mb-3">Download all users (no password data), plans, flags, orders, saved-operation records, history and audit log as one JSON file. Saved file contents are not included.</p>
+    <a href="/api/admin/export" download className="flow-ghost inline-block px-4 py-2 rounded-xl font-semibold mb-8">Download backup (JSON)</a>
     <h2 className="font-semibold mb-3">Audit log</h2>
     <ul className="text-xs space-y-1 text-gray-300">{audit.map((a) => <li key={a.id}>{new Date(a.ts).toLocaleString()} · {a.actor} · {a.action} · {a.target} {a.detail}</li>)}</ul>
   </div>);
