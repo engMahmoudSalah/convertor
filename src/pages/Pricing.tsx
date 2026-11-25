@@ -18,9 +18,9 @@ export const Pricing: React.FC = () => {
   return (<div className="pt-28 pb-16 max-w-6xl mx-auto px-4">
     <PageHeader kind="pricing" title={t('Plans')} sub={t('Start free. Upgrade when you need more.')} />
     <div className="grid md:grid-cols-3 gap-6">{plans.filter((p) => p.id !== 'guest').map((p) => (
-      <div key={p.id} className={`rounded-3xl p-7 border ${p.id === 'pro' ? 'border-violet-400/70 bg-violet-500/10' : 'border-white/10 bg-white/5'}`}>
+      <div key={p.id} className={`rounded-3xl p-7 border ${p.id === 'pro' ? 'plan-pro border-violet-400/70 bg-violet-500/10' : 'border-white/10 bg-white/5'}`}>
         <h2 className="text-xl font-bold">{t(p.name)}</h2>
-        <p className="text-3xl font-extrabold my-3">{p.price_usd ? `$${p.price_usd}` : t('Free')}<span className="text-sm font-normal text-gray-400">{p.price_usd ? t(' / month') : ''}</span></p>
+        <p className="text-3xl font-extrabold my-3">{p.price_usd ? `$${p.price_usd}` : '$0'}<span className="text-sm font-normal text-gray-400">{p.price_usd ? t(' / month') : ''}</span></p>
         {p.price_egp > 0 && <p className="text-xs text-gray-400 -mt-2 mb-3">{lang === 'ar' ? `أو ${p.price_egp} جنيه` : `or ${p.price_egp} EGP`}</p>}
         <ul className="space-y-2 text-sm text-gray-300 mb-6">{feats(p, lang === 'ar').map((f) => <li key={f} className="flex gap-2"><Check size={16} className="text-emerald-300 shrink-0 mt-0.5" />{f}</li>)}</ul>
         {p.id === 'free' ? <Link to={user ? '/account' : '/signup'} className="block text-center py-2.5 rounded-xl border border-white/20">{t(user ? 'Your account' : 'Get started')}</Link>

@@ -300,3 +300,7 @@ html[data-id=forest]:not(.light) [class*="bg-violet-500/"] { background: rgba(19
 html[data-id=forest] .text-violet-200 { color: inherit; }
 html[data-id=forest] .file-badge { background: #0a2a23 !important; color: #c6f432 !important; border-radius: 8px; }
 html[data-id=forest]:not(.light) .file-badge { background: #c6f432 !important; color: #0a2a23 !important; }
+html[data-id=forest] .plan-pro { background: #c6f432 !important; border: 0 !important; color: #0a2a23; box-shadow: 0 24px 50px -24px rgba(10,42,35,.5); }
+html[data-id=forest] .plan-pro * { color: #0a2a23 !important; }
+html[data-id=forest] .plan-pro li svg { color: #0a2a23 !important; }
+html[data-id=forest]:not(.light) .plan-pro button { background: rgba(10,42,35,.12) !important; }
