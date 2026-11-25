@@ -64,6 +64,10 @@ with sync_playwright() as pw:
      ('ocr-image',[F('ocr.png')],{},lambda o:'Invoice' in open(o[0]).read()),
      ('ocr-pdf',[F('three.pdf')],{},lambda o:any(x.endswith('.txt') and 'three' in open(x).read() for x in o) and any(x.endswith('.pdf') for x in o)),
      ('edit-pdf',[F('three.pdf')],{'Text (new':'HELLO EDIT','Shape at':'fill'},lambda o:'HELLO EDIT' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text() and 'HELLO EDIT' in __import__('pypdf').PdfReader(o[0]).pages[2].extract_text()),
+     ('html-to-pdf',[F('page.html')],{},lambda o:pages(o[0])>=1 and __import__('PIL.Image',fromlist=['x']) is not None),
+     ('html-to-pdf',[F('page.html')],{'Output':'text'},lambda o:'Hello HTML' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
+     ('add-form-fields',[F('three.pdf')],{'Field names':'Name, Email'},lambda o:len(__import__('pypdf').PdfReader(o[0]).get_fields() or {})==2),
+     ('fill-pdf-form',[F('form.pdf')],{'Values':'Name=Mahmoud;Email=a@b.co'},lambda o:(__import__('pypdf').PdfReader(o[0]).get_fields()['Name'].get('/V')=='Mahmoud')),
      ('scan-to-pdf',[F('logo.png'),F('grad.png')],{},lambda o:pages(o[0])==2),
      ('compress-image',[F('grad.png')],{},lambda o:len(o)==1),
     ]
