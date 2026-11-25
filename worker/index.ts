@@ -79,7 +79,7 @@ export class AppDB extends DurableObject<any> {
     const subject = u ? u.id : `ip:${(await sha(ip)).slice(0, 16)}`;
 
     if (path === '/config' && method === 'GET') {
-      return json({ plans: this.rows('SELECT * FROM plans ORDER BY sort'), disabled: this.rows('SELECT tool FROM flags WHERE enabled=0').map((r) => r.tool), heavy: [...HEAVY] });
+      return json({ plans: this.rows('SELECT * FROM plans ORDER BY sort'), disabled: this.rows('SELECT tool FROM flags WHERE enabled=0').map((r) => r.tool), heavy: [...HEAVY], ads: { client: this.env.ADSENSE_PUB ? String(this.env.ADSENSE_PUB) : null, live: this.env.ADS_LIVE === '1' } });
     }
     if (path === '/auth/signup' && method === 'POST') {
       if (!this.limit(`su:${ip}`, 10, 3600e3)) return json({ error: 'Too many attempts, try later' }, 429);

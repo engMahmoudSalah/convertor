@@ -12,6 +12,7 @@ import { fmtSize } from '../lib/util';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { Thumbs } from '../components/Thumbs';
+import { AdGate } from '../components/Ads';
 import { ToolInfo } from '../components/ToolInfo';
 import { SplitPreview, CompressPreview, FileCards, PageGrid, BackgroundPreview, PageFrame, usePreviewMode, compressPages } from '../components/PreviewDock';
 import type { Out } from '../tools/types';
@@ -23,7 +24,7 @@ const save = (b: Blob, name: string) => { const a = document.createElement('a');
 const field = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-400';
 
 export const ToolPage: React.FC = () => {
-  const { t: tr } = useT(); const { id } = useParams(); const tool = getTool(id); const { disabled, refresh } = useAuth(); const [upgrade, setUpgrade] = useState(false); const [stage, setStage] = useState<'upload' | 'board' | 'final'>('upload'); const [tab, setTab] = useState<'before' | 'after'>('before'); const [saved, setSaved] = useState<'' | 'ok' | 'login' | 'busy'>(''); const loc = useLocation(); const { user } = useAuth();
+  const { t: tr } = useT(); const { id } = useParams(); const tool = getTool(id); const { disabled, refresh } = useAuth(); const [upgrade, setUpgrade] = useState(false); const [stage, setStage] = useState<'upload' | 'board' | 'final'>('upload'); const [tab, setTab] = useState<'before' | 'after'>('before'); const [saved, setSaved] = useState<'' | 'ok' | 'login' | 'busy'>(''); const loc = useLocation(); const { user } = useAuth(); const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [adDone, setAdDone] = useState(false);
   const [files, setFiles] = useState<File[]>([]); const [outs, setOuts] = useState<Out[]>([]);
   const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [prog, setProg] = useState('');
   const [opts, setOpts] = useState<Record<string, any>>({}); const [sel, setSel] = useState<Set<number>>(new Set()); const mode = tool ? usePreviewMode(tool) : 'first';
@@ -40,7 +41,7 @@ export const ToolPage: React.FC = () => {
   const Icon = tool.icon; const off = disabled.includes(tool.id);
   const move = (i: number, d: number) => setFiles((f) => { const n = [...f]; [n[i], n[i + d]] = [n[i + d], n[i]]; return n; });
   const run = async () => {
-    setBusy(true); setErr(''); setOuts([]); setUpgrade(false);
+    setBusy(true); setErr(''); setOuts([]); setUpgrade(false); setAdDone(false);
     const bytes = files.reduce((a, f) => a + f.size, 0); const t0 = Date.now();
     const q = await api('/usage/consume', { tool: tool.id, bytes, files: files.length });
     if (q._status >= 400 && q._status !== 404) { setErr(q.error ?? 'Not allowed'); setUpgrade(!!q.upgrade); setBusy(false); return; }
@@ -110,9 +111,11 @@ export const ToolPage: React.FC = () => {
       </aside></div>}
       {stage === 'board' && <div className="flow-bar mt-6 flex items-center justify-between gap-3"><button onClick={() => setStage('upload')} className="flow-ghost px-4 py-2.5 rounded-xl text-sm font-semibold inline-flex items-center gap-2"><ArrowLeft size={16} className="rtl:rotate-180" /> {tr('Back')}</button>{outs.length === 0 && !busy && <span className="text-xs opacity-70 hidden sm:inline">{tr('Apply the tool, then press Next. You can keep editing until then.')}</span>}<button disabled={!outs.length || busy} onClick={() => setStage('final')} className="flow-next px-6 py-2.5 rounded-xl font-semibold inline-flex items-center gap-2 disabled:opacity-40">{tr('Next')} <ArrowRight size={18} className="rtl:rotate-180" /></button></div>}
       {stage === 'final' && <div className="max-w-2xl mx-auto relative"><Confetti /><div className="flow-panel p-6 sm:p-8 text-center"><CheckCircle2 className="mx-auto mb-3 text-[color:var(--ac)]" size={40} /><h2 className="text-2xl font-bold mb-1">{tr('Done')}</h2><p className="text-sm opacity-70 mb-4">{tr(tool.title)} · {outs.length} {tr(outs.length === 1 ? 'file' : 'files')}</p><div className="flex justify-center mb-6"><SizeSummary inBytes={inBytes} outs={outs} /></div>
+        {adSteps > 0 && !adDone ? <AdGate steps={adSteps} onDone={() => setAdDone(true)} onBack={() => { setStage('board'); setTab('after'); }} /> : <>
         {outs.length === 1 ? <button onClick={() => save(outs[0].blob, outs[0].name)} className="flow-next w-full py-4 rounded-2xl text-lg font-bold inline-flex items-center justify-center gap-2"><Download size={22} /> {tr('Download')}</button>
           : <><button onClick={async () => save(await (await import('../tools/pdfTools')).zipOuts(outs), 'magic-convertor.zip')} className="flow-next w-full py-4 rounded-2xl text-lg font-bold inline-flex items-center justify-center gap-2"><Download size={22} /> {tr('Download all as ZIP')}</button>
             <ul className="mt-3 space-y-1.5 text-sm text-start">{outs.map((o, i) => <li key={i} className="flex items-center gap-2"><span className="flex-1 truncate">{o.name}</span><span dir="ltr" className="opacity-70">{fmtSize(o.blob.size)}</span><button aria-label={`${tr('Download')} ${o.name}`} onClick={() => save(o.blob, o.name)} className="p-2 rounded-lg flow-ghost"><Download size={15} /></button></li>)}</ul></>}
+        </>}
         <div className="grid sm:grid-cols-3 gap-3 mt-4">
           <Link to="/" className="flow-ghost py-3 rounded-xl text-sm font-semibold inline-flex items-center justify-center gap-2"><Home size={16} /> {tr('Back to Home')}</Link>
           <button onClick={() => { setStage('board'); setTab('after'); }} className="flow-ghost py-3 rounded-xl text-sm font-semibold inline-flex items-center justify-center gap-2"><Pencil size={16} /> {tr('Edit again')}</button>

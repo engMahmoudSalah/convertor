@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { LangProvider, AR_PREFIX } from './lib/i18n';
 import { About, Contact } from './pages/Static';
+import { ConsentBanner } from './components/Ads';
 import { ScrollManager, BackToTop } from './components/ScrollKit';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
@@ -52,7 +53,7 @@ function App() {
         <img style={{height:"55px"}} src={logo} alt="" />
             </div>
         <SiteFooter />
-        <BackToTop />
+        <BackToTop /><ConsentBanner />
       </div>
     </AuthProvider></LangProvider>
     </BrowserRouter>

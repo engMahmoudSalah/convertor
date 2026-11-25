@@ -4,6 +4,14 @@ BASE = sys.argv[1] if len(sys.argv)>1 else 'http://localhost:4173'
 os.makedirs('/tmp/out', exist_ok=True)
 F=lambda n: os.path.abspath('fixtures/'+n)
 results=[]
+def pass_gate(p):
+    sel = '[role=region] .flow-next'
+    for _ in range(4):
+        if p.locator('[role=region][aria-label="Your file is ready"]').count() == 0:
+            return
+        p.wait_for_function("() => { const x = document.querySelector('[role=region] .flow-next'); return x && !x.disabled }", timeout=9000)
+        p.locator(sel).click(); p.wait_for_timeout(150)
+
 def tool(p, tid, files, opts=None, label=None):
     p.goto(f'{BASE}/tools/{tid}'); p.set_input_files('input[type=file]', files)
     p.locator('button.flow-next').first.click()
@@ -14,7 +22,7 @@ def tool(p, tid, files, opts=None, label=None):
     p.locator('button.bg-gradient-to-r').first.click()
     p.wait_for_selector('.flow-bar button.flow-next:not([disabled]), p.text-red-300', timeout=25000)
     if p.locator('p.text-red-300').count(): return None, p.locator('p.text-red-300').inner_text()
-    p.locator('.flow-bar button.flow-next').click(); p.wait_for_selector('h2:has-text("Done")', timeout=5000)
+    p.locator('.flow-bar button.flow-next').click(); p.wait_for_selector('h2:has-text("Done")', timeout=5000); pass_gate(p)
     outs=[]
     if p.locator('button[aria-label^="Download "]').count():
         for i in range(p.locator('button[aria-label^="Download "]').count()):
@@ -27,7 +35,7 @@ def tool(p, tid, files, opts=None, label=None):
 def pages(path):
     from pypdf import PdfReader; return len(PdfReader(path).pages)
 with sync_playwright() as pw:
-    b=pw.chromium.launch(); p=b.new_page()
+    b=pw.chromium.launch(); p=b.new_page(); p.add_init_script("(()=>{const si=window.setInterval;window.setInterval=(f,t,...a)=>si(f,Math.min(t||0,15),...a)})()")
     p.on('pageerror', lambda e: print('PAGEERR', e))
     cases=[
      ('merge-pdf',[F('five.pdf'),F('three.pdf')],{},lambda o:pages(o[0])==8),

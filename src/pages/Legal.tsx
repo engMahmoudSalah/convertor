@@ -11,6 +11,8 @@ const DOCS: Record<string, { title: string; body: string[] }> = {
     'Files you process with client-side tools are not uploaded to our servers.',
     'If you create an account we store your email, name, a salted password hash, your plan, daily usage counters and, on paid plans, a history of the tools you used (tool name, file count and size, never file contents).',
     'We use a session cookie to keep you signed in. We do not sell personal data. Payment details are handled by our payment provider and never stored by us.',
+    'Advertising: free and guest plans may show ads served by Google AdSense (when enabled). Google and its partners may use cookies to serve ads. Unless you choose "Accept all" in the cookie banner, ads are non-personalised. You can change your choice by clearing this site\'s local storage, or opt out of personalised ads at adssettings.google.com. Paid Business plans show no ads.',
+    'Cookies and local storage: a session cookie (sign-in), and local settings for language, theme and your cookie choice. We do not use other tracking cookies.',
     'You can ask us to delete your account and data at any time.'] },
   refunds: { title: 'Refund Policy', body: [
     'Paid plans can be cancelled at any time; access continues until the end of the paid period.',
