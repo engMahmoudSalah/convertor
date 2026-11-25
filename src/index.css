@@ -120,3 +120,5 @@ html.light .file-badge { color: #4c1d95; }
 @keyframes patw { 0%, 100% { transform: scale(.6) rotate(0); opacity: .5; } 50% { transform: scale(1.1) rotate(25deg); opacity: 1; } }
 @keyframes feed2 { from { left: -33%; } to { left: 100%; } }
 html.light details > summary::-webkit-details-marker { display: none; }
+.chip-float { animation: pafloat 5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .chip-float { animation: none; } }
