@@ -3,7 +3,7 @@ import type { Tool } from './types';
 import { Lock, Unlock, Wrench, Crop, PenLine, EyeOff, GitCompare, FileCode2, Sheet, Presentation, FileSpreadsheet } from 'lucide-react';
 import { FileType, FileCode, FileOutput, FileType2 } from 'lucide-react';
 
-const loaders: Record<string, () => Promise<any>> = { P: () => import('./pdfTools'), I: () => import('./imageTools'), D: () => import('./docTools'), M: () => import('./moreTools') };
+const loaders: Record<string, () => Promise<any>> = { P: () => import('./pdfTools'), I: () => import('./imageTools'), D: () => import('./docTools'), O: () => import('./ocrTools'), M: () => import('./moreTools') };
 const L = (m: string, fn: string) => async (...a: any[]) => (await loaders[m]())[fn](...a);
 const IMG = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/bmp', 'image/svg+xml'];
 const PDF = ['application/pdf'];
@@ -60,7 +60,11 @@ TOOLS.push(
 );
 const XLS = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'];
 const PPT = ['application/vnd.openxmlformats-officedocument.presentationml.presentation'];
+const lang = { key: 'lang', label: 'Language', type: 'select' as const, default: 'eng', options: [{ v: 'eng', l: 'English' }, { v: 'ara', l: 'Arabic' }, { v: 'eng+ara', l: 'English + Arabic' }] };
 TOOLS.push(
+  { id: 'ocr-image', title: 'OCR image', desc: 'Read text from photos and screenshots (English, Arabic)', category: 'image', icon: FileText, accept: IMG, multiple: true, run: L('O', 'ocrImage'), options: [lang] },
+  { id: 'ocr-pdf', title: 'OCR PDF', desc: 'Make scanned PDFs searchable and extract their text', category: 'optimize', icon: FileText, accept: PDF, multiple: false, run: L('O', 'ocrPdf'), options: [lang, { key: 'layer', label: 'Create searchable PDF', type: 'check', default: true }] },
+  { id: 'scan-to-pdf', title: 'Scan to PDF', desc: 'Photograph pages and turn them into a clean PDF', category: 'to-pdf', icon: Images, accept: IMG, multiple: true, run: L('O', 'scanToPdf'), options: [{ key: 'filter', label: 'Scan look', type: 'select', default: 'document', options: [{ v: 'document', l: 'Black and white document' }, { v: 'gray', l: 'Grayscale' }, { v: 'original', l: 'Original colours' }] }] },
   { id: 'protect-pdf', title: 'Protect PDF', desc: 'Lock a PDF with a password (RC4 128-bit)', category: 'security', icon: Lock, accept: PDF, multiple: false, run: L('M', 'protect'),
     options: [{ key: 'password', label: 'Password', type: 'text', default: '' }, { key: 'print', label: 'Allow printing', type: 'check', default: true }, { key: 'copy', label: 'Allow copying text', type: 'check', default: false }] },
   { id: 'unlock-pdf', title: 'Unlock PDF', desc: 'Remove the password from a PDF you own', category: 'security', icon: Unlock, accept: PDF, multiple: false, run: L('M', 'unlock'), options: [{ key: 'password', label: 'Password (if you know it)', type: 'text', default: '' }] },
@@ -81,7 +85,7 @@ TOOLS.push(
 export const TYPES: Record<string, { title: string; desc: string; cats: string[]; ids?: string[] }> = {
   pdf: { title: 'PDF tools', desc: 'Organize, optimize, edit and convert PDFs', cats: ['organize', 'optimize', 'edit', 'from-pdf', 'security'], ids: ['images-to-pdf'] },
   images: { title: 'Image tools', desc: 'Convert, resize and compress images in PNG, JPG, WebP, BMP and more', cats: ['image'], ids: ['images-to-pdf', 'pdf-to-images'] },
-  documents: { title: 'Document tools', desc: 'Word and text files to and from PDF', cats: ['doc'], ids: ['pdf-to-text', 'pdf-to-excel', 'pdf-to-powerpoint', 'excel-to-pdf', 'powerpoint-to-pdf', 'pdf-to-markdown'] },
+  documents: { title: 'Document tools', desc: 'Word and text files to and from PDF', cats: ['doc'], ids: ['pdf-to-text', 'pdf-to-excel', 'pdf-to-powerpoint', 'excel-to-pdf', 'powerpoint-to-pdf', 'pdf-to-markdown', 'ocr-pdf', 'scan-to-pdf'] },
 };
 export const toolsOfType = (k: string) => TOOLS.filter((t) => TYPES[k].cats.includes(t.category) || TYPES[k].ids?.includes(t.id));
 export const CATS: Record<string, string> = { organize: 'Organize PDF', optimize: 'Optimize PDF', 'to-pdf': 'Convert to PDF', 'from-pdf': 'Convert from PDF', edit: 'Edit PDF', image: 'Images', doc: 'Documents', security: 'PDF Security' };

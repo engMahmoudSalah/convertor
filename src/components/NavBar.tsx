@@ -14,7 +14,8 @@ const menuItems = [
 export const NavBar: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, adminExists } = useAuth();
+  const adminItem = user?.role === 'admin' ? [{ name: 'Admin', path: '/admin' }] : user && !adminExists ? [{ name: 'Claim admin', path: '/admin' }] : [];
 
   return (
     <nav className="fixed w-full z-50 bg-black/10 backdrop-blur-lg border-b border-white/10">
@@ -29,7 +30,7 @@ export const NavBar: React.FC = () => {
           
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              {[...menuItems, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((item) => (
+              {[...menuItems, ...adminItem, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
@@ -59,7 +60,7 @@ export const NavBar: React.FC = () => {
       {/* Mobile menu */}
       <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black/20 backdrop-blur-lg">
-          {[...menuItems, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((item) => (
+          {[...menuItems, ...adminItem, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((item) => (
             <Link
               key={item.path}
               to={item.path}

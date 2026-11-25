@@ -61,6 +61,9 @@ with sync_playwright() as pw:
      ('powerpoint-to-pdf',[F('deck.pptx')],{},lambda o:pages(o[0])==2 and 'Launch Plan' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
      ('image-background',[F('logo.png')],{'Mode':'remove'},lambda o:(lambda im:im.mode=='RGBA' and im.getpixel((2,2))[3]==0 and im.getpixel((60,60))[3]==255)(__import__('PIL.Image',fromlist=['x']).open(o[0]))),
      ('image-background',[F('logo.png')],{'Mode':'color','Output':'png'},lambda o:(lambda im:im.convert('RGBA').getpixel((60,60))[:3]==(220,30,30))(__import__('PIL.Image',fromlist=['x']).open(o[0]))),
+     ('ocr-image',[F('ocr.png')],{},lambda o:'Invoice' in open(o[0]).read()),
+     ('ocr-pdf',[F('three.pdf')],{},lambda o:any(x.endswith('.txt') and 'three' in open(x).read() for x in o) and any(x.endswith('.pdf') for x in o)),
+     ('scan-to-pdf',[F('logo.png'),F('grad.png')],{},lambda o:pages(o[0])==2),
      ('compress-image',[F('grad.png')],{},lambda o:len(o)==1),
     ]
     for tid,files,opts,chk in cases:

@@ -6,15 +6,15 @@ import { TOOLS } from '../tools/registry';
 const card = 'p-4 rounded-2xl bg-white/5 border border-white/10';
 const inp = 'bg-white/5 border border-white/10 rounded px-2 py-1 text-sm w-24';
 export const Admin: React.FC = () => {
-  const { user, loading, plans, disabled, refresh } = useAuth();
+  const { user, loading, plans, disabled, refresh, adminExists } = useAuth();
   const [st, setSt] = useState<any>(null); const [users, setUsers] = useState<any[]>([]); const [q, setQ] = useState(''); const [audit, setAudit] = useState<any[]>([]); const [key, setKey] = useState(''); const [msg, setMsg] = useState(''); const [pl, setPl] = useState<any[]>([]);
   const load = useCallback(async () => {
     const [s, u, a] = await Promise.all([api('/admin/stats'), api('/admin/users?q=' + encodeURIComponent(q)), api('/admin/audit')]);
     if (s._status === 200) { setSt(s); setUsers(u.users ?? []); setAudit(a.audit ?? []); }
   }, [q]);
   useEffect(() => { if (user?.role === 'admin') load(); }, [user, load]); useEffect(() => setPl(plans.map((p) => ({ ...p }))), [plans]);
-  if (loading) return null; if (!user) return <Navigate to="/login" />;
-  if (user.role !== 'admin') return (<div className="pt-28 max-w-md mx-auto px-4"><h1 className="text-2xl font-bold mb-3">Admin setup</h1><p className="text-gray-400 text-sm mb-4">Enter the one-time setup key to make this account the administrator. Only works while no admin exists.</p>
+  if (loading) return null; if (!user) return <Navigate to="/login?next=/admin" />;
+  if (user.role !== 'admin') return (<div className="pt-28 max-w-md mx-auto px-4"><h1 className="text-2xl font-bold mb-3">Admin setup</h1><p className="text-xs text-gray-500 mb-3">Signed in as {user.email}</p>{adminExists && <p className="text-amber-300 text-sm mb-4">An administrator already exists, so this account cannot claim admin.</p>}<p className="text-gray-400 text-sm mb-4">Enter the one-time setup key to make this account the administrator. Only works while no admin exists.</p>
     <input className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 mb-3" type="password" placeholder="Setup key" value={key} onChange={(e) => setKey(e.target.value)} />
     <button className="w-full py-2.5 rounded-xl bg-violet-500/40" onClick={async () => { const r = await api('/admin/claim', { key }); setMsg(r.error ?? 'Done'); if (r.ok) { await refresh(); } }}>Claim admin</button>{msg && <p className="text-sm mt-3 text-gray-300">{msg}</p>}</div>);
   const act = async (path: string, body: any) => { const r = await api(path, body); if (r.error) alert(r.error); await load(); await refresh(); };

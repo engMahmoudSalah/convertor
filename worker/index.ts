@@ -96,7 +96,7 @@ export class AppDB extends DurableObject<any> {
     }
     if (path === '/me' && method === 'GET') {
       const p = this.plan(u ? u.plan : 'guest');
-      return json({ user: this.pub(u), plan: p, usage: this.usageToday(subject) });
+      return json({ user: this.pub(u), plan: p, usage: this.usageToday(subject), adminExists: this.rows("SELECT 1 FROM users WHERE role='admin'").length > 0 });
     }
     if (path === '/usage/consume' && method === 'POST') {
       const tool = String(body.tool ?? ''); const bytes = Number(body.bytes) || 0;
