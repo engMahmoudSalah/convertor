@@ -20,7 +20,7 @@ export const Pricing: React.FC = () => {
   useEffect(() => { api('/billing/status').then((r) => setProv(r.providers ?? [])); }, []);
   const buy = async (plan: string) => { if (!user) { window.location.href = '/signup?next=/pricing'; return; } setBusy(plan); setMsg(''); const r = await api('/billing/checkout', { plan, provider: prov[0]?.id }); setBusy(''); if (r.url) window.location.href = r.url; else setMsg(r.error ?? 'Could not start payment'); };
   const shown = plans.filter((p) => p.id !== 'guest'); const unl = (n: number) => (n >= 100000 ? t('Unlimited') : String(n));
-  const rows = [{ label: 'Advanced jobs per day', get: (p: any) => unl(p.heavy_daily) }, { label: 'Max file size', get: (p: any) => p.max_mb + ' MB' }, { label: 'Files per batch', get: (p: any) => String(p.max_files) }, { label: 'Saved operations', get: (p: any) => (p.saved_max ? `${p.saved_max} (${p.saved_mb} MB)` : '-') }, { label: 'Job history', get: (p: any) => (p.history_days ? `${p.history_days} ${t('days')}` : '-') }, { label: 'Ads before download', get: (p: any) => String(p.ads) }];
+  const rows: { label: string; get: (p: any) => string; sfx?: string }[] = [{ label: 'Advanced jobs per day', get: (p: any) => unl(p.heavy_daily) }, { label: 'Max file size', get: (p: any) => p.max_mb + ' MB' }, { label: 'Files per batch', get: (p: any) => String(p.max_files) }, { label: 'Saved operations', get: (p: any) => (p.saved_max ? `${p.saved_max} (${p.saved_mb} MB)` : '-') }, { label: 'Job history', get: (p: any) => (p.history_days ? String(p.history_days) : '-'), sfx: 'days' }, { label: 'Ads before download', get: (p: any) => String(p.ads) }];
   return (<div className="pt-28 pb-16 max-w-6xl mx-auto px-4">
     <PageHeader kind="pricing" title={t('Plans')} sub={t('Start free. Upgrade when you need more.')} />
     <div className="grid md:grid-cols-3 gap-6">{plans.filter((p) => p.id !== 'guest').map((p) => (
@@ -35,7 +35,7 @@ export const Pricing: React.FC = () => {
       </div>))}</div>
       <div className="mt-12 overflow-x-auto"><table className="plan-table w-full text-sm"><caption className="text-start font-bold text-lg mb-3">{t('Compare plans')}</caption>
         <thead><tr><th scope="col" className="text-start">{t('Feature')}</th>{shown.map((p) => <th key={p.id} scope="col" className={p.price_usd > 0 ? 'paid' : ''}>{t(p.name)}</th>)}</tr></thead>
-        <tbody>{rows.map((r) => <tr key={r.label}><th scope="row" className="text-start font-medium">{t(r.label)}</th>{shown.map((p) => <td key={p.id} dir="ltr" className={p.price_usd > 0 ? "paid" : ""}>{r.get(p)}</td>)}</tr>)}</tbody></table>
+        <tbody>{rows.map((r) => <tr key={r.label}><th scope="row" className="text-start font-medium">{t(r.label)}</th>{shown.map((p) => <td key={p.id} className={p.price_usd > 0 ? "paid" : ""}><bdi dir="ltr">{r.get(p)}</bdi>{r.sfx && r.get(p) !== '-' ? ' ' + t(r.sfx) : ''}</td>)}</tr>)}</tbody></table>
         <p className="text-xs opacity-70 mt-2">{t('Shaded columns are paid plans.')}</p></div>
 {msg && <p className="text-center text-red-300 text-sm mt-4">{msg}</p>}<p className="text-center text-xs text-gray-500 mt-8">Plans are paid for 30 days at a time and do not renew automatically. See <Link className="text-violet-300" to="/legal/terms">Terms</Link>, <Link className="text-violet-300" to="/legal/privacy">Privacy</Link> and <Link className="text-violet-300" to="/legal/refunds">Refunds</Link>.</p></div>);
 };
