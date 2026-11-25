@@ -14,7 +14,7 @@ export const SITES = [
   { name: 'AI Summit', desc: 'Modern event landing experience with a brutalist aesthetic and scroll-driven animations.', icon: CalendarDays, url: 'https://event-page.mahmodsalah.workers.dev/' },
   { name: 'Orbit Tasks', desc: 'Space-themed task manager with local persistence and a polished dark UI.', icon: ListTodo, url: 'https://to-do-list.mahmodsalah.workers.dev/' },
   { name: 'Aqar Real Estate', desc: 'Arabic-first (RTL) real estate platform with dark mode and a live inquiries system.', icon: Building2, url: 'https://real-state.mahmodsalah.workers.dev/' },
-  { name: 'Magic Convertor', desc: 'Browser-based toolkit of 45+ PDF, image and document tools with OCR, forms, editing, accounts, plans and an admin dashboard.', icon: Wand2, url: 'https://magic-convertor.mahmodsalah.workers.dev/' },
+  { name: 'Magic Convertor', desc: 'Browser-based toolkit of 40+ PDF, image and document tools with OCR, forms, editing, accounts, plans and an admin dashboard.', icon: Wand2, url: 'https://magic-convertor.mahmodsalah.workers.dev/' },
   { name: 'Children Skills', desc: 'Playful skills-learning experience built for kids.', icon: Blocks, url: 'https://children-skills.mahmodsalah.workers.dev/' },
   { name: 'Lerne Deutsch', icon: Languages, desc: 'Arabic-first German course: personal learning path, A1 to B1 lessons with audio, exercises and spaced review.', url: 'https://lerne-deutsch.mahmodsalah.workers.dev/' },
   { name: 'Tabeebi', icon: Stethoscope, desc: 'Doctor booking platform: search, live slots, reviews, video visits and doctor subscription plans.', url: 'https://tabeebi.mahmodsalah.workers.dev/' },
