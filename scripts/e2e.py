@@ -7,7 +7,7 @@ results=[]
 def tool(p, tid, files, opts=None, label=None):
     p.goto(f'{BASE}/tools/{tid}'); p.set_input_files('input[type=file]', files)
     for k,v in (opts or {}).items():
-        el = p.get_by_label(k, exact=False).first
+        el = p.locator('label').filter(has=p.locator('span', has_text=k)).first.locator('select, input')
         if el.evaluate('e=>e.tagName')=='SELECT': el.select_option(v)
         else: el.fill(str(v))
     p.locator('button.bg-gradient-to-r').click()
@@ -26,7 +26,7 @@ with sync_playwright() as pw:
     cases=[
      ('merge-pdf',[F('five.pdf'),F('three.pdf')],{},lambda o:pages(o[0])==8),
      ('split-pdf',[F('five.pdf')],{'Split mode':'each'},lambda o:len(o)==5 and all(pages(x)==1 for x in o)),
-     ('split-pdf',[F('five.pdf')],{'Ranges':'1-2,3-5'},lambda o:[pages(x) for x in o]==[2,3]),
+     ('split-pdf',[F('five.pdf')],{'Split mode':'ranges','Ranges, one':'1-2,3-5'},lambda o:[pages(x) for x in o]==[2,3]),
      ('remove-pages',[F('five.pdf')],{'Pages to remove':'2,4'},lambda o:pages(o[0])==3),
      ('extract-pages',[F('five.pdf')],{'Pages to keep':'1-2'},lambda o:pages(o[0])==2),
      ('reorder-pdf',[F('five.pdf')],{},lambda o:pages(o[0])==5),
@@ -41,7 +41,12 @@ with sync_playwright() as pw:
      ('convert-image',[F('grad.png')],{'Convert to':'jpg'},lambda o:open(o[0],'rb').read(2)==b'\xff\xd8'),
      ('convert-image',[F('grad.png')],{'Convert to':'bmp'},lambda o:open(o[0],'rb').read(2)==b'BM'),
      ('convert-image',[F('grad.png')],{'Convert to':'webp'},lambda o:open(o[0],'rb').read(4)==b'RIFF'),
-     ('resize-image',[F('grad.png')],{'Percent':'50'},lambda o:o[0].endswith('32x32.png')),
+     ('resize-image',[F('grad.png')],{'Mode':'percent','Percent':'50'},lambda o:o[0].endswith('32x32.png')),
+     ('text-to-pdf',[F('note.txt')],{},lambda o:'Line two' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
+     ('word-to-pdf',[F('sample.docx')],{},lambda o:'Quarterly Report' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
+     ('word-to-text',[F('sample.docx')],{},lambda o:'Second paragraph' in open(o[0]).read()),
+     ('word-to-html',[F('sample.docx')],{},lambda o:'<h1>' in open(o[0]).read()),
+     ('pdf-to-word',[F('three.pdf')],{},lambda o:open(o[0],'rb').read(2)==b'PK'),
      ('compress-image',[F('grad.png')],{},lambda o:len(o)==1),
     ]
     for tid,files,opts,chk in cases:

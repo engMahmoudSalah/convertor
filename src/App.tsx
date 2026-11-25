@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
 import { Home } from './pages/Home';
+import { TypePage } from './pages/TypePage';
 import { ToolPage } from './pages/ToolPage';
 import logo from "./../Magic.png"
 
@@ -11,6 +12,7 @@ function App() {
         <NavBar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/:type" element={<TypePage />} />
           <Route path="/tools/:id" element={<ToolPage />} />
         </Routes>
         <div className="text-md mb-6 flex justify-center items-center font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">

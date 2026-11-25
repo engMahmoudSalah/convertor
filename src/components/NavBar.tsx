@@ -4,11 +4,9 @@ import { Link, useLocation } from 'react-router-dom';
 import logoo from "./../../Magic0.png";
 
 const menuItems = [
-  { name: 'Merge', path: '/tools/merge-pdf' },
-  { name: 'Split', path: '/tools/split-pdf' },
-  { name: 'Compress', path: '/tools/compress-pdf' },
-  { name: 'Images to PDF', path: '/tools/images-to-pdf' },
-  { name: 'Convert image', path: '/tools/convert-image' },
+  { name: 'PDF', path: '/pdf' },
+  { name: 'Images', path: '/images' },
+  { name: 'Documents', path: '/documents' },
 ];
 
 export const NavBar: React.FC = () => {

@@ -2,6 +2,8 @@ import { Combine, Scissors, FileX, FilePlus2, RotateCw, ListOrdered, Stamp, Mini
 import type { Tool } from './types';
 import * as P from './pdfTools';
 import * as I from './imageTools';
+import * as D from './docTools';
+import { FileType, FileCode, FileOutput, FileType2 } from 'lucide-react';
 
 const IMG = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/bmp', 'image/svg+xml'];
 const PDF = ['application/pdf'];
@@ -41,5 +43,22 @@ export const TOOLS: Tool[] = [
   { id: 'compress-image', title: 'Compress image', desc: 'Smaller JPG or WebP at the quality you pick', category: 'image', icon: ImageDown, accept: IMG, multiple: true, run: I.compressImages,
     options: [{ key: 'format', label: 'Output', type: 'select', default: 'jpg', options: [{ v: 'jpg', l: 'JPG' }, { v: 'webp', l: 'WebP' }, { v: 'keep', l: 'Keep PNG as PNG' }] }, { key: 'quality', label: 'Quality (1-100)', type: 'number', default: 70, min: 1, max: 100 }] },
 ];
-export const CATS: Record<string, string> = { organize: 'Organize PDF', optimize: 'Optimize PDF', 'to-pdf': 'Convert to PDF', 'from-pdf': 'Convert from PDF', edit: 'Edit PDF', image: 'Images' };
+const DOCX = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+const TXT = ['text/plain', 'text/markdown', 'text/csv'];
+const fs = { key: 'size', label: 'Font size', type: 'number' as const, default: 11, min: 6, max: 24 };
+TOOLS.push(
+  { id: 'text-to-pdf', title: 'Text to PDF', desc: 'Plain text files into paginated PDFs', category: 'doc', icon: FileType, accept: TXT, multiple: true, run: D.textToPdf, options: [fs] },
+  { id: 'word-to-pdf', title: 'Word to PDF', desc: 'DOCX with headings and lists into PDF', category: 'doc', icon: FileType2, accept: DOCX, multiple: true, run: D.docxToPdf, options: [fs] },
+  { id: 'word-to-text', title: 'Word to text', desc: 'Extract plain text from DOCX', category: 'doc', icon: FileText, accept: DOCX, multiple: true, run: D.docxToText },
+  { id: 'word-to-html', title: 'Word to HTML', desc: 'Clean HTML from a DOCX', category: 'doc', icon: FileCode, accept: DOCX, multiple: true, run: D.docxToHtml },
+  { id: 'pdf-to-word', title: 'PDF to Word', desc: 'Text of a PDF into an editable DOCX', category: 'doc', icon: FileOutput, accept: PDF, multiple: false, run: D.pdfToDocx },
+);
+/** Which type page each tool shows on. */
+export const TYPES: Record<string, { title: string; desc: string; cats: string[]; ids?: string[] }> = {
+  pdf: { title: 'PDF tools', desc: 'Organize, optimize, edit and convert PDFs', cats: ['organize', 'optimize', 'edit', 'from-pdf'], ids: ['images-to-pdf'] },
+  images: { title: 'Image tools', desc: 'Convert, resize and compress images in PNG, JPG, WebP, BMP and more', cats: ['image'], ids: ['images-to-pdf', 'pdf-to-images'] },
+  documents: { title: 'Document tools', desc: 'Word and text files to and from PDF', cats: ['doc'], ids: ['pdf-to-text'] },
+};
+export const toolsOfType = (k: string) => TOOLS.filter((t) => TYPES[k].cats.includes(t.category) || TYPES[k].ids?.includes(t.id));
+export const CATS: Record<string, string> = { organize: 'Organize PDF', optimize: 'Optimize PDF', 'to-pdf': 'Convert to PDF', 'from-pdf': 'Convert from PDF', edit: 'Edit PDF', image: 'Images', doc: 'Documents' };
 export const getTool = (id?: string) => TOOLS.find((t) => t.id === id);
