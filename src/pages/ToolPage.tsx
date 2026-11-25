@@ -4,6 +4,8 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowUp, ArrowDown, Download, Loader2, X, UploadCloud, ShieldCheck } from 'lucide-react';
 import { getTool } from '../tools/registry';
 import { fmtSize } from '../lib/util';
+import { api } from '../lib/api';
+import { useAuth } from '../lib/auth';
 import { Thumbs } from '../components/Thumbs';
 import type { Out } from '../tools/types';
 
@@ -11,7 +13,7 @@ const save = (b: Blob, name: string) => { const a = document.createElement('a');
 const field = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-400';
 
 export const ToolPage: React.FC = () => {
-  const { id } = useParams(); const tool = getTool(id);
+  const { id } = useParams(); const tool = getTool(id); const { disabled, refresh } = useAuth(); const [upgrade, setUpgrade] = useState(false);
   const [files, setFiles] = useState<File[]>([]); const [outs, setOuts] = useState<Out[]>([]);
   const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [prog, setProg] = useState('');
   const [opts, setOpts] = useState<Record<string, any>>({});
@@ -24,11 +26,14 @@ export const ToolPage: React.FC = () => {
   }, [tool]);
   const dz = useDropzone({ onDrop, multiple: tool?.multiple });
   if (!tool) return <div className="pt-28 text-center">Tool not found. <Link className="text-violet-300" to="/">Back home</Link></div>;
-  const Icon = tool.icon;
+  const Icon = tool.icon; const off = disabled.includes(tool.id);
   const move = (i: number, d: number) => setFiles((f) => { const n = [...f]; [n[i], n[i + d]] = [n[i + d], n[i]]; return n; });
   const run = async () => {
-    setBusy(true); setErr(''); setOuts([]);
-    try { setOuts(await tool.run(files, opts, { progress: (d, t, m) => setProg(m ?? `${d + 1} / ${t}`) })); }
+    setBusy(true); setErr(''); setOuts([]); setUpgrade(false);
+    const bytes = files.reduce((a, f) => a + f.size, 0); const t0 = Date.now();
+    const q = await api('/usage/consume', { tool: tool.id, bytes });
+    if (q._status >= 400 && q._status !== 404) { setErr(q.error ?? 'Not allowed'); setUpgrade(!!q.upgrade); setBusy(false); return; }
+    try { setOuts(await tool.run(files, opts, { progress: (d, t, m) => setProg(m ?? `${d + 1} / ${t}`) })); api('/history', { tool: tool.id, files: files.length, bytes, ms: Date.now() - t0 }).then(refresh); }
     catch (e: any) { setErr(e?.message ?? 'Something went wrong'); }
     setBusy(false); setProg('');
   };
@@ -57,8 +62,10 @@ export const ToolPage: React.FC = () => {
             : o.type === 'check' ? <span className="flex gap-2 items-center"><input type="checkbox" checked={!!opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.checked })} />{o.label}</span>
             : <input className={field} type={o.type} min={(o as any).min} max={(o as any).max} value={opts[o.key] ?? ''} onChange={(e) => setOpts({ ...opts, [o.key]: o.type === 'number' ? Number(e.target.value) : e.target.value })} />}
         </label>))}</div>}
+      {upgrade && <p className="mt-2 text-sm"><Link className="text-violet-300 underline" to="/pricing">See plans</Link> or <Link className="text-violet-300 underline" to="/signup">create a free account</Link> for higher limits.</p>}
       {err && <p className="mt-4 text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm">{err}</p>}
-      {files.length > 0 && <button disabled={busy || files.length < need} onClick={run} className="mt-6 w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-violet-500 to-blue-500 disabled:opacity-50 flex items-center justify-center gap-2">
+      {off && <p className="mt-4 text-amber-300 text-sm">This tool is temporarily switched off.</p>}
+      {files.length > 0 && <button disabled={off || busy || files.length < need} onClick={run} className="mt-6 w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-violet-500 to-blue-500 disabled:opacity-50 flex items-center justify-center gap-2">
         {busy ? <><Loader2 className="animate-spin" size={18} /> {prog || 'Working...'}</> : files.length < need ? `Add at least ${need} files` : `${tool.title}`}</button>}
       {outs.length > 0 && <div className="mt-6 space-y-2"><h2 className="font-semibold">Done</h2>
         {outs.map((o, i) => <div key={i} className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-400/30 rounded-lg px-3 py-2 text-sm">

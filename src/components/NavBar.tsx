@@ -1,17 +1,20 @@
 import React from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../lib/auth';
 import logoo from "./../../Magic0.png";
 
 const menuItems = [
   { name: 'PDF', path: '/pdf' },
   { name: 'Images', path: '/images' },
   { name: 'Documents', path: '/documents' },
+  { name: 'Pricing', path: '/pricing' },
 ];
 
 export const NavBar: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   return (
     <nav className="fixed w-full z-50 bg-black/10 backdrop-blur-lg border-b border-white/10">
@@ -26,7 +29,7 @@ export const NavBar: React.FC = () => {
           
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              {menuItems.map((item) => (
+              {[...menuItems, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
@@ -56,7 +59,7 @@ export const NavBar: React.FC = () => {
       {/* Mobile menu */}
       <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black/20 backdrop-blur-lg">
-          {menuItems.map((item) => (
+          {[...menuItems, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((item) => (
             <Link
               key={item.path}
               to={item.path}
