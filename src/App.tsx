@@ -29,11 +29,11 @@ function App() {
           <Route path="/:type" element={<TypePage />} />
           <Route path="/tools/:id" element={<ToolPage />} />
         </Routes>
-        <SiteFooter />
         <div className="text-md mb-6 flex justify-center items-center font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">
         Powered By 
         <img style={{height:"55px"}} src={logo} alt="" />
             </div>
+        <SiteFooter />
       </div>
     </AuthProvider>
     </BrowserRouter>
