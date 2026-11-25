@@ -21,6 +21,31 @@ const EXTRA: Record<string, { en: string; ar: string }> = {
   'unlock-pdf': { en: 'remove PDF password online', ar: 'إزالة كلمة سر PDF' },
   'protect-pdf': { en: 'password protect a PDF online', ar: 'حماية ملف PDF بكلمة سر' },
 };
+
+type Copy = { steps: { en: string[]; ar: string[] }; faq: { en: [string, string][]; ar: [string, string][] } };
+/** Hand-written guidance for the most used tools. Others fall back to the generic text below. */
+const COPY: Record<string, Copy> = {
+  'merge-pdf': {
+    steps: { en: ['Add two or more PDFs. Drag the cards on the work board to set the order.', 'Press merge, then download one PDF with all pages in your order.'], ar: ['أضف ملفين PDF أو أكثر ورتّبهم بسحب البطاقات على لوحة العمل.', 'اضغط دمج ثم نزّل ملفاً واحداً بكل الصفحات بالترتيب الذي اخترته.'] },
+    faq: { en: [['Can I change the order before merging?', 'Yes. Drag the files on the work board. The result follows that order.'], ['Is there a limit on how many files I can merge?', 'The limit is per batch and depends on your plan. It is shown on the Pricing page.'], ['Are my PDFs uploaded?', 'No. Merging happens in your browser, so the files stay on your device.']], ar: [['هل أقدر أغيّر الترتيب قبل الدمج؟', 'نعم. اسحب الملفات على لوحة العمل والنتيجة تتبع هذا الترتيب.'], ['هل في حد لعدد الملفات؟', 'الحد لكل دفعة ويعتمد على خطتك، وهو مكتوب في صفحة الأسعار.'], ['هل ملفاتي بتتحمّل على سيرفر؟', 'لا. الدمج يتم داخل متصفحك وملفاتك تبقى على جهازك.']] },
+  },
+  'split-pdf': {
+    steps: { en: ['Add one PDF. Its pages appear on the work board.', 'Pick the split mode, or click the scissors between pages to cut there.', 'Run it and download the parts.'], ar: ['أضف ملف PDF واحد وستظهر صفحاته على لوحة العمل.', 'اختر وضع التقسيم أو اضغط المقص بين الصفحات للقص عندها.', 'نفّذ ثم نزّل الأجزاء.'] },
+    faq: { en: [['How do I cut at an exact page?', 'Click the scissors between two pages on the work board. The cut follows your split mode.'], ['Does splitting change the quality?', 'No. Pages are copied as they are, so text and images are not recompressed.'], ['Are my PDFs uploaded?', 'No. Splitting runs in your browser.']], ar: [['إزاي أقص عند صفحة معينة؟', 'اضغط المقص بين صفحتين على لوحة العمل، والقص يتبع وضع التقسيم.'], ['هل التقسيم يقلل الجودة؟', 'لا. الصفحات تُنسخ كما هي دون إعادة ضغط.'], ['هل ملفاتي بتتحمّل على سيرفر؟', 'لا. التقسيم يتم داخل متصفحك.']] },
+  },
+  'compress-pdf': {
+    steps: { en: ['Add your PDF. Scanned or image-heavy files shrink the most.', 'Pick Light, Balanced or Strong. The board shows the estimated size from page 1 at each level.', 'Run it and download the smaller file. If the original is already small, you are told there is no gain.'], ar: ['أضف ملف PDF. الملفات الممسوحة أو الكثيفة بالصور تتقلص أكثر.', 'اختر خفيف أو متوازن أو قوي، وتظهر تقديرات الحجم من الصفحة 1 لكل مستوى.', 'نفّذ ونزّل الملف الأصغر. وإذا كان الأصلي صغيراً أصلاً ستعرف أنه لا يوجد توفير.'] },
+    faq: { en: [['Why did my PDF not get smaller?', 'Text-only PDFs are already compact. Compression mainly helps scans and images, and the tool says so when there is no gain.'], ['Which level should I pick?', 'Balanced is a good start. Strong makes the smallest file but lowers image quality more.']], ar: [['ليه الملف ما صغرش؟', 'ملفات النص فقط صغيرة أصلاً. الضغط يفيد الصور والمسح الضوئي، والأداة تخبرك لو لا يوجد توفير.'], ['أي مستوى أختار؟', 'المتوازن بداية جيدة. القوي يعطي أصغر حجم لكنه يخفض جودة الصور أكثر.']] },
+  },
+  'pdf-to-word': {
+    steps: { en: ['Add a PDF that has selectable text.', 'Run the conversion in your browser.', 'Download the DOCX and edit it in Word or any compatible editor.'], ar: ['أضف ملف PDF يحتوي على نص قابل للتحديد.', 'نفّذ التحويل داخل متصفحك.', 'نزّل ملف DOCX وعدّله في Word أو أي محرر متوافق.'] },
+    faq: { en: [['Will the layout match exactly?', 'Text is extracted into an editable document. Complex layouts, tables and columns can look different, so check the result.'], ['What about scanned PDFs?', 'A scan is a picture, not text. Run OCR first if you need to edit it.']], ar: [['هل التنسيق يطابق الأصل تماماً؟', 'يُستخرج النص إلى مستند قابل للتعديل. التخطيطات المعقدة والجداول والأعمدة قد تختلف، فراجع النتيجة.'], ['وماذا عن الملفات الممسوحة؟', 'الملف الممسوح صورة وليس نصاً. استخدم OCR أولاً إذا أردت تعديله.']] },
+  },
+  'images-to-pdf': {
+    steps: { en: ['Add your JPG or PNG images and drag them into the order you want.', 'Check each page in the preview.', 'Run it and download one PDF.'], ar: ['أضف صور JPG أو PNG ورتّبها بالسحب.', 'راجع كل صفحة في المعاينة.', 'نفّذ ونزّل ملف PDF واحد.'] },
+    faq: { en: [['Which image types work?', 'JPG and PNG are the common ones. See the drop area for the exact list.'], ['Can I reorder the pages?', 'Yes, drag the images on the work board.'], ['Are my images uploaded?', 'No. The PDF is built in your browser.']], ar: [['ما أنواع الصور المدعومة؟', 'JPG وPNG هما الأشهر. القائمة الدقيقة مكتوبة في منطقة الرفع.'], ['هل أقدر أرتب الصفحات؟', 'نعم، اسحب الصور على لوحة العمل.'], ['هل صوري بتتحمّل على سيرفر؟', 'لا. ملف PDF يُبنى داخل متصفحك.']] },
+  },
+};
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 
 export function toolMeta(t: SeoTool, l: L) {
@@ -30,12 +55,14 @@ export function toolMeta(t: SeoTool, l: L) {
     : { title: `${t.title} Online Free | ${SITE}`, description: `${t.desc}. ${kw[0].toUpperCase() + kw.slice(1)}. Runs in your browser, your files are not uploaded, no sign-up needed.`, h1: t.title };
 }
 export function howTo(t: SeoTool, l: L): string[] {
+  if (COPY[t.id]) return COPY[t.id].steps[l];
   return l === 'ar'
     ? [`ارفع ملفك من جهازك أو اسحبه إلى المنطقة المخصصة.`, `اضبط خيارات ${T(t, l)} على لوحة العمل وشاهد المعاينة.`, `اضغط الزر لتنفيذ العملية داخل متصفحك، ثم نزّل النتيجة أو احفظها في حسابك.`]
     : [`Add your file by choosing it or dragging it onto the drop area.`, `Set the ${t.title} options on the work board and check the preview.`, `Run it in your browser, then download the result or save it to your profile.`];
 }
 export function faq(t: SeoTool, l: L): { q: string; a: string }[] {
   const n = T(t, l);
+  if (COPY[t.id]) return COPY[t.id].faq[l].map(([q, a]) => ({ q, a }));
   return l === 'ar'
     ? [
         { q: `هل ${n} مجاني؟`, a: 'نعم، الاستخدام الأساسي مجاني. الخطط المدفوعة تزيد الحدود اليومية وتقلل الإعلانات.' },
