@@ -354,3 +354,9 @@ html[data-id=forest].light { --logo: #0b6b4d; --logo-band: #e9f1e9; }
 .all-tools-head { padding-top: 28px; border-top: 2px solid color-mix(in srgb, currentColor 22%, transparent); }
 html[data-id=forest] .all-tools-head { border-top: 0; padding-top: 8px; }
 html[data-id=forest] .all-tools-head h2 { display: inline-block; background: #c6f432; color: #0a2a23; padding: 2px 14px; border-radius: 12px; }
+.sv-box { background: color-mix(in srgb, currentColor 6%, transparent); }
+.sv-badge { background: color-mix(in srgb, var(--ac) 16%, transparent); color: var(--ac); }
+html:not(.light) .sv-badge { color: var(--ac2); }
+html[data-id=forest]:not(.light) .sv-badge { color: #c6f432; background: rgba(198,244,50,.14); }
+.sv-chip { border: 1px solid color-mix(in srgb, currentColor 25%, transparent); }
+.sv-danger { border-color: #c2452a !important; color: #c2452a; } html:not(.light) .sv-danger { color: #ff9b86; border-color: #ff9b86 !important; }

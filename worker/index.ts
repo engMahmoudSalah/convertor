@@ -35,6 +35,8 @@ export class AppDB extends DurableObject<any> {
       CREATE TABLE IF NOT EXISTS attempts(k TEXT PRIMARY KEY, n INTEGER, reset_at INTEGER);
     `);
     try { this.sql.exec('ALTER TABLE users ADD COLUMN plan_until INTEGER'); } catch { /* exists */ }
+    this.sql.exec('CREATE TABLE IF NOT EXISTS saved_blob(saved_id TEXT, idx INTEGER, data TEXT, PRIMARY KEY(saved_id, idx))');
+    for (const c of ['out_name TEXT', 'out_size INTEGER', 'out_mime TEXT', 'has_file INTEGER DEFAULT 0']) { try { this.sql.exec('ALTER TABLE saved ADD COLUMN ' + c); } catch { /* exists */ } }
     if (!this.sql.exec('SELECT 1 FROM plans LIMIT 1').toArray().length) {
       const P = this.sql;
       P.exec(`INSERT INTO plans VALUES('guest','Guest',0,0,3,0,25,0,0),('free','Free',0,0,10,3,50,0,1),('pro','Pro',5,249,100000,100,500,30,2),('business','Business',15,749,100000,500,2000,90,3)`);
@@ -85,6 +87,16 @@ export class AppDB extends DurableObject<any> {
       this.audit(id, 'signup', email);
       return json({ user: this.pub(this.rows('SELECT * FROM users WHERE id=?', id)[0]) }, 200, { 'set-cookie': await this.startSession(id) });
     }
+    if (path === '/auth/delete' && method === 'POST') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      if (u.role === 'admin') return json({ error: 'Admin accounts cannot be deleted here' }, 400);
+      if (!this.limit(`del:${u.id}`, 5, 900e3)) return json({ error: 'Too many attempts, try again later' }, 429);
+      if (!safeEq(await pbkdf2(String(body.password ?? ''), u.salt), u.pass_hash)) return json({ error: 'Wrong password' }, 401);
+      this.sql.exec('DELETE FROM saved_blob WHERE saved_id IN (SELECT id FROM saved WHERE user_id=?)', u.id); this.sql.exec('DELETE FROM saved WHERE user_id=?', u.id);
+      this.sql.exec('DELETE FROM history WHERE subject=?', u.id); this.sql.exec('DELETE FROM sessions WHERE user_id=?', u.id); this.sql.exec('DELETE FROM users WHERE id=?', u.id);
+      this.audit(u.email, 'delete_account', u.email, '');
+      return json({ ok: true }, 200, { 'set-cookie': 'mc_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0' });
+    }
     if (path === '/auth/login' && method === 'POST') {
       const email = String(body.email ?? '').trim().toLowerCase();
       if (!this.limit(`li:${ip}:${email}`, 8, 900e3)) return json({ error: 'Too many attempts, try again in 15 minutes' }, 429);
@@ -127,18 +139,36 @@ export class AppDB extends DurableObject<any> {
     }
     if (path === '/saved' && method === 'GET') {
       if (!u) return json({ error: 'Sign in first' }, 401);
-      return json({ saved: this.rows('SELECT id,tool,name,opts,files,summary,ts FROM saved WHERE user_id=? ORDER BY ts DESC LIMIT 100', u.id) });
+      return json({ saved: this.rows('SELECT id,tool,name,opts,files,summary,ts,out_name,out_size,out_mime,has_file FROM saved WHERE user_id=? ORDER BY ts DESC LIMIT 100', u.id) });
     }
     if (path === '/saved' && method === 'POST') {
       if (!u) return json({ error: 'Sign in first' }, 401);
       if (this.rows('SELECT 1 FROM saved WHERE user_id=?', u.id).length >= 50) return json({ error: 'You can keep up to 50 saved operations. Delete one first.' }, 400);
       const id = crypto.randomUUID(); const cap = (v: unknown, n: number) => JSON.stringify(v ?? null).slice(0, n);
-      this.sql.exec('INSERT INTO saved(id,user_id,tool,name,opts,files,summary,ts) VALUES(?,?,?,?,?,?,?,?)', id, u.id, String(body.tool ?? '').slice(0, 40), String(body.name ?? '').slice(0, 80), cap(body.opts, 4000), cap(body.files, 2000), cap(body.summary, 1000), now());
+      this.sql.exec('INSERT INTO saved(id,user_id,tool,name,opts,files,summary,ts,out_name,out_size,out_mime,has_file) VALUES(?,?,?,?,?,?,?,?,?,?,?,0)', id, u.id, String(body.tool ?? '').slice(0, 40), String(body.name ?? '').slice(0, 80), cap(body.opts, 4000), cap(body.files, 4000), cap(body.summary, 1000), now(), String(body.out_name ?? '').slice(0, 120), Number(body.out_size) || 0, String(body.out_mime ?? '').slice(0, 80));
       return json({ ok: true, id });
+    }
+    if (path === '/saved/blob' && method === 'POST') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      const id = String(body.id ?? ''); const data = String(body.data ?? ''); const idx = Number(body.idx) || 0;
+      if (!this.rows('SELECT 1 FROM saved WHERE id=? AND user_id=?', id, u.id).length) return json({ error: 'Not found' }, 404);
+      if (data.length > 1_000_000 || idx < 0 || idx > 60) return json({ error: 'Chunk too large' }, 400);
+      const used = this.rows('SELECT coalesce(sum(length(b.data)),0) n FROM saved_blob b JOIN saved s ON s.id=b.saved_id WHERE s.user_id=?', u.id)[0].n as number;
+      if (used + data.length > 56_000_000) return json({ error: 'Your saved files storage is full (about 40 MB). Delete one first.' }, 413);
+      this.sql.exec('INSERT OR REPLACE INTO saved_blob(saved_id,idx,data) VALUES(?,?,?)', id, idx, data);
+      if (body.last) this.sql.exec('UPDATE saved SET has_file=1 WHERE id=?', id);
+      return json({ ok: true });
+    }
+    if (path === '/saved/file' && method === 'GET') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      const id = url.searchParams.get('id') ?? ''; const r = this.rows('SELECT out_name,out_mime FROM saved WHERE id=? AND user_id=? AND has_file=1', id, u.id)[0];
+      if (!r) return json({ error: 'No stored file' }, 404);
+      const parts = this.rows('SELECT data FROM saved_blob WHERE saved_id=? ORDER BY idx', id).map((x) => { const bin = atob(String(x.data)); const a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a; });
+      return new Response(new Blob(parts), { headers: { 'content-type': r.out_mime || 'application/octet-stream', 'cache-control': 'no-store' } });
     }
     if (path === '/saved/delete' && method === 'POST') {
       if (!u) return json({ error: 'Sign in first' }, 401);
-      this.sql.exec('DELETE FROM saved WHERE id=? AND user_id=?', String(body.id ?? ''), u.id);
+      { const sid = String(body.id ?? ''); if (this.rows('SELECT 1 FROM saved WHERE id=? AND user_id=?', sid, u.id).length) this.sql.exec('DELETE FROM saved_blob WHERE saved_id=?', sid); this.sql.exec('DELETE FROM saved WHERE id=? AND user_id=?', sid, u.id); }
       return json({ ok: true });
     }
     if (path === '/billing/status' && method === 'GET') {

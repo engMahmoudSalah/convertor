@@ -14,6 +14,7 @@ import { useAuth } from '../lib/auth';
 import { Thumbs } from '../components/Thumbs';
 import { FileCards, PageGrid, BackgroundPreview, PageFrame, usePreviewMode, compressPages } from '../components/PreviewDock';
 import type { Out } from '../tools/types';
+import { saveOperation } from '../lib/saved';
 import { Stepper, AfterView, SizeSummary } from '../components/FlowParts';
 import { ArrowRight, Home, Pencil, BookmarkPlus, CheckCircle2, Eye } from 'lucide-react';
 
@@ -48,10 +49,11 @@ export const ToolPage: React.FC = () => {
   };
   const need = tool.minFiles ?? 1;
   const stripOpts = () => Object.fromEntries(Object.entries(opts).filter(([, v]) => !(v instanceof File)));
-  const payload = () => ({ tool: tool.id, name: `${tool.title} ${new Date().toLocaleDateString()}`, opts: stripOpts(), files: files.map((f) => ({ name: f.name, size: f.size })), summary: { inBytes: files.reduce((n, f) => n + f.size, 0), outBytes: outs.reduce((n, o) => n + o.blob.size, 0) } });
+  const outBlob = async () => outs.length === 1 ? outs[0].blob : (await import('../tools/pdfTools')).zipOuts(outs);
+  const payload = () => ({ tool: tool.id, name: `${tool.title} ${new Date().toLocaleDateString()}`, opts: stripOpts(), files: files.slice(0, 20).map((f) => ({ name: f.name, size: f.size })), summary: { inBytes: files.reduce((n, f) => n + f.size, 0), outBytes: outs.reduce((n, o) => n + o.blob.size, 0), fileCount: files.length, outCount: outs.length, status: 'done' }, out_name: outs.length === 1 ? outs[0].name : 'magic-convertor.zip', out_size: outs.reduce((n, o) => n + o.blob.size, 0), out_mime: outs.length === 1 ? (outs[0].blob.type || 'application/octet-stream') : 'application/zip' });
   const saveProfile = async () => {
     if (!user) { try { localStorage.setItem('mc_pending_save', JSON.stringify(payload())); } catch { /* ignore */ } setSaved('login'); return; }
-    setSaved('busy'); const r = await api('/saved', payload()); if (r._status >= 400) { setErr(r.error ?? 'Could not save'); setSaved(''); } else setSaved('ok');
+    setSaved('busy'); const r = await saveOperation(payload(), await outBlob()); if (!r.ok) { setErr(r.error ?? 'Could not save'); setSaved(''); } else { if (r.error) setErr(r.error); setSaved('ok'); }
   };
   const inBytes = files.reduce((n, f) => n + f.size, 0);
   const nextOk = files.length >= need && !off;
