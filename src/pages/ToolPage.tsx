@@ -12,7 +12,7 @@ import { fmtSize } from '../lib/util';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { Thumbs } from '../components/Thumbs';
-import { FileCards, PageGrid, BackgroundPreview, PageFrame, usePreviewMode, compressPages } from '../components/PreviewDock';
+import { CompressPreview, FileCards, PageGrid, BackgroundPreview, PageFrame, usePreviewMode, compressPages } from '../components/PreviewDock';
 import type { Out } from '../tools/types';
 import { saveOperation } from '../lib/saved';
 import { Stepper, AfterView, SizeSummary } from '../components/FlowParts';
@@ -98,6 +98,7 @@ export const ToolPage: React.FC = () => {
       <aside className="flow-panel lg:sticky lg:top-24 p-4 min-h-[320px] lg:max-h-[calc(100vh-7rem)] overflow-auto">
         <div role="tablist" className="flow-tabs inline-flex p-1 rounded-full mb-4">{(['before', 'after'] as const).map((k) => <button key={k} role="tab" aria-selected={tab === k} disabled={k === 'after' && !outs.length} onClick={() => setTab(k)} className={`px-4 py-1.5 rounded-full text-sm font-semibold disabled:opacity-40 ${tab === k ? 'on' : ''}`}>{tr(k === 'before' ? 'Before' : 'After')}</button>)}</div>
         {tab === 'after' && outs.length > 0 ? <AfterView files={files} outs={outs} /> : <>
+          {mode === 'compress' && <CompressPreview file={files[0]} level={opts.level ?? 'med'} setLevel={(k) => setOpts((o) => ({ ...o, level: k }))} />}
           {mode === 'files' && <FileCards files={files} setFiles={setFiles} addMore={tool.multiple} accept={tool.accept.join(',')} />}
           {mode === 'frame' && <div className="space-y-4"><PageFrame file={files[0]} opts={opts} /><FileCards files={files} setFiles={setFiles} /></div>}
           {mode === 'background' && <div className="space-y-4"><BackgroundPreview file={files[0]} opts={opts} />{files.length > 1 && <FileCards files={files} setFiles={setFiles} />}</div>}

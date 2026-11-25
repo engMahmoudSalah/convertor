@@ -74,9 +74,46 @@ export const PageFrame: React.FC<{ file?: File; opts: Record<string, any> }> = (
 };
 export function usePreviewMode(tool: Tool) {
   if (tool.id === 'image-background') return 'background';
+  if (tool.id === 'compress-pdf') return 'compress';
   if (tool.id === 'images-to-pdf') return 'frame';
   if (PAGE_SELECT.has(tool.id)) return 'select';
   if (tool.id === 'reorder-pdf') return 'sort';
   if (tool.multiple) return 'files';
   return 'first';
 }
+
+const LVLS: { k: string; s: number; q: number; name: string }[] = [
+  { k: 'low', s: 1.0, q: 0.5, name: 'Strong' }, { k: 'med', s: 1.4, q: 0.7, name: 'Balanced' }, { k: 'high', s: 2.0, q: 0.85, name: 'Light' },
+];
+export const CompressPreview: React.FC<{ file: File; level: string; setLevel: (k: string) => void }> = ({ file, level, setLevel }) => {
+  const [est, setEst] = useState<Record<string, { size: number; url: string }>>({}); const [pages, setPages] = useState(0); const [busy, setBusy] = useState(true);
+  useEffect(() => {
+    let dead = false; setEst({}); setBusy(true);
+    (async () => {
+      try {
+        const { openPdf, renderPage } = await import('../lib/pdfjs'); const doc = await openPdf(file); setPages(doc.numPages);
+        for (const L of LVLS) {
+          const cv = await renderPage(doc, 1, L.s);
+          const b: Blob = await new Promise((r) => cv.toBlob((x) => r(x!), 'image/jpeg', L.q));
+          if (dead) return; setEst((e) => ({ ...e, [L.k]: { size: b.size * doc.numPages, url: URL.createObjectURL(b) } }));
+        }
+      } catch { /* unreadable */ } if (!dead) setBusy(false);
+    })();
+    return () => { dead = true; };
+  }, [file]);
+  const cur = est[level];
+  return (
+    <div className="space-y-4">
+      <div role="radiogroup" aria-label="Compression level" className="grid grid-cols-3 gap-2">
+        {LVLS.map((L) => { const e = est[L.k]; const pct = e ? Math.round((1 - e.size / file.size) * 100) : 0; return (
+          <button key={L.k} role="radio" aria-checked={level === L.k} onClick={() => setLevel(L.k)} className={`rounded-2xl border p-3 text-start transition ${level === L.k ? 'border-current ring-2 ring-current/40' : 'border-current/20 opacity-80 hover:opacity-100'}`}>
+            <div className="text-xs uppercase tracking-wide opacity-70">{L.name}</div>
+            <div className="font-display text-lg font-bold">{e ? `~${fmtSize(e.size)}` : '...'}</div>
+            <div className="text-xs opacity-70">{e ? (pct > 0 ? `about ${pct}% smaller` : 'may not shrink') : 'estimating'}</div>
+          </button>); })}
+      </div>
+      <p className="text-xs opacity-70">Original {fmtSize(file.size)}{pages ? `, ${pages} pages` : ''}. Estimates come from page 1 at each level.{busy ? ' Calculating...' : ''}</p>
+      {cur && <figure><img src={cur.url} alt="Page 1 at the selected level" className="w-full max-h-[420px] object-contain rounded-xl border border-current/20 bg-white" /><figcaption className="text-xs opacity-70 mt-1">Page 1 at this level. Zoom the browser to inspect quality.</figcaption></figure>}
+    </div>
+  );
+};
