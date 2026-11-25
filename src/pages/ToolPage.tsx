@@ -33,7 +33,7 @@ export const ToolPage: React.FC = () => {
     if (ok.length < acc.length) setErr('Some files were skipped: wrong type for this tool.'); else setErr('');
     setOuts([]); setFiles((p) => (tool.multiple ? [...p, ...ok] : ok.slice(0, 1)));
   }, [tool]);
-  React.useEffect(() => { if (tool) { addRecent(tool.id); const p = takePending(); if (p.length) onDrop(p); } }, [id]);
+  React.useEffect(() => { if (tool) { addRecent(tool.id); const p = takePending(); if (p.length) { onDrop(p); if ((loc.state as any)?.stage === 'board' && tool.accept.includes(guessType(p[0]))) setStage('board'); } } }, [id]);
   const dz = useDropzone({ onDrop, multiple: tool?.multiple });
   if (!tool) return <div className="pt-28 text-center">Tool not found. <Link className="text-violet-300" to="/">Back home</Link></div>;
   const Icon = tool.icon; const off = disabled.includes(tool.id);

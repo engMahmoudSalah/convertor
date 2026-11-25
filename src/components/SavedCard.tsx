@@ -19,7 +19,7 @@ export const SavedCard: React.FC<{ x: any; onGone: () => void }> = ({ x, onGone 
   const Icon = tool?.icon ?? FileText;
   const dl = async () => { setBusy('dl'); setMiss(''); const b = await fetchSavedFile(x.id); setBusy(''); if (!b) { setMiss(t('The stored file is no longer available.')); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = x.out_name || 'result'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
   const open = () => nav('/tools/' + x.tool, { state: { opts } });
-  const edit = async () => { setBusy('ed'); const b = await fetchSavedFile(x.id); setBusy(''); if (!b) { setMiss(t('The stored file is no longer available.')); return; } setPending([new File([b], x.out_name || 'result', { type: x.out_mime || b.type })]); nav('/tools/' + x.tool, { state: { opts } }); };
+  const edit = async () => { setBusy('ed'); const b = await fetchSavedFile(x.id); setBusy(''); if (!b) { setMiss(t('The stored file is no longer available.')); return; } setPending([new File([b], x.out_name || 'result', { type: x.out_mime || b.type })]); nav('/tools/' + x.tool, { state: { opts, stage: 'board' } }); };
   const del = async () => { await api('/saved/delete', { id: x.id }); onGone(); };
   const btn = 'flow-ghost px-3 py-2 rounded-xl text-sm font-semibold inline-flex items-center gap-1.5 disabled:opacity-40';
   return (<li className="flow-panel p-4 sm:p-5 list-none">

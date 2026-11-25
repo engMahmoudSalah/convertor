@@ -360,3 +360,18 @@ html:not(.light) .sv-badge { color: var(--ac2); }
 html[data-id=forest]:not(.light) .sv-badge { color: #c6f432; background: rgba(198,244,50,.14); }
 .sv-chip { border: 1px solid color-mix(in srgb, currentColor 25%, transparent); }
 .sv-danger { border-color: #c2452a !important; color: #c2452a; } html:not(.light) .sv-danger { color: #ff9b86; border-color: #ff9b86 !important; }
+/* Combined appearance + language switch */
+.mc-sw { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 30%, transparent); }
+.mc-sw-btn { position: relative; display: grid; grid-template-columns: 1fr 1fr; align-items: center; justify-items: center; width: 60px; height: 30px; border-radius: 999px; font-size: 12px; font-weight: 700; isolation: isolate; color: color-mix(in srgb, currentColor 75%, transparent); }
+.mc-sw-btn + .mc-sw-btn { margin-inline-start: 2px; }
+.mc-sw-btn span { z-index: 1; display: grid; place-items: center; width: 100%; height: 100%; transition: color .2s; }
+.mc-sw-thumb { position: absolute; z-index: 0; top: 0; bottom: 0; left: 0; width: 50%; border-radius: 999px; background: var(--ink); transition: transform .22s cubic-bezier(.3,.7,.3,1); }
+.mc-sw-btn[data-on="1"] .mc-sw-thumb { transform: translateX(100%); }
+.mc-sw-btn[data-on="0"] span:nth-of-type(1), .mc-sw-btn[data-on="1"] span:nth-of-type(2) { color: #f6f1e7; }
+html:not(.light):not([data-id=forest]) .mc-sw-thumb { background: #f6f1e7; }
+html:not(.light):not([data-id=forest]) .mc-sw-btn[data-on="0"] span:nth-of-type(1), html:not(.light):not([data-id=forest]) .mc-sw-btn[data-on="1"] span:nth-of-type(2) { color: #14110f; }
+html[data-id=forest] .mc-sw-thumb { background: #c6f432; }
+html[data-id=forest] .mc-sw-btn[data-on="0"] span:nth-of-type(1), html[data-id=forest] .mc-sw-btn[data-on="1"] span:nth-of-type(2) { color: #0a2a23; }
+.mc-sw-btn:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+@media (max-width: 420px) { .mc-sw-btn { width: 52px; } }
+@media (prefers-reduced-motion: reduce) { .mc-sw-thumb, .mc-sw-btn span { transition: none; } }
