@@ -29,9 +29,9 @@ function App() {
   return (
     <BrowserRouter>
     <LangProvider><AuthProvider>
-      <div className="min-h-screen bg-gray-900 text-white overflow-hidden">
+      <div className="min-h-screen min-h-[100dvh] flex flex-col bg-gray-900 text-white overflow-x-hidden">
         <NavBar /><Reveal />
-        <Routes>
+        <div className="flex-1 w-full"><Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<AuthPage mode="login" />} />
           <Route path="/signup" element={<AuthPage mode="signup" />} />
@@ -42,8 +42,8 @@ function App() {
           <Route path="/by-mahmoud" element={<ByMahmoud />} />
           <Route path="/:type" element={<TypePage />} />
           <Route path="/tools/:id" element={<ToolPage />} />
-        </Routes>
-        <div className="text-md mb-6 flex justify-center items-center font-display font-semibold">
+        </Routes></div>
+        <div className="text-md mb-6 mt-6 flex justify-center items-center font-display font-semibold">
         Powered By 
         <img style={{height:"55px"}} src={logo} alt="" />
             </div>

@@ -63,7 +63,7 @@ export const AR: Record<string, string> = {
   'Runs in your browser. Your files are not uploaded.': 'يعمل داخل متصفحك. ملفاتك لا تُرفع.', 'Drop files here or click to choose': 'اسحب الملفات هنا أو اضغط للاختيار', 'Drop a file here or click to choose': 'اسحب ملفاً هنا أو اضغط للاختيار',
   'Options': 'الخيارات', 'Done': 'تم', 'Start over': 'ابدأ من جديد', 'Live preview': 'معاينة مباشرة', 'Result': 'النتيجة', 'Working...': 'جارٍ العمل...',
   'Add a file to see it here. Your options update this view as you change them.': 'أضف ملفاً لتراه هنا. تتحدث هذه المعاينة مع تغيير الخيارات.',
-  'This tool is temporarily switched off.': 'هذه الأداة متوقفة مؤقتاً.', 'See plans': 'شاهد الخطط', 'create a free account': 'أنشئ حساباً مجانياً',
+  'This tool is temporarily switched off.': 'هذه الأداة متوقفة مؤقتاً.', "You've used today's free runs for this tool": 'استخدمت التشغيلات المجانية اليوم لهذه الأداة', 'Nothing is wrong. Free visitors get a few advanced runs per day. Your file is untouched and still here.': 'لا توجد مشكلة. الزائر المجاني له عدد محدود من التشغيلات المتقدمة يومياً. ملفك كما هو ولم يتأثر.', 'Create a free account': 'أنشئ حساباً مجانياً', 'See plans': 'شاهد الخطط', 'create a free account': 'أنشئ حساباً مجانياً',
   // categories
   'Organize PDF': 'تنظيم PDF', 'Optimize PDF': 'تحسين PDF', 'Convert to PDF': 'التحويل إلى PDF', 'Convert from PDF': 'التحويل من PDF', 'Edit PDF': 'تعديل PDF', 'Documents ': 'المستندات', 'PDF Security': 'أمان PDF',
   // tools
