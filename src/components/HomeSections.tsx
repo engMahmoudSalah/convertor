@@ -16,9 +16,9 @@ const FAQ: [string, string][] = [
   ['Can I use it on my phone?', 'Yes. The layout is built for small screens too, and everything runs in the mobile browser.'],
 ];
 const Step: React.FC<{ n: number; title: string; text: string; art: React.ReactNode }> = ({ n, title, text, art }) => { const { t } = useT(); return (
-  <div className="ed-card relative p-6 overflow-hidden"><span className="absolute end-4 top-1 font-display italic text-7xl text-[#b4391f] opacity-90 select-none">{n}</span>
+  <div className="ed-card relative p-6 overflow-hidden"><span className="absolute end-4 top-1 font-display italic text-7xl text-[color:var(--ac)] opacity-90 select-none">{n}</span>
     <div className="h-20 mb-4">{art}</div><h3 className="font-display text-2xl mb-1">{t(title)}</h3><p className="text-sm text-gray-400">{t(text)}</p></div>); };
-const svg = (c: React.ReactNode) => <svg viewBox="0 0 160 80" className="h-full" aria-hidden="true"><defs><linearGradient id="hs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#c2452a" /><stop offset="1" stopColor="#e3a24b" /></linearGradient></defs>{c}</svg>;
+const svg = (c: React.ReactNode) => <svg viewBox="0 0 160 80" className="h-full" aria-hidden="true"><defs><linearGradient id="hs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="var(--g1)" /><stop offset="1" stopColor="var(--g2)" /></linearGradient></defs>{c}</svg>;
 
 export const HomeSections: React.FC = () => {
   const { t } = useT();
@@ -52,7 +52,7 @@ export const HomeSections: React.FC = () => {
           <p className="text-gray-400 mb-4">{t('The work happens inside your browser tab. There is no upload, no queue and no copy kept on a server. Close the tab and it is gone.')}</p>
           <ul className="space-y-2 text-sm">{['Core tools run 100% locally', 'No watermarks, no sign-up wall', 'Works with Arabic and English'].map((x) => <li key={x} className="flex items-center gap-2"><Check size={16} className="text-emerald-300" />{t(x)}</li>)}</ul></div>
         <div className="flex items-center justify-center gap-4 md:gap-6" aria-hidden="true">
-          <div className="grid place-items-center w-28 h-28 rounded-md border-2 border-current"><Laptop size={44} className="text-[#b4391f]" /><span className="text-[10px] font-bold tracking-widest -mt-3">{t('YOUR DEVICE')}</span></div>
+          <div className="grid place-items-center w-28 h-28 rounded-md border-2 border-current"><Laptop size={44} className="text-[color:var(--ac)]" /><span className="text-[10px] font-bold tracking-widest -mt-3">{t('YOUR DEVICE')}</span></div>
           <div className="relative h-1 w-14 md:w-20 rounded-full bg-white/10"><i className="absolute inset-y-0 w-1/3 rounded-full bg-emerald-400" style={{ animation: 'feed2 1.6s linear infinite' }} /></div>
           <div className="relative grid place-items-center w-24 h-24 rounded-3xl border-2 border-dashed border-white/20 opacity-70"><Cloud size={38} className="text-gray-400" /><span className="absolute inset-0 grid place-items-center text-5xl text-red-400 font-light">/</span></div>
         </div></div></section>

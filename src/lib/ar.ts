@@ -27,7 +27,7 @@ export const AR: Record<string, string> = {
   'Every file tool in one place': 'كل أدوات الملفات في مكان واحد',
   'Drop a file and we suggest what you can do with it. Everything runs in your browser.': 'ضع ملفك وسنقترح عليك ما يمكنك فعله به. كل شيء يعمل داخل متصفحك.',
   'Drop any file here, or click to choose': 'اسحب أي ملف هنا أو اضغط للاختيار',
-  'PDF, images, Word, Excel, PowerPoint, HTML, text': 'PDF وصور وWord وExcel وPowerPoint وHTML ونص',
+  'PDF, images, Word, Excel, PowerPoint, HTML, text': 'PDF، صور، Word، Excel، PowerPoint، HTML، نص',
   'Search all tools': 'ابحث في كل الأدوات', 'What do you want to do?': 'ماذا تريد أن تفعل؟', 'No tool takes this file type yet.': 'لا توجد أداة لهذا النوع من الملفات بعد.', 'No tool matches.': 'لا توجد أداة مطابقة.', 'Recently used': 'استخدمتها مؤخراً',
   'PDF tools': 'أدوات PDF', 'Image tools': 'أدوات الصور', 'Document tools': 'أدوات المستندات',
   'Organize, optimize, edit and convert PDFs': 'نظّم ملفات PDF وحسّنها وعدّلها وحوّلها',

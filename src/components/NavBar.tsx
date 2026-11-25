@@ -1,5 +1,6 @@
 import React from 'react';
-import { Menu, X, Sun, Moon, User } from 'lucide-react';
+import { Menu, X, Sun, Moon, User, Palette } from 'lucide-react';
+import { applyIdentity, currentIdentity } from '../lib/identity';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { useTheme } from '../lib/theme';
@@ -31,6 +32,7 @@ export const NavBar: React.FC = () => {
           {items.map((i) => <NavLink key={i.path} to={i.path} className={link}>{t(i.name)}</NavLink>)}
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={() => { applyIdentity(currentIdentity() === 'forest' ? 'paper' : 'forest'); }} aria-label="Switch visual identity" title="Identity: Paper / Forest" className="hidden sm:grid w-9 h-9 grid place-items-center rounded-lg border border-white/20 text-gray-300 hover:text-white hover:bg-white/10"><Palette size={17} /></button>
           <button onClick={toggle} aria-label={t(light ? 'Switch to dark theme' : 'Switch to light theme')} title={t(light ? 'Dark theme' : 'Light theme')} className="w-9 h-9 grid place-items-center rounded-lg border border-white/20 text-gray-300 hover:text-white hover:bg-white/10">{light ? <Moon size={17} /> : <Sun size={17} />}</button>
           <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} aria-label="Language" title="English / العربية" className="h-9 px-2.5 inline-flex items-center gap-1.5 rounded-lg border border-white/20 text-gray-300 hover:text-white hover:bg-white/10 text-sm font-semibold"><Languages size={16} /><span className="hidden min-[420px]:inline">{lang === 'ar' ? 'EN' : 'عربي'}</span></button>
           <Link to={user ? '/account' : '/login'} className="hidden sm:flex items-center gap-2 px-3.5 h-9 rounded-lg text-sm font-semibold btn-ink-sm"><User size={15} />{t(user ? 'Account' : 'Sign in')}</Link>

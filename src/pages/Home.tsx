@@ -20,13 +20,13 @@ export const Home: React.FC = () => {
     <section className="ed-hero grid lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-16 items-center mb-16 pt-4">
       <div className="text-center lg:text-start rise">
         <p className="ed-kicker mb-6 justify-center lg:justify-start">{tr('Free · No upload · Arabic OCR')}</p>
-        <h1 className="ed-h1 mb-6">{tr('Every file tool in')} <em>{tr('one place')}<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 40 2, 80 11, 120 5 S 180 4, 198 7" fill="none" stroke="#b4391f" strokeWidth="3" strokeLinecap="round" /></svg></em></h1>
+        <h1 className="ed-h1 mb-6">{tr('Every file tool in')} <em>{tr('one place')}<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 40 2, 80 11, 120 5 S 180 4, 198 7" fill="none" stroke="var(--ac)" strokeWidth="3" strokeLinecap="round" /></svg></em></h1>
         <p className="text-gray-400 text-lg max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed">{tr('Drop a file and we suggest what you can do with it. Everything runs in your browser.')}</p>
         <div className="flex flex-wrap gap-4 justify-center lg:justify-start mb-8">
           <button onClick={() => dz.open()} className="btn-ink px-7 h-12 font-bold inline-flex items-center gap-2"><UploadCloud size={18} /> {tr('Choose a file')}</button>
-          <Link to="/pdf" className="px-2 h-12 font-semibold underline underline-offset-8 decoration-2 inline-flex items-center gap-2 hover:text-[#b4391f]">{tr('Browse all tools')} <ArrowRight size={16} className="rtl:rotate-180" /></Link></div>
+          <Link to="/pdf" className="px-2 h-12 font-semibold underline underline-offset-8 decoration-2 inline-flex items-center gap-2 hover:text-[color:var(--ac)]">{tr('Browse all tools')} <ArrowRight size={16} className="rtl:rotate-180" /></Link></div>
         <div className="ed-rule mb-5 max-w-lg mx-auto lg:mx-0" />
-        <ul className="flex flex-wrap gap-x-6 gap-y-2 justify-center lg:justify-start text-sm text-gray-400">{[[Lock, 'Files stay on your device'], [Zap, 'Instant, no queue'], [Languages, 'Arabic and English']].map(([I, x]: any) => <li key={x} className="inline-flex items-center gap-1.5"><I size={15} className="text-[#b4391f]" /> {tr(x)}</li>)}</ul>
+        <ul className="flex flex-wrap gap-x-6 gap-y-2 justify-center lg:justify-start text-sm text-gray-400">{[[Lock, 'Files stay on your device'], [Zap, 'Instant, no queue'], [Languages, 'Arabic and English']].map(([I, x]: any) => <li key={x} className="inline-flex items-center gap-1.5"><I size={15} className="text-[color:var(--ac)]" /> {tr(x)}</li>)}</ul>
       </div>
       <div className="relative rise" style={{ animationDelay: '.1s' }}>
         <div {...dz.getRootProps()} className={`ed-card relative p-6 text-center cursor-pointer ${dz.isDragActive ? 'drag' : ''}`}>
@@ -35,7 +35,7 @@ export const Home: React.FC = () => {
           <div dir="ltr" className="text-start -mx-6 -mt-6 mb-6 border-b border-current/20" aria-hidden="true">
             {[['PDF', 'DOCX', 'Word'], ['JPG', 'PNG', 'Image'], ['DOCX', 'PDF', 'Export']].map(([a, b, n], i) => <div key={i} className="ed-row"><span className="ext">{a}</span><ArrowRight size={14} /><span className="ext">{b}</span><span className="opacity-70">{n}</span><span className="bar"><i style={{ animationDelay: `${i * .5}s` }} /></span></div>)}
           </div>
-          <UploadCloud size={30} className="mx-auto mb-3 text-[#b4391f]" />
+          <UploadCloud size={30} className="mx-auto mb-3 text-[color:var(--ac)]" />
           <p className="font-display text-2xl leading-tight">{dropped.length ? `${dropped.length} file(s): ${dropped.map((f) => f.name).slice(0, 3).join(', ')}${dropped.length > 3 ? '...' : ''}` : tr('Drop any file here, or click to choose')}</p>
           <p className="text-xs opacity-70 mt-2 mb-4">{tr('PDF, images, Word, Excel, PowerPoint, HTML, text')}</p>
           <div className="flex flex-wrap justify-center gap-1.5" dir="ltr">{['PDF', 'JPG', 'PNG', 'DOCX', 'XLSX', 'PPTX', 'HTML', 'TXT'].map((x) => <span key={x} className="px-2 py-0.5 border border-current/40 rounded-sm text-[10px] font-bold tracking-wider opacity-80">{x}</span>)}</div>

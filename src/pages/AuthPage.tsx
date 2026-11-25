@@ -13,7 +13,7 @@ export const AuthPage: React.FC<{ mode: 'login' | 'signup' }> = ({ mode }) => {
     await refresh(); const nx = new URLSearchParams(window.location.search).get('next'); nav(nx && nx.startsWith('/') && !nx.startsWith('//') ? nx : '/account'); };
   return (<div className="pt-28 pb-16 max-w-5xl mx-auto px-4 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
     <div className="hidden md:block"><p className="ed-kicker mb-5">{t('Magic Convertor')}</p><p className="font-display text-5xl leading-[1.08] mb-6">{t('Your files stay yours.')}</p>
-      <ul className="space-y-3 text-gray-400">{['History of your jobs', 'Higher limits on advanced tools', 'Works in Arabic and English'].map((x, i) => <li key={x} className="flex gap-3 items-baseline"><span className="font-display italic text-2xl text-[#b4391f]">{i + 1}.</span>{t(x)}</li>)}</ul></div>
+      <ul className="space-y-3 text-gray-400">{['History of your jobs', 'Higher limits on advanced tools', 'Works in Arabic and English'].map((x, i) => <li key={x} className="flex gap-3 items-baseline"><span className="font-display italic text-2xl text-[color:var(--ac)]">{i + 1}.</span>{t(x)}</li>)}</ul></div>
     <div className="ed-card ed-static p-7 relative"><span className="ed-stamp" dir="ltr">{t(mode === 'login' ? 'Sign in' : 'Free')}</span>
     <h1 className="text-4xl mb-6">{t(mode === 'login' ? 'Welcome back' : 'Create your account')}</h1>
     <form onSubmit={submit} className="space-y-4">
