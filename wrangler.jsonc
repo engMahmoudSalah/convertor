@@ -2,7 +2,7 @@
   "name": "magic-convertor",
   "main": "worker/index.ts",
   "compatibility_date": "2025-01-01",
-  "assets": { "directory": "./dist", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*"] },
+  "assets": { "directory": "./dist", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*", "/", "/ar", "/ar/*", "/tools/*", "/pdf", "/images", "/documents", "/pricing", "/about", "/contact", "/legal/*", "/sitemap.xml", "/robots.txt", "/ads.txt"] },
   "durable_objects": { "bindings": [{ "name": "DB", "class_name": "AppDB" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AppDB"] }]
 }

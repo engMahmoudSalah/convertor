@@ -1,0 +1,412 @@
+[
+ {
+  "id": "merge-pdf",
+  "title": "Merge PDF",
+  "desc": "Combine several PDFs into one, in the order you choose",
+  "cat": "organize",
+  "ar": {
+   "title": "دمج PDF",
+   "desc": "ادمج عدة ملفات PDF في ملف واحد بالترتيب الذي تختاره"
+  }
+ },
+ {
+  "id": "split-pdf",
+  "title": "Split PDF",
+  "desc": "Cut a PDF by page ranges, every N pages or one file per page",
+  "cat": "organize",
+  "ar": {
+   "title": "تقسيم PDF",
+   "desc": "قصّ ملف PDF بنطاقات صفحات أو كل N صفحة أو ملف لكل صفحة"
+  }
+ },
+ {
+  "id": "remove-pages",
+  "title": "Remove pages",
+  "desc": "Delete the pages you do not want",
+  "cat": "organize",
+  "ar": {
+   "title": "حذف صفحات",
+   "desc": "احذف الصفحات التي لا تريدها"
+  }
+ },
+ {
+  "id": "extract-pages",
+  "title": "Extract pages",
+  "desc": "Pull selected pages into a new PDF",
+  "cat": "organize",
+  "ar": {
+   "title": "استخراج صفحات",
+   "desc": "اسحب صفحات مختارة إلى ملف PDF جديد"
+  }
+ },
+ {
+  "id": "reorder-pdf",
+  "title": "Reorder pages",
+  "desc": "Rearrange pages or reverse the document",
+  "cat": "organize",
+  "ar": {
+   "title": "إعادة ترتيب الصفحات",
+   "desc": "أعد ترتيب الصفحات أو اعكس المستند"
+  }
+ },
+ {
+  "id": "rotate-pdf",
+  "title": "Rotate PDF",
+  "desc": "Rotate all or some pages",
+  "cat": "edit",
+  "ar": {
+   "title": "تدوير PDF",
+   "desc": "دوّر كل الصفحات أو بعضها"
+  }
+ },
+ {
+  "id": "page-numbers",
+  "title": "Add page numbers",
+  "desc": "Stamp numbers on every page",
+  "cat": "edit",
+  "ar": {
+   "title": "إضافة أرقام الصفحات",
+   "desc": "اطبع الأرقام على كل صفحة"
+  }
+ },
+ {
+  "id": "watermark-pdf",
+  "title": "Watermark",
+  "desc": "Stamp diagonal text on every page",
+  "cat": "edit",
+  "ar": {
+   "title": "علامة مائية",
+   "desc": "اطبع نصاً مائلاً على كل صفحة"
+  }
+ },
+ {
+  "id": "pdf-metadata",
+  "title": "Edit metadata",
+  "desc": "Set title, author, subject and keywords",
+  "cat": "edit",
+  "ar": {
+   "title": "تعديل البيانات الوصفية",
+   "desc": "حدد العنوان والمؤلف والموضوع والكلمات المفتاحية"
+  }
+ },
+ {
+  "id": "compress-pdf",
+  "title": "Compress PDF",
+  "desc": "Shrink scanned or image-heavy PDFs",
+  "cat": "optimize",
+  "ar": {
+   "title": "ضغط PDF",
+   "desc": "قلّل حجم ملفات PDF الممسوحة أو الكثيفة بالصور"
+  }
+ },
+ {
+  "id": "images-to-pdf",
+  "title": "Images to PDF",
+  "desc": "JPG, PNG, WebP, GIF, BMP or SVG into one PDF",
+  "cat": "to-pdf",
+  "ar": {
+   "title": "صور إلى PDF",
+   "desc": "حوّل صور JPG وPNG وWebP وGIF وBMP وSVG إلى ملف PDF واحد"
+  }
+ },
+ {
+  "id": "pdf-to-images",
+  "title": "PDF to image",
+  "desc": "Every page as PNG, JPG or WebP",
+  "cat": "from-pdf",
+  "ar": {
+   "title": "PDF إلى صور",
+   "desc": "كل صفحة كصورة PNG أو JPG أو WebP"
+  }
+ },
+ {
+  "id": "pdf-to-text",
+  "title": "PDF to text",
+  "desc": "Extract the text layer of a PDF",
+  "cat": "from-pdf",
+  "ar": {
+   "title": "PDF إلى نص",
+   "desc": "استخرج طبقة النص من ملف PDF"
+  }
+ },
+ {
+  "id": "convert-image",
+  "title": "Convert image",
+  "desc": "PNG, JPG, WebP, BMP in any direction",
+  "cat": "image",
+  "ar": {
+   "title": "تحويل صورة",
+   "desc": "PNG وJPG وWebP وBMP في أي اتجاه"
+  }
+ },
+ {
+  "id": "image-background",
+  "title": "Background",
+  "desc": "Remove a solid background, fill with a colour or place on your own image",
+  "cat": "image",
+  "ar": {
+   "title": "الخلفية",
+   "desc": "أزل خلفية سادة أو املأها بلون أو ضعها على صورتك"
+  }
+ },
+ {
+  "id": "resize-image",
+  "title": "Resize image",
+  "desc": "By pixels or percent, keeps the ratio",
+  "cat": "image",
+  "ar": {
+   "title": "تغيير حجم الصورة",
+   "desc": "بالبكسل أو بالنسبة المئوية مع الحفاظ على التناسب"
+  }
+ },
+ {
+  "id": "compress-image",
+  "title": "Compress image",
+  "desc": "Smaller JPG or WebP at the quality you pick",
+  "cat": "image",
+  "ar": {
+   "title": "ضغط الصورة",
+   "desc": "JPG أو WebP أصغر بالجودة التي تختارها"
+  }
+ },
+ {
+  "id": "text-to-pdf",
+  "title": "Text to PDF",
+  "desc": "Plain text files into paginated PDFs",
+  "cat": "doc",
+  "ar": {
+   "title": "نص إلى PDF",
+   "desc": "حوّل ملفات النص إلى ملفات PDF مقسمة إلى صفحات"
+  }
+ },
+ {
+  "id": "word-to-pdf",
+  "title": "Word to PDF",
+  "desc": "DOCX with headings and lists into PDF",
+  "cat": "doc",
+  "ar": {
+   "title": "Word إلى PDF",
+   "desc": "حوّل DOCX بعناوينه وقوائمه إلى PDF"
+  }
+ },
+ {
+  "id": "word-to-text",
+  "title": "Word to text",
+  "desc": "Extract plain text from DOCX",
+  "cat": "doc",
+  "ar": {
+   "title": "Word إلى نص",
+   "desc": "استخرج النص من DOCX"
+  }
+ },
+ {
+  "id": "word-to-html",
+  "title": "Word to HTML",
+  "desc": "Clean HTML from a DOCX",
+  "cat": "doc",
+  "ar": {
+   "title": "Word إلى HTML",
+   "desc": "HTML نظيف من ملف DOCX"
+  }
+ },
+ {
+  "id": "pdf-to-word",
+  "title": "PDF to Word",
+  "desc": "Text of a PDF into an editable DOCX",
+  "cat": "doc",
+  "ar": {
+   "title": "PDF إلى Word",
+   "desc": "حوّل نص PDF إلى DOCX قابل للتعديل"
+  }
+ },
+ {
+  "id": "ocr-image",
+  "title": "OCR image",
+  "desc": "Read text from photos and screenshots (English, Arabic)",
+  "cat": "image",
+  "ar": {
+   "title": "التعرف على النص في صورة",
+   "desc": "اقرأ النص من الصور ولقطات الشاشة (إنجليزي وعربي)"
+  }
+ },
+ {
+  "id": "ocr-pdf",
+  "title": "OCR PDF",
+  "desc": "Make scanned PDFs searchable and extract their text",
+  "cat": "optimize",
+  "ar": {
+   "title": "التعرف على النص في PDF",
+   "desc": "اجعل ملفات PDF الممسوحة قابلة للبحث واستخرج نصها"
+  }
+ },
+ {
+  "id": "scan-to-pdf",
+  "title": "Scan to PDF",
+  "desc": "Photograph pages and turn them into a clean PDF",
+  "cat": "to-pdf",
+  "ar": {
+   "title": "مسح إلى PDF",
+   "desc": "صوّر الصفحات وحوّلها إلى PDF نظيف"
+  }
+ },
+ {
+  "id": "protect-pdf",
+  "title": "Protect PDF",
+  "desc": "Lock a PDF with a password (RC4 128-bit)",
+  "cat": "security",
+  "ar": {
+   "title": "حماية PDF",
+   "desc": "اقفل ملف PDF بكلمة مرور (RC4 128 بت)"
+  }
+ },
+ {
+  "id": "unlock-pdf",
+  "title": "Unlock PDF",
+  "desc": "Remove the password from a PDF you own",
+  "cat": "security",
+  "ar": {
+   "title": "فتح قفل PDF",
+   "desc": "أزل كلمة المرور من ملف PDF تملكه"
+  }
+ },
+ {
+  "id": "sign-pdf",
+  "title": "Sign PDF",
+  "desc": "Add a typed signature with date",
+  "cat": "security",
+  "ar": {
+   "title": "توقيع PDF",
+   "desc": "أضف توقيعاً مكتوباً مع التاريخ"
+  }
+ },
+ {
+  "id": "edit-pdf",
+  "title": "Edit PDF",
+  "desc": "Add text, shapes, highlights and images onto pages",
+  "cat": "edit",
+  "ar": {
+   "title": "تعديل PDF",
+   "desc": "أضف نصوصاً وأشكالاً وتظليلاً وصوراً على الصفحات"
+  }
+ },
+ {
+  "id": "html-to-pdf",
+  "title": "HTML to PDF",
+  "desc": "Turn an HTML page into a PDF that looks like it",
+  "cat": "to-pdf",
+  "ar": {
+   "title": "HTML إلى PDF",
+   "desc": "حوّل صفحة HTML إلى PDF يشبهها"
+  }
+ },
+ {
+  "id": "fill-pdf-form",
+  "title": "Fill PDF form",
+  "desc": "Fill form fields by name, list fields, or flatten",
+  "cat": "edit",
+  "ar": {
+   "title": "ملء نموذج PDF",
+   "desc": "املأ حقول النموذج بالاسم أو اعرض الحقول أو ثبّتها"
+  }
+ },
+ {
+  "id": "add-form-fields",
+  "title": "Create form fields",
+  "desc": "Add fillable text fields to any PDF",
+  "cat": "edit",
+  "ar": {
+   "title": "إنشاء حقول نموذج",
+   "desc": "أضف حقول نص قابلة للتعبئة إلى أي PDF"
+  }
+ },
+ {
+  "id": "redact-pdf",
+  "title": "Redact PDF",
+  "desc": "Permanently black out words and phrases",
+  "cat": "security",
+  "ar": {
+   "title": "إخفاء محتوى PDF",
+   "desc": "أخفِ الكلمات والعبارات بشكل دائم"
+  }
+ },
+ {
+  "id": "compare-pdf",
+  "title": "Compare PDF",
+  "desc": "See added and removed lines between two PDFs",
+  "cat": "security",
+  "ar": {
+   "title": "مقارنة PDF",
+   "desc": "شاهد الأسطر المضافة والمحذوفة بين ملفين"
+  }
+ },
+ {
+  "id": "repair-pdf",
+  "title": "Repair PDF",
+  "desc": "Recover pages from a damaged PDF",
+  "cat": "optimize",
+  "ar": {
+   "title": "إصلاح PDF",
+   "desc": "استرجع الصفحات من ملف PDF تالف"
+  }
+ },
+ {
+  "id": "crop-pdf",
+  "title": "Crop PDF",
+  "desc": "Trim page margins",
+  "cat": "edit",
+  "ar": {
+   "title": "اقتصاص PDF",
+   "desc": "قصّ هوامش الصفحات"
+  }
+ },
+ {
+  "id": "pdf-to-markdown",
+  "title": "PDF to Markdown",
+  "desc": "Text with headings, ready for notes and docs",
+  "cat": "from-pdf",
+  "ar": {
+   "title": "PDF إلى Markdown",
+   "desc": "نص بعناوينه جاهز للملاحظات والمستندات"
+  }
+ },
+ {
+  "id": "pdf-to-excel",
+  "title": "PDF to Excel",
+  "desc": "Tables and text into an XLSX, one sheet per page",
+  "cat": "from-pdf",
+  "ar": {
+   "title": "PDF إلى Excel",
+   "desc": "جداول ونصوص إلى XLSX بورقة لكل صفحة"
+  }
+ },
+ {
+  "id": "pdf-to-powerpoint",
+  "title": "PDF to PowerPoint",
+  "desc": "Every page as a slide",
+  "cat": "from-pdf",
+  "ar": {
+   "title": "PDF إلى PowerPoint",
+   "desc": "كل صفحة كشريحة"
+  }
+ },
+ {
+  "id": "excel-to-pdf",
+  "title": "Excel to PDF",
+  "desc": "XLSX, XLS or CSV sheets into PDF tables",
+  "cat": "to-pdf",
+  "ar": {
+   "title": "Excel إلى PDF",
+   "desc": "أوراق XLSX وXLS وCSV إلى جداول PDF"
+  }
+ },
+ {
+  "id": "powerpoint-to-pdf",
+  "title": "PowerPoint to PDF",
+  "desc": "PPTX slides into PDF pages",
+  "cat": "to-pdf",
+  "ar": {
+   "title": "PowerPoint إلى PDF",
+   "desc": "شرائح PPTX إلى صفحات PDF"
+  }
+ }
+]

@@ -12,6 +12,7 @@ import { fmtSize } from '../lib/util';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { Thumbs } from '../components/Thumbs';
+import { ToolInfo } from '../components/ToolInfo';
 import { SplitPreview, CompressPreview, FileCards, PageGrid, BackgroundPreview, PageFrame, usePreviewMode, compressPages } from '../components/PreviewDock';
 import type { Out } from '../tools/types';
 import { saveOperation } from '../lib/saved';
@@ -120,5 +121,6 @@ export const ToolPage: React.FC = () => {
         {saved === 'login' && <div className="mt-4 p-4 rounded-xl text-sm flow-note text-start"><p className="mb-2">{tr('Sign in to keep this operation in your profile. Your settings are held on this device until then.')}</p><div className="flex gap-2"><Link to="/login" className="flow-next px-4 py-2 rounded-lg font-semibold">{tr('Sign in')}</Link><Link to="/signup" className="flow-ghost px-4 py-2 rounded-lg font-semibold">{tr('Create account')}</Link></div></div>}
         {err && <p className="mt-3 text-red-300 text-sm">{err}</p>}
       </div></div>}
+      {stage === 'upload' && <ToolInfo id={tool.id} />}
     </div>);
 };

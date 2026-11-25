@@ -1,6 +1,7 @@
 // Magic Convertor backend: one Worker + one SQLite-backed Durable Object.
 import { DurableObject } from 'cloudflare:workers';
 import { PROVIDERS } from './payments';
+import { seoPage, sitemap, robots, adsTxt } from './seo';
 
 const HEAVY = new Set(['compress-pdf', 'pdf-to-images', 'pdf-to-word', 'pdf-to-excel', 'pdf-to-powerpoint', 'redact-pdf', 'unlock-pdf', 'repair-pdf']);
 const enc = new TextEncoder();
@@ -252,6 +253,13 @@ export default {
     if (url.pathname.startsWith('/api/')) {
       const stub = env.DB.get(env.DB.idFromName('main'));
       return stub.fetch(req);
+    }
+    if (req.method === 'GET' || req.method === 'HEAD') {
+      const t = (b: string, type: string) => new Response(b, { headers: { 'content-type': type + '; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
+      if (url.pathname === '/sitemap.xml') return t(sitemap(url.origin), 'application/xml');
+      if (url.pathname === '/robots.txt') return t(robots(url.origin), 'text/plain');
+      if (url.pathname === '/ads.txt') return t(adsTxt(env.ADSENSE_PUB), 'text/plain');
+      if (!url.pathname.startsWith('/assets/') && !/\.[a-z0-9]{2,5}$/i.test(url.pathname)) { const r = await seoPage(req, env); if (r) return r; }
     }
     return env.ASSETS.fetch(req);
   },

@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
-import { LangProvider } from './lib/i18n';
+import { LangProvider, AR_PREFIX } from './lib/i18n';
+import { About, Contact } from './pages/Static';
+import { ScrollManager, BackToTop } from './components/ScrollKit';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
 import { Home } from './pages/Home';
@@ -27,10 +29,10 @@ const useReveal = () => {
 const Reveal = () => { useReveal(); return null; };
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={AR_PREFIX || undefined}>
     <LangProvider><AuthProvider>
       <div className="min-h-screen min-h-[100dvh] flex flex-col bg-gray-900 text-white overflow-x-hidden">
-        <NavBar /><Reveal />
+        <NavBar /><Reveal /><ScrollManager />
         <div className="flex-1 w-full"><Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<AuthPage mode="login" />} />
@@ -39,6 +41,8 @@ function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/legal/:doc" element={<Legal />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/by-mahmoud" element={<ByMahmoud />} />
           <Route path="/:type" element={<TypePage />} />
           <Route path="/tools/:id" element={<ToolPage />} />
@@ -48,6 +52,7 @@ function App() {
         <img style={{height:"55px"}} src={logo} alt="" />
             </div>
         <SiteFooter />
+        <BackToTop />
       </div>
     </AuthProvider></LangProvider>
     </BrowserRouter>
