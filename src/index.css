@@ -429,3 +429,6 @@ html[data-id=forest]:not(.light) .mc-idn.on { border-color: #c6f432; background:
 .adv-chips a { display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .75rem; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 30%, transparent); font-size: .85rem; text-decoration: none; color: inherit; }
 .adv-chips a:hover { border-color: var(--ac); background: color-mix(in srgb, var(--ac) 12%, transparent); }
 .adv-chips a:focus-visible { outline: 3px solid var(--ac); outline-offset: 2px; }
+
+.adv-tool-note{font-size:.8rem;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;margin:0 0 .5rem;color:var(--mc-muted,#6b7280)}
+.adv-tool-note b{font-weight:600}

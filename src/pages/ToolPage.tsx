@@ -6,6 +6,8 @@ import { addRecent, takePending, guessType } from '../lib/handoff';
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Link, useParams, useLocation } from 'react-router-dom';
+import { Gauge } from 'lucide-react';
+import { isHeavy as isAdv } from '../lib/heavy';
 import { PlanHint, PaidNotice, upgradePlan, unlockPlan } from '../components/PlanBadge';
 import { ArrowLeft, ArrowUp, ArrowDown, Download, Loader2, X, UploadCloud, ShieldCheck } from 'lucide-react';
 import { getTool } from '../tools/registry';
@@ -68,7 +70,6 @@ export const ToolPage: React.FC = () => {
   const PN = () => (<>
     {noticeSize && myPlan && <PaidNotice tone="warn" plan={noticeSize}>{ar ? `إجمالي ملفاتك ${mbOf(inBytes)} ميجابايت وخطتك الحالية تسمح بـ ${myPlan.max_mb} ميجابايت. الحجم الأكبر ميزة مدفوعة (حتى ${noticeSize.max_mb} ميجابايت مع ${tr(noticeSize.name)}).` : `Your files total ${mbOf(inBytes)} MB and your plan allows ${myPlan.max_mb} MB. Bigger files are a paid feature (up to ${noticeSize.max_mb} MB on ${noticeSize.name}).`}</PaidNotice>}
     {!noticeSize && noticeFiles && myPlan && <PaidNotice tone="warn" plan={noticeFiles}>{ar ? `اخترت ${files.length} ملف وخطتك تسمح بـ ${myPlan.max_files} في الدفعة. الدفعات الأكبر ميزة مدفوعة (حتى ${noticeFiles.max_files} ملف مع ${tr(noticeFiles.name)}).` : `You picked ${files.length} files and your plan allows ${myPlan.max_files} per batch. Larger batches are a paid feature (up to ${noticeFiles.max_files} files on ${noticeFiles.name}).`}</PaidNotice>}
-    {!noticeSize && !noticeFiles && isHeavy && <PaidNotice plan={heavyPlan}>{ar ? `أداة متقدمة: باقي لك ${heavyLeft} من ${myPlan!.heavy_daily} تشغيل مجاني اليوم. التشغيل غير المحدود ميزة مدفوعة.` : `Advanced tool: ${heavyLeft} of ${myPlan!.heavy_daily} free runs left today. Unlimited runs are a paid feature.`}</PaidNotice>}
   </>);
   return (
     <div className="pt-24 pb-16 max-w-7xl mx-auto px-4">
@@ -76,6 +77,7 @@ export const ToolPage: React.FC = () => {
       <div className="flex items-center gap-3 mb-2"><div className="p-3 tool-tile"><Icon /></div>
         <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">{tr(tool.title)}</h1><PageArt kind={tool.accept.some((a) => a.startsWith('image/')) ? 'images' : tool.accept.every((a) => a !== 'application/pdf') ? 'documents' : 'pdf'} className="ml-auto w-28 hidden md:block -my-3" /></div>
       <p className="text-gray-400 mb-2">{tr(tool.desc)}</p>
+      {isAdv(tool.id) && <p className="adv-tool-note"><span className="adv-mark static" aria-hidden="true"><Gauge size={13} /></span> <b>{ar ? 'أداة متقدمة.' : 'Advanced tool.'}</b> {myPlan && myPlan.heavy_daily < 100000 ? (ar ? `باقي لك ${heavyLeft} من ${myPlan.heavy_daily} تشغيل مجاني اليوم. التشغيل غير المحدود مع الخطط المدفوعة.` : `${heavyLeft} of ${myPlan.heavy_daily} free runs left today. Unlimited on paid plans.`) : myPlan ? (ar ? 'خطتك بلا حد يومي.' : 'Your plan has no daily limit.') : (ar ? 'محدودة يومياً: 3 للزوار و10 للخطة المجانية، وبلا حد في احترافي وأعمال.' : 'Limited per day: 3 for guests, 10 on Free, unlimited on Pro and Business.')} <Link to="/pricing#advanced" className="underline">{ar ? 'التفاصيل' : 'Details'}</Link></p>}
       <p className="text-xs text-emerald-300/80 flex items-center gap-1 mb-6"><ShieldCheck size={13} /> {tr('Runs in your browser. Your files are not uploaded.')}</p>
       <Stepper stage={stage} />
       {stage === 'upload' && <div className="max-w-2xl mx-auto">

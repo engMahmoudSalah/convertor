@@ -37,7 +37,7 @@ export const Pricing: React.FC = () => {
           : <button disabled className="w-full py-2.5 rounded-xl bg-white/10 text-gray-400 cursor-not-allowed">{t('Payments opening soon')}</button>}
       </div>))}</div>
 
-      <section className="mt-12" aria-labelledby="adv-h"><h2 id="adv-h" className="font-bold text-lg mb-1">{t('Which tools count as advanced')}</h2>
+      <section id="advanced" className="mt-12" aria-labelledby="adv-h"><h2 id="adv-h" className="font-bold text-lg mb-1">{t('Which tools count as advanced')}</h2>
         <p className="text-sm opacity-80 max-w-3xl">{t('Advanced tools do heavy work in your browser. They count toward the daily limit: 3 a day for guests and 10 a day on Free, unlimited on Pro and Business. All other tools are unlimited on every plan.')}</p>
         <ul className="adv-chips">{HEAVY_TOOLS.map((id) => { const tl = TOOLS.find((x) => x.id === id); return tl ? <li key={id}><Link to={`/tools/${id}`}><Gauge size={14} aria-hidden="true" />{t(tl.title)}</Link></li> : null; })}</ul>
         <p className="text-xs opacity-70">{TOOLS.length - HEAVY_TOOLS.length} {t('other tools are basic and unlimited.')}</p></section>
