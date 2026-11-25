@@ -45,6 +45,14 @@ const COPY: Record<string, Copy> = {
     steps: { en: ['Add your JPG or PNG images and drag them into the order you want.', 'Check each page in the preview.', 'Run it and download one PDF.'], ar: ['أضف صور JPG أو PNG ورتّبها بالسحب.', 'راجع كل صفحة في المعاينة.', 'نفّذ ونزّل ملف PDF واحد.'] },
     faq: { en: [['Which image types work?', 'JPG and PNG are the common ones. See the drop area for the exact list.'], ['Can I reorder the pages?', 'Yes, drag the images on the work board.'], ['Are my images uploaded?', 'No. The PDF is built in your browser.']], ar: [['ما أنواع الصور المدعومة؟', 'JPG وPNG هما الأشهر. القائمة الدقيقة مكتوبة في منطقة الرفع.'], ['هل أقدر أرتب الصفحات؟', 'نعم، اسحب الصور على لوحة العمل.'], ['هل صوري بتتحمّل على سيرفر؟', 'لا. ملف PDF يُبنى داخل متصفحك.']] },
   },
+  'rotate-pdf': {
+    steps: { en: ['Add your PDF and see its pages on the work board.', 'Choose to rotate all pages or only some of them.', 'Run it and download the PDF with the new orientation.'], ar: ['أضف ملف PDF وستظهر صفحاته على لوحة العمل.', 'اختر تدوير كل الصفحات أو بعضها فقط.', 'نفّذ ونزّل الملف بالاتجاه الجديد.'] },
+    faq: { en: [['Can I rotate only some pages?', 'Yes. The tool rotates all or some pages, and the rest stay as they are.'], ['Does rotating reduce quality?', 'No. Only the page orientation changes. Content is not recompressed.'], ['Are my PDFs uploaded?', 'No. Rotation runs in your browser.']], ar: [['هل أقدر أدوّر صفحات معينة فقط؟', 'نعم. تدوّر الأداة كل الصفحات أو بعضها، والباقي يبقى كما هو.'], ['هل التدوير يقلل الجودة؟', 'لا. يتغير اتجاه الصفحة فقط ولا يُعاد ضغط المحتوى.'], ['هل ملفاتي بتتحمّل على سيرفر؟', 'لا. التدوير يتم داخل متصفحك.']] },
+  },
+  'pdf-to-images': {
+    steps: { en: ['Add your PDF.', 'Choose JPG, PNG or WebP and the resolution in DPI (72 to 300).', 'Run it and download the images.'], ar: ['أضف ملف PDF.', 'اختر JPG أو PNG أو WebP والدقة بوحدة DPI (من 72 إلى 300).', 'نفّذ ونزّل الصور.'] },
+    faq: { en: [['Which formats can I get?', 'JPG, PNG and WebP. You also choose the resolution, from 72 to 300 DPI.'], ['Do I get one image per page?', 'Yes, each page becomes its own image.'], ['Are my PDFs uploaded?', 'No. Pages are drawn in your browser.']], ar: [['ما الصيغ المتاحة؟', 'JPG وPNG وWebP، وتختار أيضاً الدقة من 72 إلى 300 DPI.'], ['هل أحصل على صورة لكل صفحة؟', 'نعم، كل صفحة تصبح صورة مستقلة.'], ['هل ملفاتي بتتحمّل على سيرفر؟', 'لا. الصفحات تُرسم داخل متصفحك.']] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 
