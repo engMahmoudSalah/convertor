@@ -19,3 +19,7 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>
 );
+
+import { wandFavicon } from './components/Wand';
+const syncFavicon = () => { const cs = getComputedStyle(document.documentElement); let l = document.querySelector<HTMLLinkElement>('link[rel=icon]'); if (!l) { l = document.createElement('link'); l.rel = 'icon'; document.head.appendChild(l); } l.type = 'image/svg+xml'; l.href = wandFavicon(cs.getPropertyValue('--logo').trim(), cs.getPropertyValue('--logo-band').trim()); };
+syncFavicon(); new MutationObserver(syncFavicon).observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-id'] });

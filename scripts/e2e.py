@@ -6,17 +6,23 @@ F=lambda n: os.path.abspath('fixtures/'+n)
 results=[]
 def tool(p, tid, files, opts=None, label=None):
     p.goto(f'{BASE}/tools/{tid}'); p.set_input_files('input[type=file]', files)
+    p.locator('button.flow-next').first.click()
     for k,v in (opts or {}).items():
         el = p.locator('label').filter(has=p.locator('span', has_text=k)).first.locator('select, input:not([type=range])')
         if el.evaluate('e=>e.tagName')=='SELECT': el.select_option(v)
         else: el.fill(str(v))
     p.locator('button.bg-gradient-to-r').first.click()
-    p.wait_for_selector('h2:has-text("Done"), p.text-red-300', timeout=25000)
+    p.wait_for_selector('.flow-bar button.flow-next:not([disabled]), p.text-red-300', timeout=25000)
     if p.locator('p.text-red-300').count(): return None, p.locator('p.text-red-300').inner_text()
+    p.locator('.flow-bar button.flow-next').click(); p.wait_for_selector('h2:has-text("Done")', timeout=5000)
     outs=[]
-    for i in range(p.locator('button.bg-emerald-500\\/30').count()):
-        with p.expect_download() as d: p.locator('button.bg-emerald-500\\/30').nth(i).click()
-        path=f'/tmp/out/{tid}-{i}-{d.value.suggested_filename}'; d.value.save_as(path); outs.append(path)
+    if p.locator('button[aria-label^="Download "]').count():
+        for i in range(p.locator('button[aria-label^="Download "]').count()):
+            with p.expect_download() as d: p.locator('button[aria-label^="Download "]').nth(i).click()
+            path=f'/tmp/out/{tid}-{i}-{d.value.suggested_filename}'; d.value.save_as(path); outs.append(path)
+    else:
+        with p.expect_download() as d: p.locator('button.flow-next:has-text("Download")').click()
+        path=f'/tmp/out/{tid}-0-{d.value.suggested_filename}'; d.value.save_as(path); outs.append(path)
     return outs, None
 def pages(path):
     from pypdf import PdfReader; return len(PdfReader(path).pages)

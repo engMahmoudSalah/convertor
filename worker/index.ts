@@ -27,6 +27,7 @@ export class AppDB extends DurableObject<any> {
       CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY, user_id TEXT, created_at INTEGER, expires_at INTEGER);
       CREATE TABLE IF NOT EXISTS usage(subject TEXT, day TEXT, kind TEXT, n INTEGER DEFAULT 0, PRIMARY KEY(subject, day, kind));
       CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT, tool TEXT, files INTEGER, bytes INTEGER, ms INTEGER, ts INTEGER);
+      CREATE TABLE IF NOT EXISTS saved(id TEXT PRIMARY KEY, user_id TEXT, tool TEXT, name TEXT, opts TEXT, files TEXT, summary TEXT, ts INTEGER);
       CREATE TABLE IF NOT EXISTS plans(id TEXT PRIMARY KEY, name TEXT, price_usd REAL, price_egp REAL, heavy_daily INTEGER, ai_daily INTEGER, max_mb INTEGER, history_days INTEGER, sort INTEGER);
       CREATE TABLE IF NOT EXISTS flags(tool TEXT PRIMARY KEY, enabled INTEGER DEFAULT 1);
       CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER, actor TEXT, action TEXT, target TEXT, detail TEXT);
@@ -123,6 +124,22 @@ export class AppDB extends DurableObject<any> {
       if (!u) return json({ error: 'Sign in first' }, 401);
       const p = this.plan(u.plan); const since = now() - Math.max(1, p.history_days) * 864e5;
       return json({ history: this.rows('SELECT tool,files,bytes,ms,ts FROM history WHERE subject=? AND ts>? ORDER BY ts DESC LIMIT 100', u.id, since), days: p.history_days });
+    }
+    if (path === '/saved' && method === 'GET') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      return json({ saved: this.rows('SELECT id,tool,name,opts,files,summary,ts FROM saved WHERE user_id=? ORDER BY ts DESC LIMIT 100', u.id) });
+    }
+    if (path === '/saved' && method === 'POST') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      if (this.rows('SELECT 1 FROM saved WHERE user_id=?', u.id).length >= 50) return json({ error: 'You can keep up to 50 saved operations. Delete one first.' }, 400);
+      const id = crypto.randomUUID(); const cap = (v: unknown, n: number) => JSON.stringify(v ?? null).slice(0, n);
+      this.sql.exec('INSERT INTO saved(id,user_id,tool,name,opts,files,summary,ts) VALUES(?,?,?,?,?,?,?,?)', id, u.id, String(body.tool ?? '').slice(0, 40), String(body.name ?? '').slice(0, 80), cap(body.opts, 4000), cap(body.files, 2000), cap(body.summary, 1000), now());
+      return json({ ok: true, id });
+    }
+    if (path === '/saved/delete' && method === 'POST') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      this.sql.exec('DELETE FROM saved WHERE id=? AND user_id=?', String(body.id ?? ''), u.id);
+      return json({ ok: true });
     }
     if (path === '/billing/status' && method === 'GET') {
       return json({ providers: Object.values(PROVIDERS).filter((p) => p.configured(this.env)).map((p) => ({ id: p.id, currency: p.currency })), orders: u ? this.rows('SELECT id,plan,provider,amount,currency,status,created_at,paid_at FROM orders WHERE user_id=? ORDER BY created_at DESC LIMIT 20', u.id) : [] });

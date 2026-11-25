@@ -24,7 +24,7 @@ export const Home: React.FC = () => {
         <p className="text-gray-400 text-lg max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed">{tr('Drop a file and we suggest what you can do with it. Everything runs in your browser.')}</p>
         <div className="flex flex-wrap gap-4 justify-center lg:justify-start mb-8">
           <button onClick={() => dz.open()} className="btn-ink px-7 h-12 font-bold inline-flex items-center gap-2"><UploadCloud size={18} /> {tr('Choose a file')}</button>
-          <Link to="/pdf" className="px-2 h-12 font-semibold underline underline-offset-8 decoration-2 inline-flex items-center gap-2 hover:text-[color:var(--ac)]">{tr('Browse all tools')} <ArrowRight size={16} className="rtl:rotate-180" /></Link></div>
+          <a href="#all-tools" onClick={(e) => { e.preventDefault(); document.getElementById("all-tools")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); }} className="px-2 h-12 font-semibold underline underline-offset-8 decoration-2 inline-flex items-center gap-2 hover:text-[color:var(--ac)]">{tr('Browse all tools')} <ArrowRight size={16} className="rtl:rotate-180 rotate-90" /></a></div>
         <div className="ed-rule mb-5 max-w-lg mx-auto lg:mx-0" />
         <ul className="flex flex-wrap gap-x-6 gap-y-2 justify-center lg:justify-start text-sm text-gray-400">{[[Lock, 'Files stay on your device'], [Zap, 'Instant, no queue'], [Languages, 'Arabic and English']].map(([I, x]: any) => <li key={x} className="inline-flex items-center gap-1.5"><I size={15} className="text-[color:var(--ac)]" /> {tr(x)}</li>)}</ul>
       </div>
@@ -46,11 +46,12 @@ export const Home: React.FC = () => {
     </section>
     {dropped.length > 0 && <section className="mb-10"><h2 className="font-semibold mb-3 flex items-center gap-2"><Sparkles size={16} className="text-violet-300" /> {tr('What do you want to do?')}</h2>
       {suggestions.length ? <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">{suggestions.map((t) => <ToolCard key={t.id} t={t} onClick={() => setPending(dropped)} />)}</div> : <p className="text-gray-400 text-sm">{tr('No tool takes this file type yet.')}</p>}</section>}
+    {!q && recent.length > 0 && <section className="mb-6"><h2 className="font-semibold mb-3 flex items-center gap-2"><History size={16} className="text-violet-300" /> {tr('Recently used')}</h2><div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{recent.map((t) => <ToolCard key={t.id} t={t} />)}</div></section>}
+    <div id="all-tools" className="all-tools-head scroll-mt-24 mt-10 mb-6"><h2 className="font-display text-3xl font-bold">{tr('All tools')}</h2><p className="text-sm opacity-70 mt-1">{tr('Search, or pick a category below.')}</p></div>
     <div className="max-w-xl mx-auto mb-8 relative"><Search className="absolute start-3 top-3 text-gray-500" size={18} />
       <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr('Search all tools')} onKeyDown={(e) => { if (e.key === 'Enter' && list[0]) nav(`/tools/${list[0].id}`); }} className="w-full ps-10 pe-3 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:outline-none focus:border-violet-400" /></div>
     {q ? <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">{list.map((t) => <ToolCard key={t.id} t={t} />)}{!list.length && <p className="text-gray-400">{tr('No tool matches.')}</p>}</div>
     : <>
-      {recent.length > 0 && <section className="mb-10"><h2 className="font-semibold mb-3 flex items-center gap-2"><History size={16} className="text-violet-300" /> {tr('Recently used')}</h2><div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{recent.map((t) => <ToolCard key={t.id} t={t} />)}</div></section>}
       <div className="grid md:grid-cols-3 gap-6 mb-12">{Object.entries(TYPES).map(([k, t]) => { const I = ICONS[k]; const n = toolsOfType(k);
         return <Link key={k} to={`/${k}`} className="group p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-violet-400/60 hover:bg-white/10 transition">
           <I className="text-violet-300 mb-4 group-hover:scale-110 transition" size={40} /><h2 className="text-2xl font-bold mb-1">{tr(t.title)}</h2><p className="text-xs text-violet-300 mb-2">{n.length} {tr('tools')}</p><p className="text-gray-400 mb-4">{tr(t.desc)}</p>

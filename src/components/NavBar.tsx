@@ -6,7 +6,7 @@ import { useAuth } from '../lib/auth';
 import { useTheme } from '../lib/theme';
 import { useT } from '../lib/i18n';
 import { Languages } from 'lucide-react';
-import logoo from './../../Magic0.png';
+import { Wand } from './Wand';
 
 const menuItems = [
   { name: 'PDF', path: '/pdf' },
@@ -27,7 +27,7 @@ export const NavBar: React.FC = () => {
     <nav data-scrolled={scrolled || isOpen ? '1' : '0'} className="mc-nav fixed w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         <Link to="/" className="flex items-center gap-2 min-w-0" aria-label="Magic Convertor home">
-          <img className="h-10 w-10 object-contain" src={logoo} alt="" />
+          <Wand className="h-9 w-9 shrink-0" />
           <span className="font-display text-xl sm:text-2xl font-semibold whitespace-nowrap">Magic Convertor</span>
         </Link>
         <div className="hidden md:flex items-center gap-1" role="navigation">
