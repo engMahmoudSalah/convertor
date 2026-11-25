@@ -35,10 +35,12 @@ export const Home: React.FC = () => {
           <div dir="ltr" className="text-start -mx-6 -mt-6 mb-6 border-b border-current/20" aria-hidden="true">
             {[['PDF', 'DOCX', 'Word'], ['JPG', 'PNG', 'Image'], ['DOCX', 'PDF', 'Export']].map(([a, b, n], i) => <div key={i} className="ed-row"><span className="ext">{a}</span><ArrowRight size={14} /><span className="ext">{b}</span><span className="opacity-70">{n}</span><span className="bar"><i style={{ animationDelay: `${i * .5}s` }} /></span></div>)}
           </div>
+          <div className="mc-drop px-4 py-6 mt-1">
           <UploadCloud size={30} className="mx-auto mb-3 text-[color:var(--ac)]" />
           <p className="font-display text-2xl leading-tight">{dropped.length ? `${dropped.length} file(s): ${dropped.map((f) => f.name).slice(0, 3).join(', ')}${dropped.length > 3 ? '...' : ''}` : tr('Drop any file here, or click to choose')}</p>
           <p className="text-xs opacity-70 mt-2 mb-4">{tr('PDF, images, Word, Excel, PowerPoint, HTML, text')}</p>
           <div className="flex flex-wrap justify-center gap-1.5" dir="ltr">{['PDF', 'JPG', 'PNG', 'DOCX', 'XLSX', 'PPTX', 'HTML', 'TXT'].map((x) => <span key={x} className="px-2 py-0.5 border border-current/40 rounded-sm text-[10px] font-bold tracking-wider opacity-80">{x}</span>)}</div>
+          </div>
         </div>
       </div>
     </section>

@@ -312,3 +312,10 @@ html[data-id=forest].light .mc-nav { --navbg: 233,241,233; }
 .mc-nav[data-scrolled="1"] { background: rgba(var(--navbg), .72) !important; backdrop-filter: blur(16px) saturate(1.5) !important; -webkit-backdrop-filter: blur(16px) saturate(1.5) !important; border-bottom-color: rgba(128,128,128,.22) !important; }
 html.light .mc-nav[data-scrolled="1"] { border-bottom-color: rgba(10,20,15,.12) !important; }
 @media (prefers-reduced-motion: reduce) { .mc-nav { transition: none; } }
+/* Drop zones: clear dashed outline with hover and drag-over states */
+.mc-drop { border: 2px dashed currentColor !important; border-color: color-mix(in srgb, currentColor 45%, transparent) !important; border-radius: 18px; background-color: color-mix(in srgb, currentColor 4%, transparent); transition: border-color .18s, background-color .18s, transform .18s; }
+.mc-drop:hover, .mc-drop:focus-visible { border-color: var(--ac) !important; background-color: color-mix(in srgb, var(--ac) 10%, transparent); }
+.mc-drop.drag, .ed-card.drag .mc-drop { border-style: solid !important; border-color: var(--ac) !important; background-color: color-mix(in srgb, var(--ac) 16%, transparent); transform: scale(1.01); }
+html[data-id=forest]:not(.light) .mc-drop:hover, html[data-id=forest]:not(.light) .mc-drop.drag, html[data-id=forest]:not(.light) .ed-card.drag .mc-drop { border-color: #c6f432 !important; background-color: rgba(198,244,50,.12); }
+html:not(.light):not([data-id=forest]) .mc-drop:hover { border-color: var(--ac2) !important; }
+@media (prefers-reduced-motion: reduce) { .mc-drop { transition: none; transform: none !important; } }
