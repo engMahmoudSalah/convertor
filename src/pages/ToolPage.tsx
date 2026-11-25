@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowUp, ArrowDown, Download, Loader2, X, UploadCloud, ShieldCheck } from 'lucide-react';
 import { getTool } from '../tools/registry';
 import { fmtSize } from '../lib/util';
-import { zipOuts } from '../tools/pdfTools';
+import { Thumbs } from '../components/Thumbs';
 import type { Out } from '../tools/types';
 
 const save = (b: Blob, name: string) => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
@@ -50,6 +50,7 @@ export const ToolPage: React.FC = () => {
           {tool.multiple && <><button disabled={i === 0} onClick={() => move(i, -1)} className="p-1 disabled:opacity-30"><ArrowUp size={14} /></button>
             <button disabled={i === files.length - 1} onClick={() => move(i, 1)} className="p-1 disabled:opacity-30"><ArrowDown size={14} /></button></>}
           <button onClick={() => setFiles(files.filter((_, j) => j !== i))} className="p-1 text-red-300"><X size={14} /></button></li>))}</ul>}
+      {files.length > 0 && <div className="mt-4"><h2 className="text-sm text-gray-400 mb-2">Preview</h2><Thumbs blobs={files.slice(0, 4)} /></div>}
       {files.length > 0 && tool.options && <div className="mt-5 grid sm:grid-cols-2 gap-4">{tool.options.filter((o) => !(tool.id === 'split-pdf' && ((o.key === 'ranges' && opts.mode !== 'ranges') || (o.key === 'every' && opts.mode !== 'every'))) && !(tool.id === 'resize-image' && ((o.key === 'percent' && opts.mode !== 'percent') || (['width', 'height', 'keep'].includes(o.key) && opts.mode !== 'pixels')))).map((o) => (
         <label key={o.key} className="text-sm text-gray-300 block">{o.type !== 'check' && <span className="block mb-1">{o.label}</span>}
           {o.type === 'select' ? <select className={field} value={opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.value })}>{o.options.map((x) => <option className="bg-gray-900" key={x.v} value={x.v}>{x.l}</option>)}</select>
@@ -63,6 +64,7 @@ export const ToolPage: React.FC = () => {
         {outs.map((o, i) => <div key={i} className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-400/30 rounded-lg px-3 py-2 text-sm">
           <span className="flex-1 truncate">{o.name}{o.note && <span className="block text-xs text-gray-400">{o.note}</span>}</span><span className="text-gray-400">{fmtSize(o.blob.size)}</span>
           <button onClick={() => save(o.blob, o.name)} className="p-2 rounded-lg bg-emerald-500/30"><Download size={16} /></button></div>)}
-        {outs.length > 1 && <button onClick={async () => save(await zipOuts(outs), 'magic-convertor.zip')} className="w-full py-2 rounded-lg border border-white/20 text-sm">Download all as ZIP</button>}</div>}
+        <Thumbs blobs={outs.slice(0, 4).map((o) => o.blob)} label="Result preview" />
+        {outs.length > 1 && <button onClick={async () => save(await (await import('../tools/pdfTools')).zipOuts(outs), 'magic-convertor.zip')} className="w-full py-2 rounded-lg border border-white/20 text-sm">Download all as ZIP</button>}</div>}
     </div>);
 };
