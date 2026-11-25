@@ -19,5 +19,5 @@ const DOCS: Record<string, { title: string; body: string[] }> = {
 };
 export const Legal: React.FC = () => { const { doc } = useParams(); const d = DOCS[doc ?? ''];
   if (!d) return <div className="pt-28 text-center">Page not found. <Link className="text-violet-300" to="/">Home</Link></div>;
-  return (<div className="pt-28 pb-12 max-w-3xl mx-auto px-4"><h1 className="text-3xl font-bold mb-6">{d.title}</h1>{d.body.map((p, i) => <p key={i} className="text-gray-300 mb-4">{p}</p>)}
+  return (<div className="pt-28 pb-12 max-w-3xl mx-auto px-4"><p className="ed-kicker mb-4">Legal</p><h1 className="ed-h1 !text-5xl mb-8 pb-6 border-b-2 border-current">{d.title}</h1>{d.body.map((p, i) => <div key={i} className="grid grid-cols-[3rem_1fr] gap-3 mb-6"><span className="font-display italic text-3xl text-[#b4391f] leading-none pt-1">{i + 1}.</span><p className="text-gray-300 leading-relaxed text-[17px]">{p}</p></div>)}
     <p className="text-xs text-gray-500 mt-8">Last updated: 25 November 2026 · <Link className="text-violet-300" to="/legal/terms">Terms</Link> · <Link className="text-violet-300" to="/legal/privacy">Privacy</Link> · <Link className="text-violet-300" to="/legal/refunds">Refunds</Link></p></div>); };

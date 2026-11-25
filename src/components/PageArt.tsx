@@ -16,7 +16,7 @@ export const PageArt: React.FC<{ kind: ArtKind; className?: string }> = ({ kind,
   <svg viewBox="0 0 280 160" className={`pageart ${className}`} aria-hidden="true" role="presentation"><G />{art[kind]}</svg>);
 
 export const PageHeader: React.FC<{ kind: ArtKind; title: React.ReactNode; sub?: React.ReactNode; center?: boolean }> = ({ kind, title, sub, center }) => (
-  <header className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 px-6 py-6 mb-8 flex items-center justify-between gap-4 rise">
+  <header className="ed-card ed-static relative overflow-hidden px-6 py-6 mb-8 flex items-center justify-between gap-4 rise">
     <div className="paper-grid" />
     <div className={`relative ${center ? 'text-center mx-auto' : ''}`}><h1 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">{title}</h1>{sub && <div className="text-gray-400 mt-1">{sub}</div>}</div>
     {!center && <PageArt kind={kind} className="relative w-40 md:w-56 shrink-0 hidden sm:block" />}
