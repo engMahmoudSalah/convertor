@@ -10,7 +10,7 @@ def tool(p, tid, files, opts=None, label=None):
         el = p.locator('label').filter(has=p.locator('span', has_text=k)).first.locator('select, input')
         if el.evaluate('e=>e.tagName')=='SELECT': el.select_option(v)
         else: el.fill(str(v))
-    p.locator('button.bg-gradient-to-r').click()
+    p.locator('button.bg-gradient-to-r').first.click()
     p.wait_for_selector('h2:has-text("Done"), p.text-red-300', timeout=25000)
     if p.locator('p.text-red-300').count(): return None, p.locator('p.text-red-300').inner_text()
     outs=[]
@@ -59,6 +59,8 @@ with sync_playwright() as pw:
      ('pdf-to-powerpoint',[F('three.pdf')],{},lambda o:open(o[0],'rb').read(2)==b'PK'),
      ('excel-to-pdf',[F('stock.xlsx')],{},lambda o:'Apple' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
      ('powerpoint-to-pdf',[F('deck.pptx')],{},lambda o:pages(o[0])==2 and 'Launch Plan' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
+     ('image-background',[F('logo.png')],{'Mode':'remove'},lambda o:(lambda im:im.mode=='RGBA' and im.getpixel((2,2))[3]==0 and im.getpixel((60,60))[3]==255)(__import__('PIL.Image',fromlist=['x']).open(o[0]))),
+     ('image-background',[F('logo.png')],{'Mode':'color','Output':'png'},lambda o:(lambda im:im.convert('RGBA').getpixel((60,60))[:3]==(220,30,30))(__import__('PIL.Image',fromlist=['x']).open(o[0]))),
      ('compress-image',[F('grad.png')],{},lambda o:len(o)==1),
     ]
     for tid,files,opts,chk in cases:

@@ -51,3 +51,39 @@ export async function compressImages(files: File[], o: any, c: Ctx): Promise<Out
   }
   return outs;
 }
+
+/** Background tool: remove a solid background, fill with a colour, or place on an image. */
+export function processBackground(img: CanvasImageSource & { width?: number; height?: number }, w: number, h: number, o: any, bg?: HTMLImageElement | null): HTMLCanvasElement {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d', { willReadFrequently: true })!;
+  g.drawImage(img, 0, 0, w, h);
+  if (o.mode === 'remove' || o.removeOld) {
+    const d = g.getImageData(0, 0, w, h); const px = d.data; const at = (x: number, y: number) => (y * w + x) * 4;
+    const corners = [[0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1]].map(([x, y]) => [px[at(x, y)], px[at(x, y) + 1], px[at(x, y) + 2]]);
+    const ref = [0, 1, 2].map((k) => Math.round(corners.reduce((a, c2) => a + c2[k], 0) / 4)); const tol = (Number(o.tol) / 100) * 441;
+    const dist = (i: number) => Math.hypot(px[i] - ref[0], px[i + 1] - ref[1], px[i + 2] - ref[2]);
+    const seen = new Uint8Array(w * h); const stack: number[] = [];
+    const push = (x: number, y: number) => { const k = y * w + x; if (!seen[k] && dist(k * 4) <= tol) { seen[k] = 1; stack.push(k); } };
+    for (let x = 0; x < w; x++) { push(x, 0); push(x, h - 1); } for (let y = 0; y < h; y++) { push(0, y); push(w - 1, y); }
+    while (stack.length) { const k = stack.pop()!; const x = k % w, y = (k / w) | 0; if (x > 0) push(x - 1, y); if (x < w - 1) push(x + 1, y); if (y > 0) push(x, y - 1); if (y < h - 1) push(x, y + 1); }
+    for (let k = 0; k < w * h; k++) if (seen[k]) px[k * 4 + 3] = 0;
+    for (let k = 0; k < w * h; k++) if (!seen[k]) { const x = k % w, y = (k / w) | 0; // soften the 1px edge
+      if ((x > 0 && seen[k - 1]) || (x < w - 1 && seen[k + 1]) || (y > 0 && seen[k - w]) || (y < h - 1 && seen[k + w])) px[k * 4 + 3] = Math.min(px[k * 4 + 3], 150); }
+    g.putImageData(d, 0, 0);
+  }
+  if (o.mode === 'remove') return c;
+  const out = document.createElement('canvas'); out.width = w; out.height = h; const og = out.getContext('2d')!;
+  if (o.mode === 'image' && bg) { const s = Math.max(w / bg.naturalWidth, h / bg.naturalHeight); const bw = bg.naturalWidth * s, bh = bg.naturalHeight * s; og.drawImage(bg, (w - bw) / 2, (h - bh) / 2, bw, bh); }
+  else { og.fillStyle = o.color || '#ffffff'; og.fillRect(0, 0, w, h); }
+  og.drawImage(c, 0, 0); return out;
+}
+export async function backgroundImages(files: File[], o: any, c: Ctx): Promise<Out[]> {
+  if (o.mode === 'image' && !o.bgfile) throw new Error('Choose a background image first');
+  const bg = o.mode === 'image' ? await loadImage(o.bgfile) : null; const outs: Out[] = [];
+  const fmt = o.mode === 'remove' ? 'png' : o.format;
+  for (let i = 0; i < files.length; i++) {
+    c.progress(i, files.length, files[i].name); const img = await loadImage(files[i]);
+    const cv = processBackground(img, img.naturalWidth, img.naturalHeight, o, bg);
+    outs.push({ name: `${baseName(files[i].name)}-${o.mode === 'remove' ? 'nobg' : 'bg'}.${fmt}`, blob: await encode(cv, fmt, 0.92) });
+  }
+  return outs;
+}

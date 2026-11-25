@@ -7,6 +7,7 @@ import { fmtSize } from '../lib/util';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { Thumbs } from '../components/Thumbs';
+import { FileCards, PageGrid, BackgroundPreview, PageFrame, usePreviewMode, compressPages } from '../components/PreviewDock';
 import type { Out } from '../tools/types';
 
 const save = (b: Blob, name: string) => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
@@ -16,8 +17,8 @@ export const ToolPage: React.FC = () => {
   const { id } = useParams(); const tool = getTool(id); const { disabled, refresh } = useAuth(); const [upgrade, setUpgrade] = useState(false);
   const [files, setFiles] = useState<File[]>([]); const [outs, setOuts] = useState<Out[]>([]);
   const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [prog, setProg] = useState('');
-  const [opts, setOpts] = useState<Record<string, any>>({});
-  React.useEffect(() => { setFiles([]); setOuts([]); setErr(''); setOpts(Object.fromEntries((tool?.options ?? []).map((o) => [o.key, o.default]))); }, [id]);
+  const [opts, setOpts] = useState<Record<string, any>>({}); const [sel, setSel] = useState<Set<number>>(new Set()); const mode = tool ? usePreviewMode(tool) : 'first';
+  React.useEffect(() => { setFiles([]); setOuts([]); setErr(''); setSel(new Set()); setOpts(Object.fromEntries((tool?.options ?? []).map((o) => [o.key, o.default]))); }, [id]);
   const onDrop = useCallback((acc: File[]) => {
     if (!tool) return;
     const ok = acc.filter((f) => tool.accept.includes(f.type) || (f.type === '' && tool.accept[0] === 'application/pdf' && /\.pdf$/i.test(f.name)));
@@ -39,12 +40,13 @@ export const ToolPage: React.FC = () => {
   };
   const need = tool.minFiles ?? 1;
   return (
-    <div className="pt-24 pb-16 max-w-3xl mx-auto px-4">
+    <div className="pt-24 pb-16 max-w-7xl mx-auto px-4">
       <Link to="/" className="text-sm text-gray-400 hover:text-white inline-flex items-center gap-1 mb-4"><ArrowLeft size={14} /> All tools</Link>
       <div className="flex items-center gap-3 mb-2"><div className="p-3 rounded-xl bg-gradient-to-br from-violet-500/30 to-blue-500/30"><Icon /></div>
         <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">{tool.title}</h1></div>
       <p className="text-gray-400 mb-2">{tool.desc}</p>
       <p className="text-xs text-emerald-300/80 flex items-center gap-1 mb-6"><ShieldCheck size={13} /> Runs in your browser. Your files are not uploaded.</p>
+      <div className="grid lg:grid-cols-2 gap-8 items-start"><div>
       <div {...dz.getRootProps()} className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition ${dz.isDragActive ? 'border-violet-400 bg-violet-500/10' : 'border-white/20 hover:border-violet-400/60 bg-white/5'}`}>
         <input {...dz.getInputProps()} /><UploadCloud className="mx-auto mb-2 text-violet-300" size={36} />
         <p>{tool.multiple ? 'Drop files here or click to choose' : 'Drop a file here or click to choose'}</p>
@@ -55,10 +57,11 @@ export const ToolPage: React.FC = () => {
           {tool.multiple && <><button disabled={i === 0} onClick={() => move(i, -1)} className="p-1 disabled:opacity-30"><ArrowUp size={14} /></button>
             <button disabled={i === files.length - 1} onClick={() => move(i, 1)} className="p-1 disabled:opacity-30"><ArrowDown size={14} /></button></>}
           <button onClick={() => setFiles(files.filter((_, j) => j !== i))} className="p-1 text-red-300"><X size={14} /></button></li>))}</ul>}
-      {files.length > 0 && <div className="mt-4"><h2 className="text-sm text-gray-400 mb-2">Preview</h2><Thumbs blobs={files.slice(0, 4)} /></div>}
-      {files.length > 0 && tool.options && <div className="mt-5 grid sm:grid-cols-2 gap-4">{tool.options.filter((o) => !(tool.id === 'split-pdf' && ((o.key === 'ranges' && opts.mode !== 'ranges') || (o.key === 'every' && opts.mode !== 'every'))) && !(tool.id === 'resize-image' && ((o.key === 'percent' && opts.mode !== 'percent') || (['width', 'height', 'keep'].includes(o.key) && opts.mode !== 'pixels')))).map((o) => (
+      {files.length > 0 && tool.options && <div className="mt-5 grid sm:grid-cols-2 gap-4">{tool.options.filter((o) => !(tool.id === 'image-background' && ((o.key === 'tol' && !(opts.mode === 'remove' || opts.removeOld)) || (o.key === 'removeOld' && opts.mode === 'remove') || (o.key === 'color' && opts.mode !== 'color') || (o.key === 'bgfile' && opts.mode !== 'image') || (o.key === 'format' && opts.mode === 'remove'))) && !(tool.id === 'split-pdf' && ((o.key === 'ranges' && opts.mode !== 'ranges') || (o.key === 'every' && opts.mode !== 'every'))) && !(tool.id === 'resize-image' && ((o.key === 'percent' && opts.mode !== 'percent') || (['width', 'height', 'keep'].includes(o.key) && opts.mode !== 'pixels')))).map((o) => (
         <label key={o.key} className="text-sm text-gray-300 block">{o.type !== 'check' && <span className="block mb-1">{o.label}</span>}
           {o.type === 'select' ? <select className={field} value={opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.value })}>{o.options.map((x) => <option className="bg-gray-900" key={x.v} value={x.v}>{x.l}</option>)}</select>
+            : o.type === 'color' ? <input type="color" className="h-10 w-20 bg-transparent" value={opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.value })} />
+            : o.type === 'file' ? <input type="file" accept="image/*" className="text-xs" onChange={(e) => setOpts({ ...opts, [o.key]: e.target.files?.[0] ?? null })} />
             : o.type === 'check' ? <span className="flex gap-2 items-center"><input type="checkbox" checked={!!opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.checked })} />{o.label}</span>
             : <input className={field} type={o.type} min={(o as any).min} max={(o as any).max} value={opts[o.key] ?? ''} onChange={(e) => setOpts({ ...opts, [o.key]: o.type === 'number' ? Number(e.target.value) : e.target.value })} />}
         </label>))}</div>}
@@ -71,7 +74,17 @@ export const ToolPage: React.FC = () => {
         {outs.map((o, i) => <div key={i} className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-400/30 rounded-lg px-3 py-2 text-sm">
           <span className="flex-1 truncate">{o.name}{o.note && <span className="block text-xs text-gray-400">{o.note}</span>}</span><span className="text-gray-400">{fmtSize(o.blob.size)}</span>
           <button onClick={() => save(o.blob, o.name)} className="p-2 rounded-lg bg-emerald-500/30"><Download size={16} /></button></div>)}
-        <Thumbs blobs={outs.slice(0, 4).map((o) => o.blob)} label="Result preview" />
         {outs.length > 1 && <button onClick={async () => save(await (await import('../tools/pdfTools')).zipOuts(outs), 'magic-convertor.zip')} className="w-full py-2 rounded-lg border border-white/20 text-sm">Download all as ZIP</button>}</div>}
+    </div>
+      <aside className="lg:sticky lg:top-24 rounded-2xl bg-white/5 border border-white/10 p-4 min-h-[320px] lg:max-h-[calc(100vh-7rem)] overflow-auto">
+        <h2 className="text-sm font-semibold text-gray-300 mb-3">Live preview</h2>
+        {files.length === 0 ? <p className="text-sm text-gray-500">Add a file to see it here. Your options update this view as you change them.</p> : <>
+          {mode === 'files' && <FileCards files={files} setFiles={setFiles} />}
+          {mode === 'frame' && <div className="space-y-4"><PageFrame file={files[0]} opts={opts} /><FileCards files={files} setFiles={setFiles} /></div>}
+          {mode === 'background' && <div className="space-y-4"><BackgroundPreview file={files[0]} opts={opts} />{files.length > 1 && <FileCards files={files} setFiles={setFiles} />}</div>}
+          {(mode === 'select' || mode === 'sort') && <PageGrid file={files[0]} mode={mode} selected={sel} onSelect={(x) => { setSel(x); setOpts((o) => ({ ...o, pages: compressPages(x) })); }} onOrder={(o) => setOpts((p) => ({ ...p, order: o.join(',') }))} />}
+          {mode === 'first' && <Thumbs blobs={files.slice(0, 4)} />}
+          {outs.length > 0 && <div className="mt-5 pt-4 border-t border-white/10"><Thumbs blobs={outs.slice(0, 4).map((o) => o.blob)} label="Result" /></div>}</>}
+      </aside></div>
     </div>);
 };
