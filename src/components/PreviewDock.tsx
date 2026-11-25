@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GripVertical, Check, X, Plus } from 'lucide-react';
 import { fmtSize } from '../lib/util';
+import { useT } from '../lib/i18n';
 import type { Tool } from '../tools/types';
 import { loadImage } from '../lib/util';
 import { processBackground } from '../tools/imageTools';
@@ -86,6 +87,7 @@ const LVLS: { k: string; s: number; q: number; name: string }[] = [
   { k: 'low', s: 1.0, q: 0.5, name: 'Strong' }, { k: 'med', s: 1.4, q: 0.7, name: 'Balanced' }, { k: 'high', s: 2.0, q: 0.85, name: 'Light' },
 ];
 export const CompressPreview: React.FC<{ file: File; level: string; setLevel: (k: string) => void }> = ({ file, level, setLevel }) => {
+  const { t: tr } = useT();
   const [est, setEst] = useState<Record<string, { size: number; url: string }>>({}); const [pages, setPages] = useState(0); const [busy, setBusy] = useState(true);
   useEffect(() => {
     let dead = false; setEst({}); setBusy(true);
@@ -105,15 +107,15 @@ export const CompressPreview: React.FC<{ file: File; level: string; setLevel: (k
   return (
     <div className="space-y-4">
       <div role="radiogroup" aria-label="Compression level" className="grid grid-cols-3 gap-2">
-        {LVLS.map((L) => { const e = est[L.k]; const pct = e ? Math.round((1 - e.size / file.size) * 100) : 0; return (
+        {LVLS.map((L) => { const e = est[L.k]; const gain = !!e && e.size < file.size * 0.97; const pct = e ? Math.round((1 - e.size / file.size) * 100) : 0; return (
           <button key={L.k} role="radio" aria-checked={level === L.k} onClick={() => setLevel(L.k)} className={`rounded-2xl border p-3 text-start transition ${level === L.k ? 'border-current ring-2 ring-current/40' : 'border-current/20 opacity-80 hover:opacity-100'}`}>
-            <div className="text-xs uppercase tracking-wide opacity-70">{L.name}</div>
-            <div className="font-display text-lg font-bold">{e ? `~${fmtSize(e.size)}` : '...'}</div>
-            <div className="text-xs opacity-70">{e ? (pct > 0 ? `about ${pct}% smaller` : 'may not shrink') : 'estimating'}</div>
+            <div className="text-xs uppercase tracking-wide opacity-70">{tr(L.name)}</div>
+            <div className="font-display text-lg font-bold">{e ? (gain ? `~${fmtSize(e.size)}` : tr('No gain')) : '...'}</div>
+            <div className="text-xs opacity-70">{e ? (gain ? `${tr('about')} ${pct}% ${tr('smaller')}` : tr('Original is already small')) : tr('estimating')}</div>
           </button>); })}
       </div>
-      <p className="text-xs opacity-70">Original {fmtSize(file.size)}{pages ? `, ${pages} pages` : ''}. Estimates come from page 1 at each level.{busy ? ' Calculating...' : ''}</p>
-      {cur && <figure><img src={cur.url} alt="Page 1 at the selected level" className="w-full max-h-[420px] object-contain rounded-xl border border-current/20 bg-white" /><figcaption className="text-xs opacity-70 mt-1">Page 1 at this level. Zoom the browser to inspect quality.</figcaption></figure>}
+      <p className="text-xs opacity-70">{tr('Original')} {fmtSize(file.size)}{pages ? `, ${pages} ${tr('pages')}` : ''}. {tr('Estimates come from page 1 at each level.')}{busy ? ' ' + tr('Calculating...') : ''}</p>
+      {cur && <figure><img src={cur.url} alt={tr('Page 1 at this level.')} className="w-full max-h-[420px] object-contain rounded-xl border border-current/20 bg-white" /><figcaption className="text-xs opacity-70 mt-1">{tr('Page 1 at this level.')}</figcaption></figure>}
     </div>
   );
 };
