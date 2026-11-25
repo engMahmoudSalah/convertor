@@ -68,6 +68,7 @@ with sync_playwright() as pw:
      ('html-to-pdf',[F('page.html')],{'Output':'text'},lambda o:'Hello HTML' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
      ('add-form-fields',[F('three.pdf')],{'Field names':'Name, Email'},lambda o:len(__import__('pypdf').PdfReader(o[0]).get_fields() or {})==2),
      ('fill-pdf-form',[F('form.pdf')],{'Values':'Name=Mahmoud;Email=a@b.co'},lambda o:(__import__('pypdf').PdfReader(o[0]).get_fields()['Name'].get('/V')=='Mahmoud')),
+     ('text-to-pdf',[F('arabic.txt')],{},lambda o:pages(o[0])>=1 and __import__('subprocess').run(['pdfimages','-list',o[0]],capture_output=True,text=True).stdout.count('image')>=1),
      ('scan-to-pdf',[F('logo.png'),F('grad.png')],{},lambda o:pages(o[0])==2),
      ('compress-image',[F('grad.png')],{},lambda o:len(o)==1),
     ]
