@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { LangProvider } from './lib/i18n';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
 import { Home } from './pages/Home';
@@ -27,7 +28,7 @@ const Reveal = () => { useReveal(); return null; };
 function App() {
   return (
     <BrowserRouter>
-    <AuthProvider>
+    <LangProvider><AuthProvider>
       <div className="min-h-screen bg-gray-900 text-white overflow-hidden">
         <NavBar /><Reveal />
         <Routes>
@@ -48,7 +49,7 @@ function App() {
             </div>
         <SiteFooter />
       </div>
-    </AuthProvider>
+    </AuthProvider></LangProvider>
     </BrowserRouter>
   );
 }

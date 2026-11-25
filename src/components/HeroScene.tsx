@@ -6,7 +6,7 @@ const sheets = [
   { c: 'from-amber-500 to-orange-400', l: 'XLS', z: 3 },
 ];
 export const HeroScene: React.FC = () => (
-  <div className="relative h-48 md:h-56 mb-2 select-none pointer-events-none" aria-hidden="true">
+  <div dir="ltr" className="relative h-48 md:h-56 mb-2 select-none pointer-events-none" aria-hidden="true">
     <div className="aurora a1" /><div className="aurora a2" /><div className="aurora a3" />
     <div className="scene3d">
       <div className="stack3d">
