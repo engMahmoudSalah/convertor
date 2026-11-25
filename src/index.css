@@ -375,3 +375,12 @@ html[data-id=forest] .mc-sw-btn[data-on="0"] span:nth-of-type(1), html[data-id=f
 .mc-sw-btn:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
 @media (max-width: 420px) { .mc-sw-btn { width: 52px; } }
 @media (prefers-reduced-motion: reduce) { .mc-sw-thumb, .mc-sw-btn span { transition: none; } }
+.mc-menu { box-shadow: 0 18px 40px -12px rgba(0,0,0,.35); }
+.mc-menu [role^=menuitem]:focus-visible { outline: 2px solid var(--ac); outline-offset: -2px; }
+.mc-menu .mc-sw-btn { border: 1px solid color-mix(in srgb, currentColor 30%, transparent); }
+.mc-idn { border: 1.5px solid color-mix(in srgb, currentColor 25%, transparent); }
+.mc-idn.on { border-color: var(--ac); background: color-mix(in srgb, var(--ac) 12%, transparent); }
+html:not(.light) .mc-idn.on { border-color: var(--ac2); }
+html[data-id=forest]:not(.light) .mc-idn.on { border-color: #c6f432; background: rgba(198,244,50,.12); }
+.mc-idn-dot { width: 14px; height: 14px; border-radius: 999px; display: inline-block; border: 1px solid rgba(0,0,0,.3); }
+.mc-idn-dot.paper { background: linear-gradient(135deg,#f6f1e7 50%,#b4391f 50%); } .mc-idn-dot.forest { background: linear-gradient(135deg,#0a2a23 50%,#c6f432 50%); }

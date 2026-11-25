@@ -1,4 +1,5 @@
 export const AR: Record<string, string> = {
+  'Settings': 'الإعدادات', 'Theme': 'المظهر', 'Language': 'اللغة', 'Identity': 'الهوية', 'Paper': 'ورقي', 'Forest': 'غابة',
   'Appearance and language': 'المظهر واللغة', 'Arabic language': 'اللغة العربية',
   'Delete my account': 'حذف حسابي', 'This permanently removes your account, saved operations and history. It cannot be undone.': 'سيُحذف حسابك والعمليات المحفوظة والسجل نهائياً ولا يمكن التراجع.',
   'Completed': 'مكتملة', 'Input': 'المُدخل', 'Output': 'الناتج', 'more': 'أخرى', 'Options used': 'الإعدادات المستخدمة', 'Yes': 'نعم', 'No': 'لا', 'Confirm delete': 'تأكيد الحذف', 'Cancel': 'إلغاء', 'Result stored in your profile': 'الناتج محفوظ في ملفك', 'Settings saved, result file not stored (over 3 MB)': 'تم حفظ الإعدادات، ولم يُحفظ ملف الناتج (أكبر من 3 ميجا)', 'The stored file is no longer available.': 'الملف المحفوظ لم يعد متاحاً.',
