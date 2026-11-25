@@ -47,6 +47,18 @@ with sync_playwright() as pw:
      ('word-to-text',[F('sample.docx')],{},lambda o:'Second paragraph' in open(o[0]).read()),
      ('word-to-html',[F('sample.docx')],{},lambda o:'<h1>' in open(o[0]).read()),
      ('pdf-to-word',[F('three.pdf')],{},lambda o:open(o[0],'rb').read(2)==b'PK'),
+     ('protect-pdf',[F('three.pdf')],{'Password':'pw12345'},lambda o:__import__('pypdf').PdfReader(o[0]).is_encrypted and __import__('pypdf').PdfReader(o[0]).decrypt('pw12345')>0),
+     ('unlock-pdf',[F('locked.pdf')],{'Password (if':'secret123'},lambda o:not __import__('pypdf').PdfReader(o[0]).is_encrypted and pages(o[0])==3),
+     ('sign-pdf',[F('three.pdf')],{'Your name':'Mahmoud Salah'},lambda o:'Mahmoud Salah' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
+     ('redact-pdf',[F('three.pdf')],{'Words to remove':'page 2'},lambda o:'page 2' not in __import__('pypdf').PdfReader(o[0]).pages[1].extract_text() and pages(o[0])==3),
+     ('compare-pdf',[F('five.pdf'),F('three.pdf')],{},lambda o:'five page 4' in open(o[0]).read()),
+     ('repair-pdf',[F('broken.pdf')],{},lambda o:pages(o[0])==3),
+     ('crop-pdf',[F('three.pdf')],{},lambda o:float(__import__('pypdf').PdfReader(o[0]).pages[0].cropbox.width)==360.0),
+     ('pdf-to-markdown',[F('three.pdf')],{},lambda o:'three page 1' in open(o[0]).read()),
+     ('pdf-to-excel',[F('three.pdf')],{},lambda o:open(o[0],'rb').read(2)==b'PK'),
+     ('pdf-to-powerpoint',[F('three.pdf')],{},lambda o:open(o[0],'rb').read(2)==b'PK'),
+     ('excel-to-pdf',[F('stock.xlsx')],{},lambda o:'Apple' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
+     ('powerpoint-to-pdf',[F('deck.pptx')],{},lambda o:pages(o[0])==2 and 'Launch Plan' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
      ('compress-image',[F('grad.png')],{},lambda o:len(o)==1),
     ]
     for tid,files,opts,chk in cases:

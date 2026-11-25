@@ -3,11 +3,13 @@ import type { Tool } from './types';
 import * as P from './pdfTools';
 import * as I from './imageTools';
 import * as D from './docTools';
+import * as M from './moreTools';
+import { Lock, Unlock, Wrench, Crop, PenLine, EyeOff, GitCompare, FileCode2, Sheet, Presentation, FileSpreadsheet } from 'lucide-react';
 import { FileType, FileCode, FileOutput, FileType2 } from 'lucide-react';
 
 const IMG = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/bmp', 'image/svg+xml'];
 const PDF = ['application/pdf'];
-const pages = (label = 'Pages', def = 'all') => ({ key: 'pages', label: `${label} (e.g. 1-3,5,8-)`, type: 'text' as const, default: def });
+export const pagesOpt = (label = 'Pages', def = 'all') => ({ key: 'pages', label: `${label} (e.g. 1-3,5,8-)`, type: 'text' as const, default: def });
 
 export const TOOLS: Tool[] = [
   { id: 'merge-pdf', title: 'Merge PDF', desc: 'Combine several PDFs into one, in the order you choose', category: 'organize', icon: Combine, accept: PDF, multiple: true, minFiles: 2, run: P.merge },
@@ -16,11 +18,11 @@ export const TOOLS: Tool[] = [
       { key: 'mode', label: 'Split mode', type: 'select', default: 'ranges', options: [{ v: 'ranges', l: 'By ranges' }, { v: 'every', l: 'Every N pages' }, { v: 'each', l: 'Each page' }] },
       { key: 'ranges', label: 'Ranges, one file each (e.g. 1-3,4-6,7)', type: 'text', default: '1-1' },
       { key: 'every', label: 'N (for every N pages)', type: 'number', default: 2, min: 1 }] },
-  { id: 'remove-pages', title: 'Remove pages', desc: 'Delete the pages you do not want', category: 'organize', icon: FileX, accept: PDF, multiple: false, run: P.removePages, options: [pages('Pages to remove', '1')] },
-  { id: 'extract-pages', title: 'Extract pages', desc: 'Pull selected pages into a new PDF', category: 'organize', icon: FilePlus2, accept: PDF, multiple: false, run: P.extractPages, options: [pages('Pages to keep', '1')] },
+  { id: 'remove-pages', title: 'Remove pages', desc: 'Delete the pages you do not want', category: 'organize', icon: FileX, accept: PDF, multiple: false, run: P.removePages, options: [pagesOpt('Pages to remove', '1')] },
+  { id: 'extract-pages', title: 'Extract pages', desc: 'Pull selected pages into a new PDF', category: 'organize', icon: FilePlus2, accept: PDF, multiple: false, run: P.extractPages, options: [pagesOpt('Pages to keep', '1')] },
   { id: 'reorder-pdf', title: 'Reorder pages', desc: 'Rearrange pages or reverse the document', category: 'organize', icon: ArrowUpDown, accept: PDF, multiple: false, run: P.reorder, options: [{ key: 'order', label: 'New order (e.g. 3,1,2 or "reverse")', type: 'text', default: 'reverse' }] },
   { id: 'rotate-pdf', title: 'Rotate PDF', desc: 'Rotate all or some pages', category: 'edit', icon: RotateCw, accept: PDF, multiple: false, run: P.rotate,
-    options: [{ key: 'angle', label: 'Rotation', type: 'select', default: '90', options: [{ v: '90', l: '90° right' }, { v: '180', l: '180°' }, { v: '270', l: '90° left' }] }, pages('Pages')] },
+    options: [{ key: 'angle', label: 'Rotation', type: 'select', default: '90', options: [{ v: '90', l: '90° right' }, { v: '180', l: '180°' }, { v: '270', l: '90° left' }] }, pagesOpt('Pages')] },
   { id: 'page-numbers', title: 'Add page numbers', desc: 'Stamp numbers on every page', category: 'edit', icon: ListOrdered, accept: PDF, multiple: false, run: P.pageNumbers,
     options: [{ key: 'position', label: 'Position', type: 'select', default: 'bottom-center', options: ['bottom-center', 'bottom-right', 'bottom-left', 'top-center', 'top-right', 'top-left'].map((v) => ({ v, l: v.replace('-', ' ') })) },
       { key: 'format', label: 'Format', type: 'text', default: 'Page {n} of {total}' }, { key: 'start', label: 'Start at', type: 'number', default: 1, min: 0 }] },
@@ -53,12 +55,31 @@ TOOLS.push(
   { id: 'word-to-html', title: 'Word to HTML', desc: 'Clean HTML from a DOCX', category: 'doc', icon: FileCode, accept: DOCX, multiple: true, run: D.docxToHtml },
   { id: 'pdf-to-word', title: 'PDF to Word', desc: 'Text of a PDF into an editable DOCX', category: 'doc', icon: FileOutput, accept: PDF, multiple: false, run: D.pdfToDocx },
 );
+const XLS = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'];
+const PPT = ['application/vnd.openxmlformats-officedocument.presentationml.presentation'];
+TOOLS.push(
+  { id: 'protect-pdf', title: 'Protect PDF', desc: 'Lock a PDF with a password (RC4 128-bit)', category: 'security', icon: Lock, accept: PDF, multiple: false, run: M.protect,
+    options: [{ key: 'password', label: 'Password', type: 'text', default: '' }, { key: 'print', label: 'Allow printing', type: 'check', default: true }, { key: 'copy', label: 'Allow copying text', type: 'check', default: false }] },
+  { id: 'unlock-pdf', title: 'Unlock PDF', desc: 'Remove the password from a PDF you own', category: 'security', icon: Unlock, accept: PDF, multiple: false, run: M.unlock, options: [{ key: 'password', label: 'Password (if you know it)', type: 'text', default: '' }] },
+  { id: 'sign-pdf', title: 'Sign PDF', desc: 'Add a typed signature with date', category: 'security', icon: PenLine, accept: PDF, multiple: false, run: M.sign,
+    options: [{ key: 'name', label: 'Your name', type: 'text', default: '' }, pagesOpt('Pages', '1'), { key: 'position', label: 'Position', type: 'select', default: 'right', options: [{ v: 'left', l: 'Left' }, { v: 'center', l: 'Center' }, { v: 'right', l: 'Right' }] }, { key: 'y', label: 'Height from bottom (pt)', type: 'number', default: 80, min: 20, max: 800 }, { key: 'date', label: 'Add date', type: 'check', default: true }] },
+  { id: 'redact-pdf', title: 'Redact PDF', desc: 'Permanently black out words and phrases', category: 'security', icon: EyeOff, accept: PDF, multiple: false, run: M.redact, options: [{ key: 'terms', label: 'Words to remove (comma separated)', type: 'text', default: '' }] },
+  { id: 'compare-pdf', title: 'Compare PDF', desc: 'See added and removed lines between two PDFs', category: 'security', icon: GitCompare, accept: PDF, multiple: true, minFiles: 2, run: M.compare },
+  { id: 'repair-pdf', title: 'Repair PDF', desc: 'Recover pages from a damaged PDF', category: 'optimize', icon: Wrench, accept: PDF, multiple: false, run: M.repair },
+  { id: 'crop-pdf', title: 'Crop PDF', desc: 'Trim page margins', category: 'edit', icon: Crop, accept: PDF, multiple: false, run: M.crop,
+    options: [pagesOpt('Pages'), ...['top', 'bottom', 'left', 'right'].map((k) => ({ key: k, label: `${k[0].toUpperCase() + k.slice(1)} margin (pt)`, type: 'number' as const, default: 20, min: 0, max: 800 }))] },
+  { id: 'pdf-to-markdown', title: 'PDF to Markdown', desc: 'Text with headings, ready for notes and docs', category: 'from-pdf', icon: FileCode2, accept: PDF, multiple: false, run: M.pdfToMarkdown },
+  { id: 'pdf-to-excel', title: 'PDF to Excel', desc: 'Tables and text into an XLSX, one sheet per page', category: 'from-pdf', icon: FileSpreadsheet, accept: PDF, multiple: false, run: M.pdfToExcel },
+  { id: 'pdf-to-powerpoint', title: 'PDF to PowerPoint', desc: 'Every page as a slide', category: 'from-pdf', icon: Presentation, accept: PDF, multiple: false, run: M.pdfToPptx },
+  { id: 'excel-to-pdf', title: 'Excel to PDF', desc: 'XLSX, XLS or CSV sheets into PDF tables', category: 'to-pdf', icon: Sheet, accept: XLS, multiple: true, run: M.excelToPdf },
+  { id: 'powerpoint-to-pdf', title: 'PowerPoint to PDF', desc: 'PPTX slides into PDF pages', category: 'to-pdf', icon: Presentation, accept: PPT, multiple: true, run: M.pptxToPdf },
+);
 /** Which type page each tool shows on. */
 export const TYPES: Record<string, { title: string; desc: string; cats: string[]; ids?: string[] }> = {
-  pdf: { title: 'PDF tools', desc: 'Organize, optimize, edit and convert PDFs', cats: ['organize', 'optimize', 'edit', 'from-pdf'], ids: ['images-to-pdf'] },
+  pdf: { title: 'PDF tools', desc: 'Organize, optimize, edit and convert PDFs', cats: ['organize', 'optimize', 'edit', 'from-pdf', 'security'], ids: ['images-to-pdf'] },
   images: { title: 'Image tools', desc: 'Convert, resize and compress images in PNG, JPG, WebP, BMP and more', cats: ['image'], ids: ['images-to-pdf', 'pdf-to-images'] },
-  documents: { title: 'Document tools', desc: 'Word and text files to and from PDF', cats: ['doc'], ids: ['pdf-to-text'] },
+  documents: { title: 'Document tools', desc: 'Word and text files to and from PDF', cats: ['doc'], ids: ['pdf-to-text', 'pdf-to-excel', 'pdf-to-powerpoint', 'excel-to-pdf', 'powerpoint-to-pdf', 'pdf-to-markdown'] },
 };
 export const toolsOfType = (k: string) => TOOLS.filter((t) => TYPES[k].cats.includes(t.category) || TYPES[k].ids?.includes(t.id));
-export const CATS: Record<string, string> = { organize: 'Organize PDF', optimize: 'Optimize PDF', 'to-pdf': 'Convert to PDF', 'from-pdf': 'Convert from PDF', edit: 'Edit PDF', image: 'Images', doc: 'Documents' };
+export const CATS: Record<string, string> = { organize: 'Organize PDF', optimize: 'Optimize PDF', 'to-pdf': 'Convert to PDF', 'from-pdf': 'Convert from PDF', edit: 'Edit PDF', image: 'Images', doc: 'Documents', security: 'PDF Security' };
 export const getTool = (id?: string) => TOOLS.find((t) => t.id === id);

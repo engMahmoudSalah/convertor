@@ -6,7 +6,7 @@ import { openPdf } from '../lib/pdfjs';
 import type { Out, Ctx } from './types';
 
 const latin = (s: string) => s.replace(/\t/g, '    ').replace(/[^\x20-\x7e\u00a0-\u00ff]/g, '?');
-async function textToPdfBlob(paras: { t: string; bold?: boolean; size?: number }[], size: number) {
+export async function textToPdfBlob(paras: { t: string; bold?: boolean; size?: number }[], size: number) {
   const d = await PDFDocument.create(); const f = await d.embedFont(StandardFonts.Helvetica); const fb = await d.embedFont(StandardFonts.HelveticaBold);
   const W = 595.28, H = 841.89, M = 56; let page = d.addPage([W, H]); let y = H - M;
   for (const p of paras) {
