@@ -1,3 +1,4 @@
+import { Confetti } from '../components/Confetti';
 import { PageArt } from '../components/PageArt';
 import { addRecent, takePending, guessType } from '../lib/handoff';
 import React, { useCallback, useState } from 'react';
@@ -73,7 +74,7 @@ export const ToolPage: React.FC = () => {
       {off && <p className="mt-4 text-amber-300 text-sm">This tool is temporarily switched off.</p>}
       {files.length > 0 && <button disabled={off || busy || files.length < need} onClick={run} className="mt-6 w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-violet-500 to-blue-500 disabled:opacity-50 flex items-center justify-center gap-2">
         {busy ? <><Loader2 className="animate-spin" size={18} /> {prog || 'Working...'}</> : files.length < need ? `Add at least ${need} files` : `${tool.title}`}</button>}
-      {outs.length > 0 && <div className="mt-6 space-y-2"><h2 className="font-semibold">Done</h2>
+      {outs.length > 0 && <div className="mt-6 space-y-2 relative"><Confetti /><h2 className="font-semibold">Done</h2>
         {outs.map((o, i) => <div key={i} className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-400/30 rounded-lg px-3 py-2 text-sm">
           <span className="flex-1 truncate">{o.name}{o.note && <span className="block text-xs text-gray-400">{o.note}</span>}</span><span className="text-gray-400">{fmtSize(o.blob.size)}</span>
           <button onClick={() => save(o.blob, o.name)} className="p-2 rounded-lg bg-emerald-500/30"><Download size={16} /></button></div>)}
