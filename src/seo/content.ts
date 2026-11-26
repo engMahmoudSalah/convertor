@@ -149,6 +149,38 @@ const COPY: Record<string, Copy> = {
     steps: { en: ["Add a PDF that contains photos or scans.", "Run it.", "Download the JPG, or a ZIP when there are several."], ar: ["أضف ملف PDF فيه صور أو مسح ضوئي.", "نفّذ الأداة.", "نزّل ملف JPG، أو ZIP عند وجود عدة صور."] },
     faq: { en: [["Is the quality changed?", "No. The original JPG data is copied out as it is."], ["Why were some pictures skipped?", "Only pictures stored as JPG can be copied unchanged. For the rest, use PDF to image."]], ar: [["هل تتغير الجودة؟", "لا. تُنسخ بيانات JPG الأصلية كما هي."], ["لماذا تُجوهلت بعض الصور؟", "لا يمكن نسخ إلا الصور المخزنة بصيغة JPG دون تغيير. لغيرها استخدم PDF إلى صورة."]] },
   },
+  "color-converter": {
+    steps: { en: ["Type or paste colors, one per line, as #hex, rgb() or hsl().", "Read HEX, RGB and HSL for each one.", "Copy the result."], ar: ["اكتب الألوان أو الصقها، لوناً في كل سطر، بصيغة #hex أو rgb() أو hsl().", "اقرأ HEX وRGB وHSL لكل لون.", "انسخ النتيجة."] },
+    faq: { en: [["Which formats can I enter?", "Three or six digit HEX with or without #, rgb(r, g, b) and hsl(h, s%, l%)."], ["Why can HSL differ by 1 from another tool?", "HSL values are rounded to whole numbers."]], ar: [["ما الصيغ المقبولة؟", "HEX من ثلاث أو ست خانات مع # أو بدونها، وrgb(r, g, b) وhsl(h, s%, l%)."], ["لماذا قد يختلف HSL بمقدار 1 عن أداة أخرى؟", "تُقرَّب قيم HSL إلى أعداد صحيحة."]] },
+  },
+  "timestamp-converter": {
+    steps: { en: ["Paste Unix times or dates, one per line.", "Read the date in UTC and your local time, or the Unix seconds and milliseconds."], ar: ["الصق أوقات Unix أو تواريخ، واحداً في كل سطر.", "اقرأ التاريخ بتوقيت UTC وتوقيتك المحلي، أو ثواني Unix وملّي ثانيتها."] },
+    faq: { en: [["How does it tell seconds from milliseconds?", "A number of 12 digits or more is read as milliseconds, shorter ones as seconds."], ["Which time zone is used for a date I type?", "UTC, unless you add a zone such as +02:00 or Z."]], ar: [["كيف يفرق بين الثواني والملّي ثانية؟", "العدد من 12 رقماً فأكثر يُقرأ ملّي ثانية، والأقصر ثواني."], ["أي منطقة زمنية تُستخدم للتاريخ الذي أكتبه؟", "UTC، إلا إذا أضفت منطقة مثل +02:00 أو Z."]] },
+  },
+  "number-base": {
+    steps: { en: ["Type numbers, one per line.", "Pick the input base, or leave it on detect.", "Read binary, octal, decimal and hex."], ar: ["اكتب الأعداد، عدداً في كل سطر.", "اختر نظام المُدخل أو اتركه على الاكتشاف.", "اقرأ الثنائي والثماني والعشري والست عشري."] },
+    faq: { en: [["Does it handle very large numbers?", "Yes. It uses exact integer maths, so there is no rounding."], ["How does detect work?", "0x means hex, 0b binary, 0o octal. Anything else is decimal."]], ar: [["هل يدعم الأعداد الكبيرة جداً؟", "نعم. يستخدم حساباً صحيحاً دقيقاً دون تقريب."], ["كيف يعمل الاكتشاف؟", "0x تعني ست عشري، و0b ثنائي، و0o ثماني. وغير ذلك عشري."]] },
+  },
+  "svg-to-png": {
+    steps: { en: ["Add an SVG file.", "Pick the scale and background.", "Download the PNG."], ar: ["أضف ملف SVG.", "اختر المقياس والخلفية.", "نزّل ملف PNG."] },
+    faq: { en: [["Will it stay sharp?", "Yes. A higher scale draws the vector larger, so the PNG stays crisp."], ["Can the background be transparent?", "Yes, if you choose the transparent background."]], ar: [["هل تبقى الصورة حادة؟", "نعم. المقياس الأعلى يرسم الصورة المتجهة أكبر فيبقى الـ PNG واضحاً."], ["هل يمكن أن تكون الخلفية شفافة؟", "نعم، إذا اخترت الخلفية الشفافة."]] },
+  },
+  "favicon-generator": {
+    steps: { en: ["Add a square logo or picture.", "Run it.", "Download the favicon files."], ar: ["أضف شعاراً أو صورة مربعة.", "نفّذ الأداة.", "نزّل ملفات الأيقونة."] },
+    faq: { en: [["What do I get?", "A favicon.ico, PNG sizes and an app icon."], ["Which image works best?", "A square image of at least 512 px."]], ar: [["ماذا أحصل عليه؟", "ملف favicon.ico ومقاسات PNG وأيقونة تطبيق."], ["أي صورة تناسب أكثر؟", "صورة مربعة بعرض 512 بكسل على الأقل."]] },
+  },
+  "color-palette": {
+    steps: { en: ["Add a photo.", "Pick how many colors you want.", "Copy the HEX codes."], ar: ["أضف صورة.", "اختر عدد الألوان.", "انسخ رموز HEX."] },
+    faq: { en: [["How are the colors chosen?", "The photo is sampled and the most common colors are grouped."], ["Is my photo uploaded?", "No. It is analysed in your browser."]], ar: [["كيف تُختار الألوان؟", "تؤخذ عينات من الصورة وتُجمّع الألوان الأكثر شيوعاً."], ["هل تُرفع صورتي؟", "لا. تُحلَّل داخل متصفحك."]] },
+  },
+  "nup-pdf": {
+    steps: { en: ["Add a PDF.", "Pick 2, 4, 6 or 9 pages per sheet and the direction.", "Download the new PDF."], ar: ["أضف ملف PDF.", "اختر 2 أو 4 أو 6 أو 9 صفحات في الورقة والاتجاه.", "نزّل الملف الجديد."] },
+    faq: { en: [["Is the text still selectable?", "Yes. Pages are placed on the sheet, not turned into pictures."], ["Can I add borders?", "Yes, turn on the thin border option."]], ar: [["هل يبقى النص قابلاً للتحديد؟", "نعم. توضع الصفحات على الورقة دون تحويلها إلى صور."], ["هل يمكن إضافة إطار؟", "نعم، فعّل خيار الإطار الرفيع."]] },
+  },
+  "header-footer": {
+    steps: { en: ["Add a PDF.", "Type the header and footer text. You can use {n}, {total}, {date} and {file}.", "Pick alignment and size, then download."], ar: ["أضف ملف PDF.", "اكتب نص الرأس والتذييل. يمكنك استخدام {n} و{total} و{date} و{file}.", "اختر المحاذاة والحجم ثم نزّل."] },
+    faq: { en: [["What do the {n} and {total} codes do?", "They become the page number and the page count on each page."], ["Can I use only a footer?", "Yes. Leave the header empty."]], ar: [["ماذا تفعل الرموز {n} و{total}؟", "تتحول إلى رقم الصفحة وعدد الصفحات في كل صفحة."], ["هل أستخدم تذييلاً فقط؟", "نعم. اترك الرأس فارغاً."]] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 
