@@ -436,3 +436,11 @@ html[data-id=forest]:not(.light) [class*="bg-violet-500/"] { color: inherit; }
 html:not([data-id=forest]) .seg button[aria-checked=true] { color: #fff; }
 input[type=range] { accent-color: var(--ac, #b4391f); }
 input[type=checkbox], input[type=radio] { accent-color: var(--ac, #b4391f); }
+
+/* quick find */
+.qf-back { background: rgba(20,17,15,.45); backdrop-filter: blur(3px); animation: qf-in .14s ease-out; }
+.qf-box { animation: qf-pop .16s ease-out; }
+.qf-row.on { background: color-mix(in srgb, var(--ac) 14%, transparent); }
+@keyframes qf-in { from { opacity: 0 } }
+@keyframes qf-pop { from { opacity: 0; transform: translateY(-6px) scale(.98) } }
+@media (prefers-reduced-motion: reduce) { .qf-back, .qf-box { animation: none; } }

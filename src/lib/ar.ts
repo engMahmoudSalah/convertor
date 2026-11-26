@@ -83,7 +83,7 @@ export const AR: Record<string, string> = {
   'Convert image': 'تحويل صورة', 'PNG, JPG, WebP, BMP in any direction': 'PNG وJPG وWebP وBMP في أي اتجاه',
   'Background': 'الخلفية', 'Remove a solid background, fill with a colour or place on your own image': 'أزل خلفية سادة أو املأها بلون أو ضعها على صورتك',
   'Resize image': 'تغيير حجم الصورة', 'By pixels or percent, keeps the ratio': 'بالبكسل أو بالنسبة المئوية مع الحفاظ على التناسب',
-  'History': 'السجل', 'Newest first': 'الأحدث أولاً', 'Oldest first': 'الأقدم أولاً', 'No matches.': 'لا توجد نتائج.', 'Close': 'إغلاق', 'File name (optional)': 'اسم الملف (اختياري)', 'Compress image': 'ضغط الصورة', 'Smaller JPG or WebP at the quality you pick': 'JPG أو WebP أصغر بالجودة التي تختارها',
+  'History': 'السجل', 'Newest first': 'الأحدث أولاً', 'Oldest first': 'الأقدم أولاً', 'No matches.': 'لا توجد نتائج.', 'Close': 'إغلاق', 'Some files were skipped: wrong type for this tool.': 'تم تخطي بعض الملفات: النوع غير مناسب لهذه الأداة.', 'Find a tool': 'ابحث عن أداة', 'File name (optional)': 'اسم الملف (اختياري)', 'Compress image': 'ضغط الصورة', 'Smaller JPG or WebP at the quality you pick': 'JPG أو WebP أصغر بالجودة التي تختارها',
   'Text to PDF': 'نص إلى PDF', 'Plain text files into paginated PDFs': 'حوّل ملفات النص إلى ملفات PDF مقسمة إلى صفحات',
   'Word to PDF': 'Word إلى PDF', 'DOCX with headings and lists into PDF': 'حوّل DOCX بعناوينه وقوائمه إلى PDF',
   'Word to text': 'Word إلى نص', 'Extract plain text from DOCX': 'استخرج النص من DOCX',

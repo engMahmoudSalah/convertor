@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, X, Sun, Moon, User, SlidersHorizontal } from 'lucide-react';
+import { Menu, X, Sun, Moon, User, SlidersHorizontal, Search } from 'lucide-react';
 import { applyIdentity, currentIdentity } from '../lib/identity';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
@@ -7,6 +7,7 @@ import { useTheme } from '../lib/theme';
 import { useT } from '../lib/i18n';
 import { Languages } from 'lucide-react';
 import { Wand } from './Wand';
+import { QuickFind } from './QuickFind';
 
 const menuItems = [
   { name: 'PDF', path: '/pdf' },
@@ -41,7 +42,8 @@ const SettingsMenu: React.FC = () => {
 export const NavBar: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const loc = useLocation(); const { user, adminExists } = useAuth(); const { light, toggle } = useTheme(); const { t, lang, setLang } = useT();
-  const [scrolled, setScrolled] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false); const [find, setFind] = React.useState(false);
+  React.useEffect(() => { const k = (e: KeyboardEvent) => { const el = e.target as HTMLElement | null; const typing = !!el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable); if ((e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey)) { e.preventDefault(); setFind(true); } }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k); }, []);
   React.useEffect(() => { const f = () => setScrolled(window.scrollY > 8); f(); window.addEventListener('scroll', f, { passive: true }); return () => window.removeEventListener('scroll', f); }, []);
   React.useEffect(() => setIsOpen(false), [loc.pathname]);
   const items = [...menuItems, ...(user?.role === 'admin' ? [{ name: 'Admin', path: '/admin' }] : user && !adminExists ? [{ name: 'Claim admin', path: '/admin' }] : [])];
@@ -57,6 +59,7 @@ export const NavBar: React.FC = () => {
           {items.map((i) => <NavLink key={i.path} to={i.path} className={link}>{t(i.name)}</NavLink>)}
         </div>
         <div className="flex items-center gap-2">
+          <button type="button" onClick={() => setFind(true)} aria-label={t('Find a tool')} title={t('Find a tool')} className="h-9 px-2.5 inline-flex items-center gap-2 rounded-lg border border-white/20 text-gray-300 hover:text-white"><Search size={16} /><kbd dir="ltr" className="hidden lg:inline text-[11px] opacity-60">Ctrl K</kbd></button>
           <SettingsMenu />
           <Link to={user ? '/account' : '/login'} className="hidden sm:flex items-center gap-2 px-3.5 h-9 rounded-lg text-sm font-semibold btn-ink-sm"><User size={15} />{t(user ? 'Account' : 'Sign in')}</Link>
           <button className="md:hidden w-9 h-9 grid place-items-center rounded-lg border border-white/20 text-gray-300" onClick={() => setIsOpen(!isOpen)} aria-label={t('Menu')} aria-expanded={isOpen}>{isOpen ? <X size={18} /> : <Menu size={18} />}</button>
@@ -67,6 +70,7 @@ export const NavBar: React.FC = () => {
           {[...items, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((i) => <NavLink key={i.path} to={i.path} className={({ isActive }) => `block ${link({ isActive })} text-base`}>{t(i.name)}</NavLink>)}
         </div>
       </div>
+      <QuickFind open={find} onClose={() => setFind(false)} />
     </nav>
   );
 };

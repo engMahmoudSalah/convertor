@@ -91,6 +91,7 @@ export const ToolPage: React.FC = () => {
         <input {...dz.getInputProps()} /><UploadCloud className="mx-auto mb-2 text-violet-300" size={36} />
         <p>{tr(tool.multiple ? 'Drop files here or click to choose' : 'Drop a file here or click to choose')}</p>
       </div>
+      {err && stage === 'upload' && <p role="alert" className="mt-3 text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm">{tr(err)}</p>}
       {myPlan && <ul className="mc-limits mt-3 flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs opacity-80" aria-label={tr('Your limits')}>
         <li>{tr('File size')}: {myPlan.max_mb} MB</li>
         <li>{tr('Files per batch')}: {myPlan.max_files}</li><li><PlanHint plan={myPlan} plans={plans}>{tr('Higher limits:')}</PlanHint></li></ul>}
