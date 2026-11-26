@@ -8,9 +8,11 @@ export type Opt =
   | { key: string; label: string; type: 'file'; default: null };
 export interface Out { name: string; blob: Blob; note?: string }
 export interface Ctx { progress: (done: number, total: number, msg?: string) => void }
-export type Category = 'organize' | 'optimize' | 'to-pdf' | 'from-pdf' | 'edit' | 'image' | 'doc' | 'security';
+export type Category = 'organize' | 'optimize' | 'to-pdf' | 'from-pdf' | 'edit' | 'image' | 'doc' | 'security' | 'text' | 'dev';
 export interface Tool {
   id: string; title: string; desc: string; category: Category; icon: LucideIcon;
   accept: string[]; multiple: boolean; options?: Opt[]; minFiles?: number;
+  /** Text tools have no files: a text box in, text out. */
+  kind?: 'text'; input?: { label: string; placeholder?: string; second?: string; none?: boolean; ext?: string; diff?: boolean };
   run: (files: File[], o: Record<string, any>, c: Ctx) => Promise<Out[]>;
 }

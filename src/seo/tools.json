@@ -180,6 +180,106 @@
   }
  },
  {
+  "id": "case-converter",
+  "title": "Case converter",
+  "desc": "UPPER, lower, Title, camelCase, snake_case and more",
+  "cat": "text",
+  "ar": {
+   "title": "محوّل حالة الحروف",
+   "desc": "أحرف كبيرة وصغيرة وعناوين وcamelCase وsnake_case وغيرها"
+  }
+ },
+ {
+  "id": "word-counter",
+  "title": "Word counter",
+  "desc": "Words, characters, sentences and reading time",
+  "cat": "text",
+  "ar": {
+   "title": "عدّاد الكلمات",
+   "desc": "الكلمات والحروف والجمل ووقت القراءة"
+  }
+ },
+ {
+  "id": "text-diff",
+  "title": "Text compare",
+  "desc": "See which lines were added or removed between two texts",
+  "cat": "text",
+  "ar": {
+   "title": "مقارنة النصوص",
+   "desc": "اعرف أي الأسطر أُضيفت أو حُذفت بين نصين"
+  }
+ },
+ {
+  "id": "lorem-ipsum",
+  "title": "Lorem ipsum generator",
+  "desc": "Placeholder paragraphs for layouts and mockups",
+  "cat": "text",
+  "ar": {
+   "title": "مولّد نص Lorem ipsum",
+   "desc": "فقرات تجريبية للتصاميم والنماذج"
+  }
+ },
+ {
+  "id": "clean-lines",
+  "title": "Sort and clean lines",
+  "desc": "Sort, remove duplicates and empty lines, trim spaces",
+  "cat": "text",
+  "ar": {
+   "title": "ترتيب الأسطر وتنظيفها",
+   "desc": "رتّب وأزل المكرر والأسطر الفارغة وقصّ المسافات"
+  }
+ },
+ {
+  "id": "json-formatter",
+  "title": "JSON formatter",
+  "desc": "Pretty print, minify and check JSON",
+  "cat": "dev",
+  "ar": {
+   "title": "منسّق JSON",
+   "desc": "تنسيق JSON وضغطه والتحقق منه"
+  }
+ },
+ {
+  "id": "base64-tool",
+  "title": "Base64 encode and decode",
+  "desc": "Turn text into Base64 and back, Unicode safe",
+  "cat": "dev",
+  "ar": {
+   "title": "ترميز Base64 وفكه",
+   "desc": "حوّل النص إلى Base64 والعكس، يدعم كل اللغات"
+  }
+ },
+ {
+  "id": "url-encode",
+  "title": "URL encode and decode",
+  "desc": "Make text safe for links and read encoded links",
+  "cat": "dev",
+  "ar": {
+   "title": "ترميز الروابط وفكه",
+   "desc": "اجعل النص آمناً للروابط واقرأ الروابط المشفّرة"
+  }
+ },
+ {
+  "id": "csv-to-json",
+  "title": "CSV to JSON",
+  "desc": "Turn a spreadsheet export into JSON",
+  "cat": "dev",
+  "ar": {
+   "title": "CSV إلى JSON",
+   "desc": "حوّل ملف جدول CSV إلى JSON"
+  }
+ },
+ {
+  "id": "hash-generator",
+  "title": "Hash generator",
+  "desc": "SHA-1, SHA-256, SHA-384 and SHA-512 of any text",
+  "cat": "dev",
+  "ar": {
+   "title": "مولّد البصمات",
+   "desc": "بصمة SHA-1 وSHA-256 وSHA-384 وSHA-512 لأي نص"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

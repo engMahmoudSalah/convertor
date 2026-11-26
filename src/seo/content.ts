@@ -2,7 +2,7 @@ import TOOLS from './tools.json';
 export type SeoTool = { id: string; title: string; desc: string; cat: string; ar: { title: string; desc: string } };
 export const SEO_TOOLS = TOOLS as SeoTool[];
 export const SITE = 'Magic Convertor';
-export const PAGES = ['', 'pdf', 'images', 'documents', 'pricing', 'about', 'contact', 'legal/terms', 'legal/privacy', 'legal/refunds'];
+export const PAGES = ['', 'pdf', 'images', 'documents', 'text', 'developer', 'pricing', 'about', 'contact', 'legal/terms', 'legal/privacy', 'legal/refunds'];
 export const toolById = (id: string) => SEO_TOOLS.find((t) => t.id === id);
 
 type L = 'en' | 'ar';
@@ -119,6 +119,8 @@ export const pageMeta = (path: string, l: L) => {
     pdf: { en: [`PDF Tools Online Free | ${SITE}`, 'Merge, split, compress, rotate, protect, unlock and convert PDF files online for free.', 'PDF tools'], ar: [`أدوات PDF أونلاين مجاناً | ${SITE}`, 'دمج وتقسيم وضغط وتدوير وحماية وفتح وتحويل ملفات PDF مجاناً.', 'أدوات PDF'] },
     images: { en: [`Image Tools Online Free | ${SITE}`, 'Convert, resize, compress and remove backgrounds from images in PNG, JPG and WebP.', 'Image tools'], ar: [`أدوات الصور أونلاين مجاناً | ${SITE}`, 'تحويل وتغيير حجم وضغط الصور وإزالة الخلفية بصيغ PNG وJPG وWebP.', 'أدوات الصور'] },
     documents: { en: [`Document Converters Online Free | ${SITE}`, 'Convert Word, Excel, PowerPoint, text and scans to and from PDF.', 'Document tools'], ar: [`محولات المستندات أونلاين مجاناً | ${SITE}`, 'حوّل Word وExcel وPowerPoint والنصوص والمسح الضوئي من وإلى PDF.', 'أدوات المستندات'] },
+    text: { en: [`Text Tools Online Free | ${SITE}`, 'Change text case, count words, compare two texts and clean lists in your browser.', 'Text tools'], ar: [`أدوات النصوص أونلاين مجاناً | ${SITE}`, 'غيّر حالة الحروف وعُدّ الكلمات وقارن نصين ونظّف القوائم داخل متصفحك.', 'أدوات النصوص'] },
+    developer: { en: [`Developer Tools Online Free | ${SITE}`, 'Format JSON, encode Base64 and URLs, convert CSV to JSON and make SHA hashes in your browser.', 'Developer tools'], ar: [`أدوات المطورين أونلاين مجاناً | ${SITE}`, 'نسّق JSON وشفّر Base64 والروابط وحوّل CSV إلى JSON وأنشئ بصمات SHA داخل متصفحك.', 'أدوات المطورين'] },
     pricing: { en: [`Pricing and Plans | ${SITE}`, 'Free, Pro and Business plans: daily limits, file size and ads per plan.', 'Pricing'], ar: [`الأسعار والخطط | ${SITE}`, 'خطط مجانية وPro وBusiness: الحدود اليومية وحجم الملف والإعلانات لكل خطة.', 'الأسعار'] },
     about: { en: [`About ${SITE}`, 'Who builds Magic Convertor, how it works and how it is funded.', 'About'], ar: [`عن ${SITE}`, 'من يبني Magic Convertor وكيف يعمل وكيف يُموَّل.', 'عن الموقع'] },
     contact: { en: [`Contact | ${SITE}`, 'How to reach the owner of Magic Convertor for support, privacy or business questions.', 'Contact'], ar: [`تواصل معنا | ${SITE}`, 'كيف تتواصل مع صاحب Magic Convertor للدعم أو الخصوصية أو الأعمال.', 'تواصل'] },

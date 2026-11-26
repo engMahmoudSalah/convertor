@@ -12,7 +12,7 @@ with sync_playwright() as pw:
             p.on('pageerror', lambda e: errs.append(str(e)[:80]))
             for t in tools:
                 errs.clear(); p.goto(f"{B}/{lang}tools/{t['id']}"); p.wait_for_timeout(350)
-                h1 = p.locator('h1').count(); drop = p.locator('input[type=file]').count(); ov = p.evaluate('document.documentElement.scrollWidth - window.innerWidth')
+                h1 = p.locator('h1').count(); drop = p.locator('input[type=file], textarea, section[aria-live]').count(); ov = p.evaluate('document.documentElement.scrollWidth - window.innerWidth')
                 rtl = p.evaluate('document.documentElement.dir') == ('rtl' if lang else 'ltr')
                 ok = h1 >= 1 and drop >= 1 and ov <= 1 and rtl and not errs
                 rows.append((t['id'], lang or 'en/', name, ok, f'h1={h1} drop={drop} overflow={ov} dir_ok={rtl} errs={errs[:1]}'))

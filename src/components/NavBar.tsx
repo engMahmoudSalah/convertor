@@ -13,6 +13,8 @@ const menuItems = [
   { name: 'PDF', path: '/pdf' },
   { name: 'Images', path: '/images' },
   { name: 'Documents', path: '/documents' },
+  { name: 'Text', path: '/text' },
+  { name: 'Developer', path: '/developer' },
   { name: 'Pricing', path: '/pricing' },
 ];
 

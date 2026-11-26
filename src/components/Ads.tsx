@@ -54,3 +54,10 @@ export const AdGate: React.FC<{ steps: number; onDone: () => void; onBack: () =>
       <p className="text-xs opacity-70"><Link className="underline" to="/pricing">{t('Skip ads: see plans')}</Link></p>
     </div>);
 };
+
+/** A page-level ad unit for plans that show ads (Business shows none). */
+export const PageAd: React.FC = () => {
+  const { plan } = useAuth();
+  if (plan && plan.ads === 0) return null;
+  return <div className="my-10" data-page-ad><AdSlot slot={undefined} /></div>;
+};

@@ -17,12 +17,13 @@ import { fmtSize } from '../lib/util';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { Thumbs } from '../components/Thumbs';
-import { AdGate } from '../components/Ads';
+import { AdGate, PageAd } from '../components/Ads';
 import { ToolInfo } from '../components/ToolInfo';
 import { SplitPreview, CompressPreview, FileCards, PageGrid, BackgroundPreview, PageFrame, usePreviewMode, compressPages } from '../components/PreviewDock';
 import type { Out } from '../tools/types';
 import { saveOperation } from '../lib/saved';
 import { Stepper, AfterView, SizeSummary } from '../components/FlowParts';
+import { TextTool } from '../components/TextTool';
 import { ArrowRight, Home, Pencil, BookmarkPlus, CheckCircle2, Eye } from 'lucide-react';
 
 const save = (b: Blob, name: string) => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
@@ -30,7 +31,7 @@ const splitName = (n: string) => { const i = n.lastIndexOf('.'); return i > 0 ? 
 const cleanName = (v: string) => v.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').replace(/\.+$/, '').trim().slice(0, 120);
 const field = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-400';
 
-export const ToolPage: React.FC = () => {
+const FileToolPage: React.FC = () => {
   const { t: tr, lang } = useT(); const { id } = useParams(); const tool = getTool(id); const { disabled, refresh, plan: myPlan, plans, heavy, usage: myUsage } = useAuth(); const [upgrade, setUpgrade] = useState(false); const [stage, setStage] = useState<'upload' | 'board' | 'final'>('upload'); const [tab, setTab] = useState<'before' | 'after'>('before'); const [saved, setSaved] = useState<'' | 'ok' | 'login' | 'busy'>(''); const loc = useLocation(); const { user } = useAuth(); const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [adDone, setAdDone] = useState(false);
   const [files, setFiles] = useState<File[]>([]); const [outs, setOuts] = useState<Out[]>([]);
   const [dlName, setDlName] = useState(''); const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [prog, setProg] = useState('');
@@ -154,6 +155,9 @@ export const ToolPage: React.FC = () => {
         {err && /limit|saved|storage|plan/i.test(err) && saved === '' && <PaidNotice tone="warn" plan={upgradePlan(plans, 'saved', myPlan)}>{ar ? 'مساحة العمليات المحفوظة اتملت. المساحة الأكبر ميزة مدفوعة.' : 'Your saved-operations space is full. More saved operations and storage are a paid feature.'}</PaidNotice>}
         {err && <p className="mt-3 text-red-300 text-sm">{err}</p>}
       </div></div>}
+      {stage === 'upload' && <PageAd />}
       {stage === 'upload' && <ToolInfo id={tool.id} />}
     </div>);
 };
+
+export const ToolPage: React.FC = () => { const { id } = useParams(); const t = getTool(id); return t?.kind === 'text' ? <TextTool tool={t} /> : <FileToolPage />; };

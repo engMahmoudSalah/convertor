@@ -51,7 +51,7 @@ function describe(path: string, lang: L, origin: string) {
     meta = pageMeta(path, lang); if (!meta) return null;
     ld = [crumbs([[SITE, base(lang, '')], ...(path ? [[meta.h1, base(lang, path)] as [string, string]] : [])])];
     if (path === '') ld.push(jsonLd({ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE, url: base(lang, ''), inLanguage: lang }));
-    const list = path === '' || ['pdf', 'images', 'documents'].includes(path) ? `<ul>${SEO_TOOLS.map((t) => link('tools/' + t.id, lang === 'ar' && t.ar.title ? t.ar.title : t.title)).join('')}</ul>` : '';
+    const list = path === '' || ['pdf', 'images', 'documents', 'text', 'developer'].includes(path) ? `<ul>${SEO_TOOLS.map((t) => link('tools/' + t.id, lang === 'ar' && t.ar.title ? t.ar.title : t.title)).join('')}</ul>` : '';
     body = `<h1>${esc(meta.h1)}</h1><p>${esc(meta.description)}</p>${list}`;
   }
   const alt = `<link rel="canonical" href="${base(lang, path)}"><link rel="alternate" hreflang="en" href="${base('en', path)}"><link rel="alternate" hreflang="ar" href="${base('ar', path)}"><link rel="alternate" hreflang="x-default" href="${base('en', path)}">`;

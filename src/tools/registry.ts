@@ -1,11 +1,12 @@
 import { Combine, Scissors, FileX, FilePlus2, RotateCw, ListOrdered, Stamp, Minimize2, Images, FileImage, FileText, ArrowUpDown, Tags, Repeat, Maximize, ImageDown } from 'lucide-react';
 import type { Tool } from './types';
 import { Lock, Unlock, Wrench, Crop, PenLine, EyeOff, GitCompare, FileCode2, Sheet, Presentation, FileSpreadsheet } from 'lucide-react';
-import { FlipHorizontal2, SlidersHorizontal, Frame } from 'lucide-react';
+import { AlignLeft, CaseSensitive, Hash, Diff, Pilcrow, ListFilter, Braces, Binary, Link2, Table2, Fingerprint, FlipHorizontal2, SlidersHorizontal, Frame } from 'lucide-react';
 import { FileType, FileCode, FileOutput, FileType2 } from 'lucide-react';
 
 const loaders: Record<string, () => Promise<any>> = { P: () => import('./pdfTools'), I: () => import('./imageTools'), D: () => import('./docTools'), O: () => import('./ocrTools'), M: () => import('./moreTools'), E: () => import('./editTools'), F: () => import('./webForms') };
 const L = (m: string, fn: string) => async (...a: any[]) => (await loaders[m]())[fn](...a);
+const NOOP = async () => [] as never[];
 const IMG = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/bmp', 'image/svg+xml'];
 const PDF = ['application/pdf'];
 export const pagesOpt = (label = 'Pages', def = 'all') => ({ key: 'pages', label: `${label} (e.g. 1-3,5,8-)`, type: 'text' as const, default: def });
@@ -49,6 +50,25 @@ export const TOOLS: Tool[] = [
     options: [{ key: 'brightness', label: 'Brightness %', type: 'number', default: 100, min: 0, max: 200 }, { key: 'contrast', label: 'Contrast %', type: 'number', default: 100, min: 0, max: 200 }, { key: 'saturation', label: 'Saturation %', type: 'number', default: 100, min: 0, max: 300 }, { key: 'blur', label: 'Blur (px)', type: 'number', default: 0, min: 0, max: 20 }, { key: 'grayscale', label: 'Black and white', type: 'check', default: false }, { key: 'sepia', label: 'Sepia', type: 'check', default: false }] },
   { id: 'round-image', title: 'Round corners and border', desc: 'Soft corners and an optional frame, saved as transparent PNG', category: 'image', icon: Frame, accept: IMG, multiple: true, run: L('I', 'roundImages'),
     options: [{ key: 'radius', label: 'Corner roundness % (100 = circle)', type: 'number', default: 20, min: 0, max: 100 }, { key: 'border', label: 'Border width (px)', type: 'number', default: 0, min: 0, max: 100 }, { key: 'color', label: 'Border color', type: 'color', default: '#ffffff' }] },
+  { id: 'case-converter', title: 'Case converter', desc: 'UPPER, lower, Title, camelCase, snake_case and more', category: 'text', icon: CaseSensitive, accept: [], multiple: false, kind: 'text', input: { label: 'Your text', placeholder: 'Type or paste text here' }, run: NOOP,
+    options: [{ key: 'mode', label: 'Convert to', type: 'select', default: 'title', options: [{ v: 'upper', l: 'UPPER CASE' }, { v: 'lower', l: 'lower case' }, { v: 'title', l: 'Title Case' }, { v: 'sentence', l: 'Sentence case' }, { v: 'camel', l: 'camelCase' }, { v: 'snake', l: 'snake_case' }, { v: 'kebab', l: 'kebab-case' }] }] },
+  { id: 'word-counter', title: 'Word counter', desc: 'Words, characters, sentences and reading time', category: 'text', icon: Pilcrow, accept: [], multiple: false, kind: 'text', input: { label: 'Your text', placeholder: 'Type or paste text here' }, run: NOOP },
+  { id: 'text-diff', title: 'Text compare', desc: 'See which lines were added or removed between two texts', category: 'text', icon: Diff, accept: [], multiple: false, kind: 'text', input: { label: 'Original text', second: 'Changed text', diff: true }, run: NOOP,
+    options: [{ key: 'ignoreCase', label: 'Ignore capital letters', type: 'check', default: false }, { key: 'ignoreSpace', label: 'Ignore extra spaces', type: 'check', default: true }] },
+  { id: 'lorem-ipsum', title: 'Lorem ipsum generator', desc: 'Placeholder paragraphs for layouts and mockups', category: 'text', icon: AlignLeft, accept: [], multiple: false, kind: 'text', input: { label: '', none: true }, run: NOOP,
+    options: [{ key: 'paragraphs', label: 'Paragraphs', type: 'number', default: 3, min: 1, max: 30 }, { key: 'sentences', label: 'Sentences per paragraph', type: 'number', default: 5, min: 1, max: 20 }] },
+  { id: 'clean-lines', title: 'Sort and clean lines', desc: 'Sort, remove duplicates and empty lines, trim spaces', category: 'text', icon: ListFilter, accept: [], multiple: false, kind: 'text', input: { label: 'One item per line', placeholder: 'Paste your list here' }, run: NOOP,
+    options: [{ key: 'sort', label: 'Sort', type: 'select', default: 'none', options: [{ v: 'none', l: 'Keep order' }, { v: 'asc', l: 'A to Z' }, { v: 'desc', l: 'Z to A' }] }, { key: 'dedupe', label: 'Remove duplicate lines', type: 'check', default: true }, { key: 'empty', label: 'Remove empty lines', type: 'check', default: true }, { key: 'trim', label: 'Trim spaces on each line', type: 'check', default: true }, { key: 'ignoreCase', label: 'Treat A and a as the same', type: 'check', default: false }] },
+  { id: 'json-formatter', title: 'JSON formatter', desc: 'Pretty print, minify and check JSON', category: 'dev', icon: Braces, accept: [], multiple: false, kind: 'text', input: { label: 'JSON', placeholder: '{"hello": "world"}', ext: 'json' }, run: NOOP,
+    options: [{ key: 'mode', label: 'Layout', type: 'select', default: '2', options: [{ v: '2', l: '2 spaces' }, { v: '4', l: '4 spaces' }, { v: 'tab', l: 'Tabs' }, { v: 'min', l: 'Minified' }] }, { key: 'sort', label: 'Sort keys A to Z', type: 'check', default: false }] },
+  { id: 'base64-tool', title: 'Base64 encode and decode', desc: 'Turn text into Base64 and back, Unicode safe', category: 'dev', icon: Binary, accept: [], multiple: false, kind: 'text', input: { label: 'Your text', placeholder: 'Type or paste text here' }, run: NOOP,
+    options: [{ key: 'mode', label: 'Direction', type: 'select', default: 'encode', options: [{ v: 'encode', l: 'Text to Base64' }, { v: 'decode', l: 'Base64 to text' }] }, { key: 'urlSafe', label: 'URL-safe output (no + / =)', type: 'check', default: false }] },
+  { id: 'url-encode', title: 'URL encode and decode', desc: 'Make text safe for links and read encoded links', category: 'dev', icon: Link2, accept: [], multiple: false, kind: 'text', input: { label: 'Text or link', placeholder: 'https://example.com/search?q=hello world' }, run: NOOP,
+    options: [{ key: 'mode', label: 'Direction', type: 'select', default: 'encode', options: [{ v: 'encode', l: 'Encode' }, { v: 'decode', l: 'Decode' }] }, { key: 'full', label: 'Keep a full link readable (leave : / ? & alone)', type: 'check', default: false }] },
+  { id: 'csv-to-json', title: 'CSV to JSON', desc: 'Turn a spreadsheet export into JSON', category: 'dev', icon: Table2, accept: [], multiple: false, kind: 'text', input: { label: 'CSV', placeholder: 'name,age\nSara,31', ext: 'json' }, run: NOOP,
+    options: [{ key: 'delimiter', label: 'Separator', type: 'select', default: ',', options: [{ v: ',', l: 'Comma' }, { v: ';', l: 'Semicolon' }, { v: 'tab', l: 'Tab' }] }, { key: 'header', label: 'First row is the header', type: 'check', default: true }, { key: 'numbers', label: 'Turn numbers into numbers', type: 'check', default: true }] },
+  { id: 'hash-generator', title: 'Hash generator', desc: 'SHA-1, SHA-256, SHA-384 and SHA-512 of any text', category: 'dev', icon: Fingerprint, accept: [], multiple: false, kind: 'text', input: { label: 'Your text', placeholder: 'Type or paste text here' }, run: NOOP,
+    options: [{ key: 'algo', label: 'Algorithm', type: 'select', default: 'SHA-256', options: [{ v: 'SHA-1', l: 'SHA-1' }, { v: 'SHA-256', l: 'SHA-256' }, { v: 'SHA-384', l: 'SHA-384' }, { v: 'SHA-512', l: 'SHA-512' }] }, { key: 'upper', label: 'Capital letters', type: 'check', default: false }] },
   { id: 'resize-image', title: 'Resize image', desc: 'By pixels or percent, keeps the ratio', category: 'image', icon: Maximize, accept: IMG, multiple: true, run: L('I', 'resizeImages'),
     options: [{ key: 'mode', label: 'Mode', type: 'select', default: 'percent', options: [{ v: 'percent', l: 'Percent' }, { v: 'pixels', l: 'Pixels' }] }, { key: 'percent', label: 'Percent', type: 'number', default: 50, min: 1, max: 400 },
       { key: 'width', label: 'Width px', type: 'number', default: 0, min: 0 }, { key: 'height', label: 'Height px', type: 'number', default: 0, min: 0 }, { key: 'keep', label: 'Keep aspect ratio', type: 'check', default: true }] },
@@ -103,8 +123,10 @@ TOOLS.push(
 export const TYPES: Record<string, { title: string; desc: string; cats: string[]; ids?: string[] }> = {
   pdf: { title: 'PDF tools', desc: 'Organize, optimize, edit and convert PDFs', cats: ['organize', 'optimize', 'edit', 'from-pdf', 'security'], ids: ['images-to-pdf'] },
   images: { title: 'Image tools', desc: 'Convert, resize and compress images in PNG, JPG, WebP, BMP and more', cats: ['image'], ids: ['images-to-pdf', 'pdf-to-images'] },
+  text: { title: 'Text and writing', desc: 'Change case, count words, compare texts and clean lists', cats: ['text'] },
+  developer: { title: 'Developer and data', desc: 'Format JSON, encode Base64 and URLs, convert CSV, make hashes', cats: ['dev'] },
   documents: { title: 'Document tools', desc: 'Word and text files to and from PDF', cats: ['doc'], ids: ['pdf-to-text', 'pdf-to-excel', 'pdf-to-powerpoint', 'excel-to-pdf', 'powerpoint-to-pdf', 'pdf-to-markdown', 'ocr-pdf', 'scan-to-pdf'] },
 };
 export const toolsOfType = (k: string) => TOOLS.filter((t) => TYPES[k].cats.includes(t.category) || TYPES[k].ids?.includes(t.id));
-export const CATS: Record<string, string> = { organize: 'Organize PDF', optimize: 'Optimize PDF', 'to-pdf': 'Convert to PDF', 'from-pdf': 'Convert from PDF', edit: 'Edit PDF', image: 'Images', doc: 'Documents', security: 'PDF Security' };
+export const CATS: Record<string, string> = { organize: 'Organize PDF', optimize: 'Optimize PDF', 'to-pdf': 'Convert to PDF', 'from-pdf': 'Convert from PDF', edit: 'Edit PDF', image: 'Images', doc: 'Documents', security: 'PDF Security', text: 'Text and writing', dev: 'Developer and data' };
 export const getTool = (id?: string) => TOOLS.find((t) => t.id === id);
