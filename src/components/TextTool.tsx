@@ -26,11 +26,11 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
   useEffect(() => { try { const r = JSON.parse(sessionStorage.getItem('mc_pipe') || 'null'); if (r && r.to === tool.id) { sessionStorage.removeItem('mc_pipe'); setText(String(r.text || '')); setPiped(r.from || ''); } else setPiped(''); } catch { /* ignore */ } }, [tool.id]);
   useEffect(() => {
     let live = true; const h = setTimeout(async () => {
-      try { const r = await TEXT_FNS[tool.id](text, opts, second); if (live) { setOut(r); setErr(''); } }
+      try { const r = await TEXT_FNS[tool.id](text, { ...opts, _ar: ar }, second); if (live) { setOut(r); setErr(''); } }
       catch (e: any) { if (live) { setOut(''); setErr(e?.message ?? 'Something went wrong'); } }
     }, 120);
     return () => { live = false; clearTimeout(h); };
-  }, [tool.id, text, second, opts]);
+  }, [tool.id, text, second, opts, ar]);
   const copy = async () => { pushShelf(tool.title, out, tool.category); setShelf(readShelf()); try { await navigator.clipboard.writeText(out); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ } };
   const download = () => { pushShelf(tool.title, out, tool.category); setShelf(readShelf()); setGate(false); const ext = inp.ext ?? 'txt'; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([out], { type: 'text/plain;charset=utf-8' })); a.download = `${tool.id}.${ext}`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); };
   const downloadPng = () => {

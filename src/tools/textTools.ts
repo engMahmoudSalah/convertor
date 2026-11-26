@@ -1,6 +1,6 @@
 import { qrSvg } from '../lib/qr';
 import { DEV_FNS } from './devConvert';
-import { MISC_FNS } from './miscTools';
+import { MISC_FNS_AR as MISC_FNS } from './miscTools';
 // Text and developer tools: pure functions, run on every keystroke in the browser.
 type Fn = (text: string, o: any, second?: string) => string | Promise<string>;
 
