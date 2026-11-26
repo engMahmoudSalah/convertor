@@ -1,7 +1,7 @@
 import { Combine, Scissors, FileX, FilePlus2, RotateCw, ListOrdered, Stamp, Minimize2, Images, FileImage, FileText, ArrowUpDown, Tags, Repeat, Maximize, ImageDown } from 'lucide-react';
 import type { Tool } from './types';
 import { Lock, Unlock, Wrench, Crop, PenLine, EyeOff, GitCompare, FileCode2, Sheet, Presentation, FileSpreadsheet } from 'lucide-react';
-import { FlipHorizontal2, SlidersHorizontal, Square } from 'lucide-react';
+import { FlipHorizontal2, SlidersHorizontal, Frame } from 'lucide-react';
 import { FileType, FileCode, FileOutput, FileType2 } from 'lucide-react';
 
 const loaders: Record<string, () => Promise<any>> = { P: () => import('./pdfTools'), I: () => import('./imageTools'), D: () => import('./docTools'), O: () => import('./ocrTools'), M: () => import('./moreTools'), E: () => import('./editTools'), F: () => import('./webForms') };
@@ -47,7 +47,7 @@ export const TOOLS: Tool[] = [
     options: [{ key: 'angle', label: 'Rotation', type: 'select', default: '90', options: [{ v: '0', l: 'None' }, { v: '90', l: '90° right' }, { v: '180', l: '180°' }, { v: '270', l: '90° left' }] }, { key: 'flip', label: 'Flip', type: 'select', default: 'none', options: [{ v: 'none', l: 'No flip' }, { v: 'h', l: 'Mirror left to right' }, { v: 'v', l: 'Mirror top to bottom' }, { v: 'both', l: 'Both' }] }] },
   { id: 'filter-image', title: 'Photo filters', desc: 'Brightness, contrast, saturation, blur, black and white, sepia', category: 'image', icon: SlidersHorizontal, accept: IMG, multiple: true, run: L('I', 'filterImages'),
     options: [{ key: 'brightness', label: 'Brightness %', type: 'number', default: 100, min: 0, max: 200 }, { key: 'contrast', label: 'Contrast %', type: 'number', default: 100, min: 0, max: 200 }, { key: 'saturation', label: 'Saturation %', type: 'number', default: 100, min: 0, max: 300 }, { key: 'blur', label: 'Blur (px)', type: 'number', default: 0, min: 0, max: 20 }, { key: 'grayscale', label: 'Black and white', type: 'check', default: false }, { key: 'sepia', label: 'Sepia', type: 'check', default: false }] },
-  { id: 'round-image', title: 'Round corners and border', desc: 'Soft corners and an optional frame, saved as transparent PNG', category: 'image', icon: Square, accept: IMG, multiple: true, run: L('I', 'roundImages'),
+  { id: 'round-image', title: 'Round corners and border', desc: 'Soft corners and an optional frame, saved as transparent PNG', category: 'image', icon: Frame, accept: IMG, multiple: true, run: L('I', 'roundImages'),
     options: [{ key: 'radius', label: 'Corner roundness % (100 = circle)', type: 'number', default: 20, min: 0, max: 100 }, { key: 'border', label: 'Border width (px)', type: 'number', default: 0, min: 0, max: 100 }, { key: 'color', label: 'Border color', type: 'color', default: '#ffffff' }] },
   { id: 'resize-image', title: 'Resize image', desc: 'By pixels or percent, keeps the ratio', category: 'image', icon: Maximize, accept: IMG, multiple: true, run: L('I', 'resizeImages'),
     options: [{ key: 'mode', label: 'Mode', type: 'select', default: 'percent', options: [{ v: 'percent', l: 'Percent' }, { v: 'pixels', l: 'Pixels' }] }, { key: 'percent', label: 'Percent', type: 'number', default: 50, min: 1, max: 400 },

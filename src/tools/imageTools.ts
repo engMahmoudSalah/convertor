@@ -116,7 +116,9 @@ export async function filterImages(files: File[], o: any, c: Ctx): Promise<Out[]
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
     const g = cv.getContext('2d')!; const fmt = outFmt(files[i].name);
     if (fmt === 'jpg') { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); }
-    g.filter = f; g.drawImage(img, 0, 0, w, h);
+    const native = 'filter' in g && (() => { const tc = document.createElement('canvas'); tc.width = tc.height = 1; const x = tc.getContext('2d')!; x.filter = 'invert(100%)'; x.fillStyle = '#000'; x.fillRect(0, 0, 1, 1); return x.getImageData(0, 0, 1, 1).data[0] === 255; })();
+    if (native) { g.filter = f; g.drawImage(img, 0, 0, w, h); }
+    else { g.drawImage(img, 0, 0, w, h); manualFilter(g, w, h, o); }
     outs.push({ name: `${baseName(files[i].name)}-filtered.${fmt}`, blob: await encode(cv, fmt, 0.92), note: `${w}x${h}` });
   }
   return outs;
@@ -136,4 +138,41 @@ export async function roundImages(files: File[], o: any, c: Ctx): Promise<Out[]>
     outs.push({ name: `${baseName(files[i].name)}-rounded.png`, blob: await encode(cv, 'png', 1), note: 'PNG with transparent corners' });
   }
   return outs;
+}
+
+// Fallback for browsers without canvas ctx.filter (older Safari): the same maths done on pixels.
+function manualFilter(g: CanvasRenderingContext2D, w: number, h: number, o: any) {
+  const im = g.getImageData(0, 0, w, h); const d = im.data;
+  const br = Number(o.brightness) / 100, ct = Number(o.contrast) / 100, sa = Number(o.saturation) / 100;
+  const cl = (v: number) => (v < 0 ? 0 : v > 255 ? 255 : v);
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i] * br, gg = d[i + 1] * br, b = d[i + 2] * br;
+    r = (r - 127.5) * ct + 127.5; gg = (gg - 127.5) * ct + 127.5; b = (b - 127.5) * ct + 127.5;
+    const l = 0.2126 * r + 0.7152 * gg + 0.0722 * b; r = l + (r - l) * sa; gg = l + (gg - l) * sa; b = l + (b - l) * sa;
+    if (o.grayscale) { const y = 0.2126 * r + 0.7152 * gg + 0.0722 * b; r = gg = b = y; }
+    if (o.sepia) { const R = 0.393 * r + 0.769 * gg + 0.189 * b, G = 0.349 * r + 0.686 * gg + 0.168 * b, B = 0.272 * r + 0.534 * gg + 0.131 * b; r = R; gg = G; b = B; }
+    d[i] = cl(r); d[i + 1] = cl(gg); d[i + 2] = cl(b);
+  }
+  g.putImageData(im, 0, 0);
+  const rad = Math.round(Number(o.blur) || 0);
+  if (rad > 0) boxBlur(g, w, h, rad);
+}
+function boxBlur(g: CanvasRenderingContext2D, w: number, h: number, rad: number) {
+  const im = g.getImageData(0, 0, w, h); let a = im.data; let b = new Uint8ClampedArray(a.length);
+  const pass = (src: Uint8ClampedArray, dst: Uint8ClampedArray, horiz: boolean) => {
+    const n = horiz ? w : h, lines = horiz ? h : w, step = horiz ? 4 : w * 4, lineStep = horiz ? w * 4 : 4, win = 2 * rad + 1;
+    for (let l = 0; l < lines; l++) {
+      const base = l * lineStep;
+      for (let c = 0; c < 4; c++) {
+        let sum = 0;
+        for (let k = -rad; k <= rad; k++) sum += src[base + Math.min(n - 1, Math.max(0, k)) * step + c];
+        for (let x = 0; x < n; x++) {
+          dst[base + x * step + c] = sum / win;
+          sum += src[base + Math.min(n - 1, x + rad + 1) * step + c] - src[base + Math.max(0, x - rad) * step + c];
+        }
+      }
+    }
+  };
+  for (let i = 0; i < 2; i++) { pass(a, b, true); pass(b, a, false); }
+  g.putImageData(im, 0, 0);
 }
