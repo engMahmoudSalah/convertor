@@ -30,7 +30,7 @@ const pricingItem = { name: 'Pricing', path: '/pricing' };
 const MoreMenu: React.FC = () => {
   const { t } = useT(); const loc = useLocation(); const [open, setOpen] = React.useState(false); const box = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => setOpen(false), [loc.pathname]);
-  React.useEffect(() => { if (!open) return; const d = (e: MouseEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false); }; const k = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); }; document.addEventListener('mousedown', d); document.addEventListener('keydown', k); return () => { document.removeEventListener('mousedown', d); document.removeEventListener('keydown', k); }; }, [open]);
+  React.useEffect(() => { if (!open) return; const d = (e: MouseEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false); }; const k = (e: KeyboardEvent) => { if (e.key === 'Escape') { setOpen(false); box.current?.querySelector('button')?.focus(); } }; document.addEventListener('mousedown', d); document.addEventListener('keydown', k); return () => { document.removeEventListener('mousedown', d); document.removeEventListener('keydown', k); }; }, [open]);
   const active = moreItems.some((m) => loc.pathname.startsWith(m.path));
   return (<div className="relative" ref={box}>
     <button type="button" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen(!open)} className={`px-3.5 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-1 ${active ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>{t('More tools')}<ChevronDown size={14} className={open ? 'rotate-180 transition' : 'transition'} /></button>
