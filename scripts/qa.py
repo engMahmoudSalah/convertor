@@ -6,7 +6,7 @@ tools = json.load(open('src/seo/tools.json')); tools = tools if isinstance(tools
 rows = []
 with sync_playwright() as pw:
     b = pw.chromium.launch()
-    for lang in ('', 'ar/'):
+    for lang in [x for x in ('', 'ar/') if __import__('os').environ.get('LANG_ONLY', 'all') in ('all', x or 'en')]:
         for vp, name in (({'width': 1280, 'height': 800}, 'desktop'), ({'width': 390, 'height': 800}, 'mobile')):
             c = b.new_context(viewport=vp); c.add_init_script("localStorage.setItem('mc_consent','essential')"); p = c.new_page(); errs = []
             p.on('pageerror', lambda e: errs.append(str(e)[:80]))
