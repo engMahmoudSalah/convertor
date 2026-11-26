@@ -310,6 +310,26 @@
   }
  },
  {
+  "id": "nup-pdf",
+  "title": "Multiple pages per sheet",
+  "desc": "Put 2, 4, 6 or 9 pages on one sheet to save paper",
+  "cat": "organize",
+  "ar": {
+   "title": "عدة صفحات في الورقة",
+   "desc": "ضع 2 أو 4 أو 6 أو 9 صفحات في ورقة واحدة لتوفير الورق"
+  }
+ },
+ {
+  "id": "header-footer",
+  "title": "Header and footer",
+  "desc": "Add text at the top or bottom of every page",
+  "cat": "edit",
+  "ar": {
+   "title": "رأس وتذييل الصفحة",
+   "desc": "أضف نصاً أعلى أو أسفل كل صفحة"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

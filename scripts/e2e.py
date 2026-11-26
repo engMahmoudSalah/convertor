@@ -63,6 +63,8 @@ with sync_playwright() as pw:
      ('svg-to-png',[F('logo.svg')],{'Scale (x)':'3'},lambda o:__import__('PIL.Image',fromlist=['x']).open(o[0]).size==(300,150)),
      ('favicon-generator',[F('logo.png')],{},lambda o:any(x.endswith('favicon.ico') and open(x,'rb').read(4)==b'\x00\x00\x01\x00' for x in o) and len(o)>=7),
      ('color-palette',[F('logo.svg')],{'Number of colours':'2'},lambda o:any(x.endswith('.txt') and '#E03131' in open(x).read().upper() for x in o)),
+     ('nup-pdf',[F('five.pdf')],{'Pages per sheet':'2'},lambda o:pages(o[0])==3 and (lambda r:r.pages[0].mediabox.width>r.pages[0].mediabox.height)(__import__('pypdf').PdfReader(o[0]))),
+     ('header-footer',[F('three.pdf')],{'Header text':'Report {file}','Footer text':'Sheet {n}/{total}'},lambda o:(lambda t:'Sheet 2/3' in t and 'Report three' in t)(__import__('pypdf').PdfReader(o[0]).pages[1].extract_text())),
      ('text-to-pdf',[F('note.txt')],{},lambda o:'Line two' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
      ('word-to-pdf',[F('sample.docx')],{},lambda o:'Quarterly Report' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
      ('word-to-text',[F('sample.docx')],{},lambda o:'Second paragraph' in open(o[0]).read()),

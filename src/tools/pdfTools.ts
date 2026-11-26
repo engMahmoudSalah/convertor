@@ -170,3 +170,38 @@ export async function pdfToText(files: File[], _o: any, c: Ctx): Promise<Out[]> 
 }
 export const zipOuts = (outs: Out[]) => Promise.all(outs.map(async (o) => [o.name, new Uint8Array(await o.blob.arrayBuffer())] as const))
   .then((e) => new Blob([zipSync(Object.fromEntries(e), { level: 0 })], { type: 'application/zip' }));
+
+export async function nupPdf(files: File[], o: any, c: Ctx): Promise<Out[]> {
+  const src = await loadPdf(files[0]); const out = await PDFDocument.create(); const per = Number(o.per) || 2; const n = src.getPageCount();
+  const grid: Record<number, [number, number]> = { 2: [2, 1], 4: [2, 2], 6: [3, 2], 9: [3, 3] }; const [cols, rows] = grid[per] ?? [2, 1];
+  const land = o.layout === 'landscape' || (o.layout === 'auto' && cols > rows); const W = land ? 842 : 595, H = land ? 595 : 842; const m = 18, gap = 8;
+  const cw = (W - 2 * m - gap * (cols - 1)) / cols, ch = (H - 2 * m - gap * (rows - 1)) / rows;
+  for (let i = 0; i < n; i += per) {
+    c.progress(i / per, Math.ceil(n / per)); const page = out.addPage([W, H]);
+    const embedded = await out.embedPdf(src, Array.from({ length: Math.min(per, n - i) }, (_, k) => i + k));
+    embedded.forEach((e, k) => {
+      const s = Math.min(cw / e.width, ch / e.height); const w = e.width * s, h = e.height * s; const col = k % cols, row = Math.floor(k / cols);
+      const x = m + col * (cw + gap) + (cw - w) / 2, y = H - m - row * (ch + gap) - ch + (ch - h) / 2;
+      page.drawPage(e, { x, y, width: w, height: h });
+      if (o.border) page.drawRectangle({ x, y, width: w, height: h, borderColor: rgb(0.6, 0.6, 0.6), borderWidth: 0.5 });
+    });
+  }
+  return [{ name: `${baseName(files[0].name)}-${per}up.pdf`, blob: await toBlob(out), note: `${n} pages on ${Math.ceil(n / per)} sheets` }];
+}
+
+export async function headerFooter(files: File[], o: any): Promise<Out[]> {
+  const d = await loadPdf(files[0]); const f = await d.embedFont(StandardFonts.Helvetica); const total = d.getPageCount(); const size = Number(o.size) || 10;
+  const fill = (t: string, i: number) => String(t).replace('{n}', String(i + 1)).replace('{total}', String(total)).replace('{date}', new Date().toISOString().slice(0, 10)).replace('{file}', files[0].name.replace(/\.pdf$/i, ''));
+  if (!String(o.header).trim() && !String(o.footer).trim()) throw new Error('Type a header or a footer text.');
+  try {
+    d.getPages().forEach((p, i) => {
+      const { width, height } = p.getSize();
+      for (const [txt, top] of [[o.header, true], [o.footer, false]] as [string, boolean][]) {
+        if (!String(txt).trim()) continue; const t = fill(txt, i); const w = f.widthOfTextAtSize(t, size);
+        const x = o.align === 'left' ? 36 : o.align === 'right' ? width - 36 - w : (width - w) / 2; const y = top ? height - 30 : 22;
+        p.drawText(t, { x, y, size, font: f, color: rgb(0.2, 0.2, 0.2) });
+      }
+    });
+  } catch { throw new Error('Header and footer support Latin letters and numbers only. Remove other characters.'); }
+  return [{ name: `${baseName(files[0].name)}-headfoot.pdf`, blob: await toBlob(d) }];
+}

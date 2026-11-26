@@ -1,7 +1,7 @@
 import { Combine, Scissors, FileX, FilePlus2, RotateCw, ListOrdered, Stamp, Minimize2, Images, FileImage, FileText, ArrowUpDown, Tags, Repeat, Maximize, ImageDown } from 'lucide-react';
 import type { Tool } from './types';
 import { Lock, Unlock, Wrench, Crop, PenLine, EyeOff, GitCompare, FileCode2, Sheet, Presentation, FileSpreadsheet } from 'lucide-react';
-import { FileImage as FileImg2, Palette, Globe, AlignLeft, CaseSensitive, Hash, Diff, Pilcrow, ListFilter, Braces, Binary, Link2, Table2, Fingerprint, FlipHorizontal2, SlidersHorizontal, Frame } from 'lucide-react';
+import { LayoutGrid, PanelTop, FileImage as FileImg2, Palette, Globe, AlignLeft, CaseSensitive, Hash, Diff, Pilcrow, ListFilter, Braces, Binary, Link2, Table2, Fingerprint, FlipHorizontal2, SlidersHorizontal, Frame } from 'lucide-react';
 import { FileType, FileCode, FileOutput, FileType2 } from 'lucide-react';
 
 const loaders: Record<string, () => Promise<any>> = { P: () => import('./pdfTools'), I: () => import('./imageTools'), D: () => import('./docTools'), O: () => import('./ocrTools'), M: () => import('./moreTools'), E: () => import('./editTools'), F: () => import('./webForms') };
@@ -74,6 +74,10 @@ export const TOOLS: Tool[] = [
   { id: 'favicon-generator', title: 'Favicon generator', desc: 'One image into favicon.ico, PNG sizes and an app icon', category: 'image', icon: Globe, accept: IMG, multiple: false, run: L('I', 'faviconPack') },
   { id: 'color-palette', title: 'Color palette from image', desc: 'Find the main colours of a photo with HEX and RGB codes', category: 'image', icon: Palette, accept: IMG, multiple: true, run: L('I', 'colorPalette'),
     options: [{ key: 'count', label: 'Number of colours', type: 'number', default: 6, min: 2, max: 12 }] },
+  { id: 'nup-pdf', title: 'Multiple pages per sheet', desc: 'Put 2, 4, 6 or 9 pages on one sheet to save paper', category: 'organize', icon: LayoutGrid, accept: PDF, multiple: false, run: L('P', 'nupPdf'),
+    options: [{ key: 'per', label: 'Pages per sheet', type: 'select', default: '4', options: [{ v: '2', l: '2 pages' }, { v: '4', l: '4 pages' }, { v: '6', l: '6 pages' }, { v: '9', l: '9 pages' }] }, { key: 'layout', label: 'Sheet direction', type: 'select', default: 'auto', options: [{ v: 'auto', l: 'Automatic' }, { v: 'portrait', l: 'Portrait' }, { v: 'landscape', l: 'Landscape' }] }, { key: 'border', label: 'Draw a thin border around each page', type: 'check', default: true }] },
+  { id: 'header-footer', title: 'Header and footer', desc: 'Add text at the top or bottom of every page', category: 'edit', icon: PanelTop, accept: PDF, multiple: false, run: L('P', 'headerFooter'),
+    options: [{ key: 'header', label: 'Header text ({n} page, {total}, {date}, {file})', type: 'text', default: '' }, { key: 'footer', label: 'Footer text', type: 'text', default: 'Page {n} of {total}' }, { key: 'align', label: 'Alignment', type: 'select', default: 'center', options: [{ v: 'left', l: 'Left' }, { v: 'center', l: 'Center' }, { v: 'right', l: 'Right' }] }, { key: 'size', label: 'Font size', type: 'number', default: 10, min: 6, max: 24 }] },
   { id: 'resize-image', title: 'Resize image', desc: 'By pixels or percent, keeps the ratio', category: 'image', icon: Maximize, accept: IMG, multiple: true, run: L('I', 'resizeImages'),
     options: [{ key: 'mode', label: 'Mode', type: 'select', default: 'percent', options: [{ v: 'percent', l: 'Percent' }, { v: 'pixels', l: 'Pixels' }] }, { key: 'percent', label: 'Percent', type: 'number', default: 50, min: 1, max: 400 },
       { key: 'width', label: 'Width px', type: 'number', default: 0, min: 0 }, { key: 'height', label: 'Height px', type: 'number', default: 0, min: 0 }, { key: 'keep', label: 'Keep aspect ratio', type: 'check', default: true }] },
