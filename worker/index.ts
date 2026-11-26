@@ -317,9 +317,8 @@ export class AppDB extends DurableObject<any> {
     if (path === '/admin/claim' && method === 'POST') {
       if (!u) return json({ error: 'Sign in first' }, 401);
       if (!this.limit(`cl:${ip}`, 5, 3600e3)) return json({ error: 'Too many attempts' }, 429);
-      if (this.adminExists()) return json({ error: 'An admin already exists' }, 409);
       if (!this.env.ADMIN_SETUP_KEY || !safeEq(String(body.key ?? ''), this.env.ADMIN_SETUP_KEY)) return json({ error: 'Invalid setup key' }, 403);
-      this.sql.exec("UPDATE users SET role='admin' WHERE id=?", u.id); this.audit(u.id, 'admin_claimed', u.email);
+      this.sql.exec("UPDATE users SET role='admin' WHERE id=?", u.id); this.audit(u.id, 'admin_claimed', u.email); this.adminSeen = true;
       return json({ ok: true });
     }
     if (path.startsWith('/admin/')) {
