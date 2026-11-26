@@ -384,22 +384,22 @@ export class AppDB extends DurableObject<any> {
 }
 
 const ADS = 'https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://*.adtrafficquality.google https://fundingchoicesmessages.google.com https://www.googletagservices.com https://*.google.com';
-const CSP = [
-  "default-src 'self'", `script-src 'self' 'wasm-unsafe-eval' blob: ${ADS}`, "style-src 'self' 'unsafe-inline'", "font-src 'self' data:",
-  `img-src 'self' data: blob: https:`, `connect-src 'self' blob: ${ADS}`, `frame-src ${ADS}`, "worker-src 'self' blob:", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'", 'upgrade-insecure-requests',
+const cspFor = (live: boolean) => [
+  "default-src 'self'", `script-src 'self' 'wasm-unsafe-eval' blob:${live ? ' ' + ADS : ''}`, "style-src 'self' 'unsafe-inline'", "font-src 'self' data:",
+  live ? `img-src 'self' data: blob: https:` : `img-src 'self' data: blob:`, `connect-src 'self' blob:${live ? ' ' + ADS : ''}`, live ? `frame-src ${ADS}` : "frame-src 'none'", "worker-src 'self' blob:", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'", 'upgrade-insecure-requests',
 ].join('; ');
-function harden(res: Response, isApi: boolean): Response {
+function harden(res: Response, isApi: boolean, env: any): Response {
   const h = new Headers(res.headers);
   h.set('strict-transport-security', 'max-age=63072000; includeSubDomains; preload'); h.set('x-content-type-options', 'nosniff'); h.set('x-frame-options', 'DENY');
   h.set('referrer-policy', 'strict-origin-when-cross-origin'); h.set('permissions-policy', 'camera=(), microphone=(), geolocation=(), payment=(self), interest-cohort=()');
   h.set('cross-origin-opener-policy', 'same-origin-allow-popups'); if (isApi) h.set('cross-origin-resource-policy', 'same-origin');
-  if ((h.get('content-type') ?? '').includes('text/html') || isApi) h.set('content-security-policy', CSP);
+  if ((h.get('content-type') ?? '').includes('text/html') || isApi) h.set('content-security-policy', cspFor(env?.ADS_LIVE === '1'));
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h });
 }
 export default {
   async fetch(req: Request, env: any): Promise<Response> {
     const isApi = new URL(req.url).pathname.startsWith('/api/');
-    try { return harden(await route(req, env), isApi); } catch (e) { console.error('unhandled', e instanceof Error ? e.message : 'error'); return harden(new Response(JSON.stringify({ error: 'Something went wrong. Please try again.' }), { status: 500, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } }), isApi); }
+    try { return harden(await route(req, env), isApi, env); } catch (e) { console.error('unhandled', e instanceof Error ? e.message : 'error'); return harden(new Response(JSON.stringify({ error: 'Something went wrong. Please try again.' }), { status: 500, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } }), isApi, env); }
   },
 };
 async function route(req: Request, env: any): Promise<Response> {
