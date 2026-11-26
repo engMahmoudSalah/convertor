@@ -1,3 +1,4 @@
+import { AdminAudit } from '../components/AdminAudit';
 import { AdminAdsSeo } from '../components/AdminAdsSeo';
 import { AdminUsage } from '../components/AdminUsage';
 import { AdminPayments } from '../components/AdminPayments';
@@ -56,9 +57,8 @@ export const Admin: React.FC = () => {
     {tab === 'Tools' && <AdminTools disabled={disabled} heavy={heavy ?? []} reload={async () => { await load(); await refresh(); }} toast={setToast} />}
     {tab === 'Usage' && <><AdminUsage />{ov && <p className="text-sm mt-4 opacity-80">{t('Saved operations')}: {ov.saved} · <bdi dir="ltr">{fmtB(ov.savedBytes)}</bdi></p>}</>}
     {tab === 'Ads and SEO' && sys && <AdminAdsSeo sys={sys} plans={plans} />}
-    {tab === 'Abuse' && abuse && <><div className="flex flex-wrap gap-3 mb-4">{abuse.byKind.length ? abuse.byKind.map((k: any) => <div key={k.k} className={card}><p className="text-xs opacity-70">{({ li: t('Login attempts'), su: t('Signups'), fg: t('Password reset'), fgm: t('Password reset'), rs: t('Reset link'), pw: t('Password change'), del: t('Account delete'), vf: t('Verify link'), rv: t('Resend verify'), gs: t('Google start') } as any)[k.k] ?? k.k} (7d)</p><p className="text-xl font-bold">{k.n}</p></div>) : <EmptyArt text={t('No abuse events')} />}</div>
-      <ul className="text-xs space-y-1">{abuse.events.map((a: any) => <li key={a.id}>{new Date(a.ts).toLocaleString()} · {a.action} · {a.target} {a.detail}</li>)}</ul></>}
-    {tab === 'Audit' && <><input aria-label={t('Filter the audit log')} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm mb-3 w-72" placeholder={t('Filter the audit log')} value={aq} onChange={(e) => setAq(e.target.value)} /><ul dir="ltr" className="text-xs space-y-1 text-start">{audit.map((a) => <li key={a.id}>{new Date(a.ts).toLocaleString()} · {a.actor} · {a.action} · {a.target} {a.detail}</li>)}</ul></>}
+    {tab === 'Abuse' && <AdminAudit mode="abuse" />}
+    {tab === 'Audit' && <AdminAudit mode="audit" />}
     {tab === 'Backup' && <><p className="text-sm opacity-80 mb-3">{t('Download all users (no password data), plans, flags, orders, saved-operation records, history and audit log as one JSON file. Saved file contents are not included.')}</p><a href="/api/admin/export" download className="flow-ghost inline-block px-4 py-2 rounded-xl font-semibold">{t('Download backup (JSON)')}</a></>}
     </section></div>
   </div>);

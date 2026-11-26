@@ -469,9 +469,23 @@ export class AppDB extends DurableObject<any> {
           revenue: this.rows("SELECT status, count(*) n, coalesce(sum(amount),0) amt, currency FROM orders GROUP BY status, currency"),
         });
       }
-      if (path === '/admin/abuse' && method === 'GET') return json({ events: this.rows("SELECT * FROM audit WHERE action IN ('rate_limited','ban','mail_failed') ORDER BY id DESC LIMIT 100"), byKind: this.rows("SELECT target k, count(*) n FROM audit WHERE action='rate_limited' AND ts>? GROUP BY target ORDER BY n DESC", now() - 7 * 864e5) });
+      if (path === '/admin/abuse' && method === 'GET') {
+        const days = [1, 7, 30].includes(Number(url.searchParams.get('days'))) ? Number(url.searchParams.get('days')) : 7; const since = now() - days * 864e5;
+        const cnt = (a: string) => this.rows('SELECT count(*) c FROM audit WHERE action=? AND ts>?', a, since)[0].c as number;
+        return json({ days, byKind: this.rows("SELECT target k, count(*) n FROM audit WHERE action='rate_limited' AND ts>? GROUP BY target ORDER BY n DESC", since), limited: cnt('rate_limited'), bans: cnt('ban'), mailFailed: cnt('mail_failed'), perDay: this.rows("SELECT strftime('%Y-%m-%d', ts/1000, 'unixepoch') d, count(*) n FROM audit WHERE action='rate_limited' AND ts>? GROUP BY d ORDER BY d", since), events: this.rows("SELECT * FROM audit WHERE action IN ('rate_limited','ban','mail_failed') ORDER BY id DESC LIMIT 100") });
+      }
       if (path === '/admin/system' && method === 'GET') return json({ ads: { publisher: !!this.env.ADSENSE_PUB, live: this.env.ADS_LIVE === '1' }, google: !!(this.env.GOOGLE_CLIENT_ID && this.env.GOOGLE_CLIENT_SECRET), mail: !!this.env.RESEND_KEY, payments: !!(this.env.PAYMOB_SECRET_KEY && this.env.PAYMOB_PUBLIC_KEY), schema: this.rows("SELECT v FROM meta WHERE k='schema'")[0]?.v ?? null, tables: ['users', 'sessions', 'history', 'saved', 'orders', 'audit'].map((n) => ({ n, c: this.rows(`SELECT count(*) c FROM ${n}`)[0].c })) });
-      if (path === '/admin/audit' && method === 'GET') { const q = `%${(url.searchParams.get('q') ?? '').toLowerCase()}%`; return json({ audit: this.rows('SELECT * FROM audit WHERE lower(actor||action||target||detail) LIKE ? ORDER BY id DESC LIMIT 200', q) }); }
+      if (path === '/admin/audit' && method === 'GET') {
+        const sp = url.searchParams; const q = `%${(sp.get('q') ?? '').toLowerCase().slice(0, 80)}%`; const size = Math.min(2000, Math.max(1, Number(sp.get('size')) || 50)); const page = Math.max(1, Math.floor(Number(sp.get('page')) || 1));
+        const where = ["lower(actor||action||target||detail) LIKE ?"]; const args: any[] = [q];
+        const act = sp.get('action'); if (act && /^[a-z0-9_]{1,40}$/.test(act)) { where.push('action=?'); args.push(act); }
+        if (sp.get('group') === 'abuse') where.push("action IN ('rate_limited','ban','mail_failed')");
+        const days = Number(sp.get('days')); if ([1, 7, 30].includes(days)) { where.push('ts>?'); args.push(now() - days * 864e5); }
+        const w = where.join(' AND ');
+        return json({ audit: this.rows('SELECT * FROM audit WHERE ' + w + ' ORDER BY id DESC LIMIT ? OFFSET ?', ...args, size, (page - 1) * size), total: this.rows('SELECT count(*) c FROM audit WHERE ' + w, ...args)[0].c, page, size, actions: this.rows('SELECT action, count(*) n FROM audit GROUP BY action ORDER BY n DESC LIMIT 60') });
+      }
+      if (path === '/admin/audit/seed' && method === 'POST' && this.env.ALLOW_TEST_SEED === '1') { const k = ['rate_limited', 'rate_limited', 'ban', 'mail_failed', 'login', 'plan_changed']; const tg = ['li', 'su', 'fg']; for (let i = 0; i < 30; i++) this.sql.exec('INSERT INTO audit(ts,actor,action,target,detail) VALUES(?,?,?,?,?)', Date.now() - i * 36e5 * 3, 'seedtest', k[i % 6], k[i % 6] === 'rate_limited' ? tg[i % 3] : 'target' + i, 'detail ' + i); return json({ ok: true }); }
+      if (path === '/admin/audit/seed' && method === 'DELETE' && this.env.ALLOW_TEST_SEED === '1') { this.sql.exec("DELETE FROM audit WHERE actor='seedtest'"); return json({ ok: true }); }
     }
     return json({ error: 'Not found' }, 404);
   }
