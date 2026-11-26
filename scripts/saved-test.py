@@ -32,6 +32,14 @@ with sync_playwright() as p:
     flow(pg, 'compress-image', [F + 'grad.png'], 0); pg.get_by_role('button', name='Save to my profile').click(); pg.wait_for_selector('text=Saved. Find it in', timeout=20000)
     pg.goto(B + '/account?tab=saved'); pg.wait_for_selector('li.flow-panel'); pg.wait_for_timeout(1500)
     cards = pg.locator('li.flow-panel'); check('3 cards (2 saved + 1 pending carried over after login)', cards.count() == 3)
+    if os.environ.get('SHOTS'):
+        st = c.storage_state()
+        for nm, lang, w, h, dk in (('en-light-1200', '', 1200, 900, 0), ('ar-dark-390', 'ar/', 390, 844, 1)):
+            c3 = b.new_context(viewport={'width': w, 'height': h}, storage_state=st); c3.add_init_script("localStorage.setItem('mc_consent','essential')" + (";localStorage.setItem('mc_theme','dark')" if dk else ";localStorage.setItem('mc_theme','light')")); q = c3.new_page()
+            for tab in ('overview', 'saved', 'history', 'security'):
+                q.goto(f'{B}/{lang}account?tab={tab}'); q.wait_for_timeout(1800); q.screenshot(path=f'/downloads/live-acc-{nm}-{tab}.png')
+                ov = q.evaluate('document.documentElement.scrollWidth-innerWidth'); print('overflow', nm, tab, ov)
+            c3.close()
     txt = pg.locator('li.flow-panel', has_text='Compress image').inner_text(); check('card has names/sizes/options/date', all(k in txt for k in ['grad.png', 'grad-small.jpg', 'Completed', 'JPG', 'Result stored']))
     with pg.expect_download() as d: pg.locator('li.flow-panel', has_text='Compress image').get_by_role('button', name='Download').click()
     check('download returns stored file', d.value.suggested_filename == 'grad-small.jpg' and os.path.getsize(d.value.path()) > 100)
