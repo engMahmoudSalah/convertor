@@ -109,6 +109,46 @@ const COPY: Record<string, Copy> = {
     steps: { en: ["Add an image.", "Choose a ratio or percent crop.", "Run it and download the cropped image."], ar: ["أضف صورة.", "اختر نسبة أو قصاً بالنسبة المئوية.", "نفّذ ثم نزّل الصورة المقصوصة."] },
     faq: { en: [["Is the quality kept?", "Yes. Pixels are cut, not recompressed more than the chosen format needs."], ["Can I drag to crop?", "Not yet. Use ratio or percent values for now."]], ar: [["هل تبقى الجودة؟", "نعم. تُقص البكسلات دون ضغط إضافي إلا بقدر الصيغة المختارة."], ["هل أستطيع القص بالسحب؟", "ليس بعد. استخدم النسبة أو القيم المئوية حالياً."]] },
   },
+  "case-converter": {
+    steps: { en: ["Paste your text.", "Pick upper, lower, title, camel, snake or another case.", "Copy the result."], ar: ["الصق نصك.", "اختر الأحرف الكبيرة أو الصغيرة أو camel أو snake أو غيرها.", "انسخ النتيجة."] },
+    faq: { en: [["Does it work on Arabic?", "Arabic has no upper or lower case, so those modes leave it unchanged. Camel and snake modes still join the words."], ["Is my text stored?", "No. It stays in your browser."]], ar: [["هل يعمل مع العربية؟", "العربية بلا أحرف كبيرة وصغيرة، فلا تتغير في هذه الأوضاع. أوضاع camel وsnake تربط الكلمات فقط."], ["هل يُحفظ نصي؟", "لا. يبقى في متصفحك."]] },
+  },
+  "base64-tool": {
+    steps: { en: ["Paste text or a Base64 string.", "Pick encode or decode.", "Copy the result."], ar: ["الصق نصاً أو سلسلة Base64.", "اختر الترميز أو فك الترميز.", "انسخ النتيجة."] },
+    faq: { en: [["Does it handle Arabic and emoji?", "Yes. Text is treated as UTF-8 both ways."], ["Is Base64 encryption?", "No. Anyone can decode it. Do not use it to hide secrets."]], ar: [["هل يدعم العربية والرموز التعبيرية؟", "نعم. يُعامل النص بترميز UTF-8 في الاتجاهين."], ["هل Base64 تشفير؟", "لا. يمكن لأي شخص فك ترميزه. لا تستخدمه لإخفاء الأسرار."]] },
+  },
+  "url-encode": {
+    steps: { en: ["Paste a link or text.", "Pick encode or decode.", "Copy the result."], ar: ["الصق رابطاً أو نصاً.", "اختر الترميز أو فك الترميز.", "انسخ النتيجة."] },
+    faq: { en: [["When do I need this?", "When a value in a link has spaces, & or non-English letters, which must be written as %-codes."], ["Is my text uploaded?", "No. It is processed in your browser."]], ar: [["متى أحتاج هذه الأداة؟", "عندما تحتوي قيمة في الرابط على مسافات أو & أو حروف غير إنجليزية، فتُكتب برموز %."], ["هل يُرفع نصي؟", "لا. يُعالج داخل متصفحك."]] },
+  },
+  "csv-to-json": {
+    steps: { en: ["Paste CSV with a header row.", "Check the JSON on the right.", "Copy it or download the file."], ar: ["الصق CSV وفيه صف العناوين.", "راجع JSON في الجانب الآخر.", "انسخه أو نزّل الملف."] },
+    faq: { en: [["Are commas inside quotes handled?", "Yes. A value in double quotes can contain commas."], ["Which row gives the keys?", "The first row. Each later row becomes one object."]], ar: [["هل تُعالج الفواصل داخل علامات الاقتباس؟", "نعم. القيمة بين علامتي اقتباس يمكن أن تحتوي فواصل."], ["أي صف يعطي أسماء المفاتيح؟", "الصف الأول. كل صف بعده يصبح كائناً."]] },
+  },
+  "lorem-ipsum": {
+    steps: { en: ["Set the number of paragraphs and sentences per paragraph.", "Copy the placeholder text."], ar: ["حدد عدد الفقرات والجمل في كل فقرة.", "انسخ النص التجريبي."] },
+    faq: { en: [["What is lorem ipsum?", "Placeholder text used to fill a layout before the real words exist."], ["Is it the same every time?", "Yes. The same settings give the same text, starting with the classic opening line."]], ar: [["ما هو lorem ipsum؟", "نص تجريبي يملأ التصميم قبل توفر النص الحقيقي."], ["هل هو نفسه كل مرة؟", "نعم. الإعدادات نفسها تعطي النص نفسه، ويبدأ بالجملة الكلاسيكية."]] },
+  },
+  "text-diff": {
+    steps: { en: ["Paste the old text on one side and the new text on the other.", "Read the added and removed lines."], ar: ["الصق النص القديم في جهة والجديد في الأخرى.", "اقرأ الأسطر المضافة والمحذوفة."] },
+    faq: { en: [["Does it compare by line?", "Yes. Each line is compared as a whole."], ["Is my text sent anywhere?", "No. The comparison runs in your browser."]], ar: [["هل تتم المقارنة بالأسطر؟", "نعم. يُقارن كل سطر كاملاً."], ["هل يُرسل نصي إلى أي مكان؟", "لا. تتم المقارنة داخل متصفحك."]] },
+  },
+  "clean-lines": {
+    steps: { en: ["Paste one item per line.", "Choose trim, remove empty, remove duplicates and sort.", "Copy the cleaned list."], ar: ["الصق عنصراً في كل سطر.", "اختر القص وحذف الفارغ وحذف المكرر والترتيب.", "انسخ القائمة النظيفة."] },
+    faq: { en: [["Are numbers sorted properly?", "Yes. 2 comes before 10."], ["Can I ignore upper and lower case when removing duplicates?", "Yes, turn on the option for it."]], ar: [["هل تُرتب الأرقام بشكل صحيح؟", "نعم. 2 تأتي قبل 10."], ["هل أتجاهل حالة الأحرف عند حذف المكرر؟", "نعم، فعّل الخيار الخاص بذلك."]] },
+  },
+  "find-replace": {
+    steps: { en: ["Paste your text.", "Type what to find and what to put instead.", "Turn on regular expressions if you need patterns, then copy the result."], ar: ["الصق نصك.", "اكتب ما تبحث عنه وما يحل محله.", "فعّل التعبير النمطي إذا احتجت أنماطاً ثم انسخ النتيجة."] },
+    faq: { en: [["How do I reuse a matched part?", "With regular expressions on, write $1, $2 and so on in the replacement."], ["What if my pattern is wrong?", "The tool shows the error and leaves your text untouched."]], ar: [["كيف أعيد استخدام جزء مطابق؟", "مع تفعيل التعبير النمطي اكتب $1 و$2 وهكذا في خانة الاستبدال."], ["ماذا لو كان النمط خاطئاً؟", "تظهر رسالة الخطأ ويبقى نصك دون تغيير."]] },
+  },
+  "text-slug": {
+    steps: { en: ["Type or paste titles, one per line.", "Pick a dash or underscore.", "Copy the slugs."], ar: ["اكتب العناوين أو الصقها، عنواناً في كل سطر.", "اختر الشرطة أو الشرطة السفلية.", "انسخ الروابط."] },
+    faq: { en: [["What happens to accents?", "They are removed, so \u00e9 becomes e."], ["Are Arabic letters kept?", "Yes. Arabic letters and digits stay, spaces and symbols become the separator."]], ar: [["ماذا يحدث للحركات والتشكيل؟", "تُزال، فيصبح é حرف e."], ["هل تبقى الحروف العربية؟", "نعم. تبقى الحروف العربية والأرقام وتتحول المسافات والرموز إلى فاصل."]] },
+  },
+  "extract-images": {
+    steps: { en: ["Add a PDF that contains photos or scans.", "Run it.", "Download the JPG, or a ZIP when there are several."], ar: ["أضف ملف PDF فيه صور أو مسح ضوئي.", "نفّذ الأداة.", "نزّل ملف JPG، أو ZIP عند وجود عدة صور."] },
+    faq: { en: [["Is the quality changed?", "No. The original JPG data is copied out as it is."], ["Why were some pictures skipped?", "Only pictures stored as JPG can be copied unchanged. For the rest, use PDF to image."]], ar: [["هل تتغير الجودة؟", "لا. تُنسخ بيانات JPG الأصلية كما هي."], ["لماذا تُجوهلت بعض الصور؟", "لا يمكن نسخ إلا الصور المخزنة بصيغة JPG دون تغيير. لغيرها استخدم PDF إلى صورة."]] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 
