@@ -69,6 +69,18 @@ const COPY: Record<string, Copy> = {
     steps: { en: ['Add one or more images.', 'Pick the format you want, such as JPG, PNG or WebP.', 'Run it and download the converted files.'], ar: ['أضف صورة أو أكثر.', 'اختر الصيغة المطلوبة مثل JPG أو PNG أو WebP.', 'نفّذ ونزّل الملفات المحوّلة.'] },
     faq: { en: [['Which format should I pick?', 'JPG for photos, PNG for graphics that need sharp edges or transparency, WebP for small files on the web.'], ['Are my images uploaded?', 'No. Conversion runs in your browser.']], ar: [['أي صيغة أختار؟', 'JPG للصور، وPNG للرسومات التي تحتاج حواف حادة أو شفافية، وWebP للملفات الصغيرة على الويب.'], ['هل صوري بتتحمّل على سيرفر؟', 'لا. التحويل يتم داخل متصفحك.']] },
   },
+  'ocr-image': {
+    steps: { en: ['Add a clear photo or scan of the text.', 'Pick the language of the text if asked.', 'Run it and copy or download the recognised text.'], ar: ['أضف صورة واضحة أو مسحاً ضوئياً للنص.', 'اختر لغة النص إن طُلب منك ذلك.', 'نفّذ ثم انسخ النص المستخرج أو نزّله.'] },
+    faq: { en: [['How accurate is the text?', 'It depends on the image. Sharp, well lit, straight text works best. Always read the result before you rely on it.'], ['Are my images uploaded?', 'No. Recognition runs in your browser.']], ar: [['ما مدى دقة النص المستخرج؟', 'يعتمد على الصورة. النص الواضح والمضاء جيداً والمستقيم يعطي أفضل نتيجة. اقرأ الناتج دائماً قبل الاعتماد عليه.'], ['هل صوري بتتحمّل على سيرفر؟', 'لا. التعرف على النص يتم داخل متصفحك.']] },
+  },
+  'watermark-pdf': {
+    steps: { en: ['Add your PDF.', 'Type the watermark text and set its size, colour and position.', 'Run it and download the watermarked PDF.'], ar: ['أضف ملف PDF.', 'اكتب نص العلامة المائية وحدد حجمها ولونها وموضعها.', 'نفّذ ونزّل الملف بالعلامة المائية.'] },
+    faq: { en: [['Can the watermark be removed later?', 'Treat it as a visible mark, not as protection. Keep your original file.'], ['Are my PDFs uploaded?', 'No. The watermark is added in your browser.']], ar: [['هل يمكن إزالة العلامة المائية لاحقاً؟', 'اعتبرها علامة ظاهرة وليست حماية. احتفظ بملفك الأصلي.'], ['هل ملفاتي بتتحمّل على سيرفر؟', 'لا. تُضاف العلامة داخل متصفحك.']] },
+  },
+  'pdf-to-text': {
+    steps: { en: ['Add a PDF that has selectable text.', 'Run it to extract the text.', 'Copy it or download it as a text file.'], ar: ['أضف ملف PDF يحتوي على نص قابل للتحديد.', 'نفّذ لاستخراج النص.', 'انسخه أو نزّله كملف نصي.'] },
+    faq: { en: [['Why is the text empty?', 'The PDF is probably a scan, which is a picture of text. Use OCR PDF for that.'], ['Are my PDFs uploaded?', 'No. Extraction runs in your browser.']], ar: [['ليه النص فاضي؟', 'غالباً الملف ممسوح ضوئياً أي صورة للنص. استخدم أداة OCR لملف PDF.'], ['هل ملفاتي بتتحمّل على سيرفر؟', 'لا. الاستخراج يتم داخل متصفحك.']] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 
