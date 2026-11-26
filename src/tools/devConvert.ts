@@ -204,7 +204,7 @@ const jsonToTs: Fn = wrap((t, o) => {
     const parts: string[] = []; const objs = samples.filter((x) => x && typeof x === 'object' && !Array.isArray(x)); const arrs = samples.filter(Array.isArray);
     for (const ty of ['string', 'number', 'boolean']) if (samples.some((x) => typeof x === ty)) parts.push(ty);
     if (samples.some((x) => x === null)) parts.push('null');
-    if (arrs.length) { const items = arrs.flat(); const it = items.length ? infer(items, name) : 'unknown'; parts.push(it.includes(' | ') ? `(${it})[]` : `${it}[]`); }
+    if (arrs.length) { const items = arrs.flat(); const it = items.length ? infer(items, name + 'Item') : 'unknown'; parts.push(it.includes(' | ') ? `(${it})[]` : `${it}[]`); }
     if (objs.length) {
       const nm = uniq(name), keys: string[] = []; objs.forEach((x) => Object.keys(x).forEach((k) => { if (!keys.includes(k)) keys.push(k); }));
       const body = keys.map((k) => { const vals = objs.filter((x) => k in x).map((x) => x[k]); const key = /^[A-Za-z_$][\w$]*$/.test(k) ? k : JSON.stringify(k); return `  ${key}${vals.length < objs.length ? '?' : ''}: ${infer(vals, pascal(k))};`; }).join('\n');

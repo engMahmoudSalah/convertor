@@ -42,7 +42,7 @@ CASES = [
  ('html-formatter', '<div>\n  <p>\n Hello\n </p>\n</div>', {'Action': 'minify'}, '<div><p>Hello</p></div>'),
  ('json-escape', 'say "hi"\nbye', {}, 'say \\"hi\\"\\nbye'),
  ('json-escape', 'say \\"hi\\"\\nbye', {'Action': 'unescape'}, 'say "hi"'),
- ('json-to-typescript', '[{"id":1,"name":"A","t":{"x":true}},{"id":2,"tags":["a"]}]', {}, 'interface Root'),
+ ('json-to-typescript', '[{"id":1,"name":"A","t":{"x":true}},{"id":2,"tags":["a"]}]', {}, 'type Root = RootItem[];'),
  ('json-to-typescript', '[{"id":1,"name":"A"},{"id":2}]', {}, 'name?: string;'),
  ('csv-to-html-table', 'name,age\nAnn,30', {}, '<th>name</th>'),
  ('csv-to-markdown', 'name;age\nAnn;30', {}, '| Ann | 30 |'),
