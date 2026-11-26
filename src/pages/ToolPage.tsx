@@ -6,6 +6,7 @@ import { addRecent, takePending, guessType } from '../lib/handoff';
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Link, useParams, useLocation } from 'react-router-dom';
+import { ResizeInfo } from '../components/ResizeInfo';
 import { Gauge } from 'lucide-react';
 import { isHeavy as isAdv } from '../lib/heavy';
 import { PlanHint, PaidNotice, upgradePlan, unlockPlan } from '../components/PlanBadge';
@@ -109,6 +110,7 @@ export const ToolPage: React.FC = () => {
             : o.type === 'check' ? <span className="flex gap-2 items-center"><input type="checkbox" className="accent-violet-500 w-4 h-4" checked={!!opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.checked })} />{tr(o.label)}</span>
             : <div className="flex items-center gap-3">{o.type === 'number' && (o as any).min !== undefined && (o as any).max !== undefined && (o as any).max - (o as any).min >= 20 && <input type="range" aria-hidden="true" tabIndex={-1} className="flex-1 min-w-0 accent-violet-500" min={(o as any).min} max={(o as any).max} value={opts[o.key] ?? (o as any).min} onChange={(e) => setOpts({ ...opts, [o.key]: Number(e.target.value) })} />}<input className={o.type === 'number' ? field + ' !w-20 shrink-0' : field} type={o.type} min={(o as any).min} max={(o as any).max} value={opts[o.key] ?? ''} onChange={(e) => setOpts({ ...opts, [o.key]: o.type === 'number' ? Number(e.target.value) : e.target.value })} /></div>}
         </label>))}</div></div>}
+      {tool.id === 'resize-image' && files.length > 0 && <ResizeInfo files={files as any} opts={opts} ar={ar} />}
       {upgrade && <div role="status" className="mt-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm"><p className="font-bold text-base">{tr("You've used today's free runs for this tool")}</p><p className="mt-1 opacity-80">{tr('Nothing is wrong. Free visitors get a few advanced runs per day. Your file is untouched and still here.')}</p><div className="mt-3 flex flex-wrap gap-2"><Link className="flow-next px-4 py-2 rounded-xl font-semibold" to="/signup">{tr('Create a free account')}</Link><Link className="px-4 py-2 rounded-xl font-semibold border border-current/30" to="/pricing">{tr('See plans')}</Link></div></div>}
       {err && !upgrade && <p className="mt-4 text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm">{err}</p>}
       {off && <p className="mt-4 text-amber-300 text-sm">{tr('This tool is temporarily switched off.')}</p>}

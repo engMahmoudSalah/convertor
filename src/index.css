@@ -435,3 +435,4 @@ html[data-id=forest]:not(.light) .mc-idn.on { border-color: #c6f432; background:
 html[data-id=forest]:not(.light) [class*="bg-violet-500/"] { color: inherit; }
 html:not([data-id=forest]) .seg button[aria-checked=true] { color: #fff; }
 input[type=range] { accent-color: var(--ac, #b4391f); }
+input[type=checkbox], input[type=radio] { accent-color: var(--ac, #b4391f); }
