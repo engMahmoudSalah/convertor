@@ -10,6 +10,9 @@ CASES = [
  ('case-converter', 'Hello World', {'Convert to': 'snake'}, 'hello_world'),
  ('word-counter', 'one two three. four five', {}, 'Words: 5'),
  ('word-counter', 'مرحبا بالعالم الجميل', {}, 'Words: 3'),
+ ('find-replace', 'a.b a.b', {'Find': '.', 'Replace with': '-'}, 'a-b a-b'),
+ ('find-replace', 'x1 x22', {'Find': 'x(\\d+)', 'Replace with': 'y$1', 'Use a regular expression': True}, 'y1 y22'),
+ ('text-slug', 'Héllo, Wörld! 2026', {}, 'hello-world-2026'),
  ('clean-lines', 'b\na\nb\n\n a ', {'Sort': 'asc'}, 'a\nb'),
  ('json-formatter', '{"b":1,"a":[1,2]}', {'Layout': 'min'}, '{"b":1,"a":[1,2]}'),
  ('json-formatter', '{"b":1', {}, 'Not valid JSON'),
@@ -24,7 +27,10 @@ with sync_playwright() as pw:
     p.on('pageerror', lambda e: errs.append(str(e)[:100]))
     for tid, text, opts, want in CASES:
         p.goto(f'{B}/tools/{tid}'); p.fill('#tt-in', text)
-        for k, v in opts.items(): sel(p, k, v)
+        for k, v in opts.items():
+            if isinstance(v, bool): chk(p, k, v)
+            elif k in ('Find', 'Replace with'): p.locator('label').filter(has=p.locator('span', has_text=k)).first.locator('input').fill(v)
+            else: sel(p, k, v)
         p.wait_for_timeout(450)
         got = p.locator('section[aria-live] pre').inner_text() + ' ' + (p.locator('section[aria-live] [role=alert]').inner_text() if p.locator('section[aria-live] [role=alert]').count() else '')
         ok = want in got; bad += not ok; print('PASS' if ok else 'FAIL', tid, opts, '' if ok else repr(got[:120]))

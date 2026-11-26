@@ -380,6 +380,26 @@
   }
  },
  {
+  "id": "find-replace",
+  "title": "Find and replace",
+  "desc": "Replace text in bulk, plain or with a regular expression",
+  "cat": "text",
+  "ar": {
+   "title": "بحث واستبدال",
+   "desc": "استبدل النصوص دفعة واحدة، عادياً أو بتعبير نمطي"
+  }
+ },
+ {
+  "id": "text-slug",
+  "title": "Text to slug",
+  "desc": "Turn titles into clean URL slugs, one per line",
+  "cat": "text",
+  "ar": {
+   "title": "نص إلى رابط مختصر",
+   "desc": "حوّل العناوين إلى روابط نظيفة، سطر لكل عنوان"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

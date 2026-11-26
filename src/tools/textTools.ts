@@ -116,4 +116,19 @@ const hash: Fn = async (t, o) => {
 };
 
 const qr: Fn = (t, o) => (t.trim() ? qrSvg(t, { ecl: o.ecl, margin: Number(o.margin), fg: o.fg, bg: o.bg }) : '');
-export const TEXT_FNS: Record<string, Fn> = { 'qr-code': qr, 'case-converter': caseConv, 'word-counter': counter, 'text-diff': diff, 'lorem-ipsum': lorem, 'clean-lines': cleanLines, 'json-formatter': json, 'base64-tool': base64, 'url-encode': url, 'csv-to-json': csvJson, 'hash-generator': hash };
+const findReplace: Fn = (t, o) => {
+  if (!t || !o.find) return t;
+  let re: RegExp;
+  try { re = o.regex ? new RegExp(o.find, 'g' + (o.ignoreCase ? 'i' : '') + 'm') : new RegExp(String(o.find).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g' + (o.ignoreCase ? 'i' : '')); }
+  catch (e: any) { throw new Error('Not a valid pattern: ' + String(e?.message ?? e)); }
+  const n = (t.match(re) || []).length;
+  const out = t.replace(re, o.regex ? String(o.replace ?? '') : () => String(o.replace ?? ''));
+  return `${out}\n\n--\n${n} replacement${n === 1 ? '' : 's'}`;
+};
+
+const slug: Fn = (t, o) => {
+  const sep = o.sep === 'underscore' ? '_' : '-';
+  return t.split('\n').map((l) => l.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, sep).replace(new RegExp(`^${sep}+|${sep}+$`, 'g'), '')).filter((x) => x || !o.skipEmpty).join('\n');
+};
+
+export const TEXT_FNS: Record<string, Fn> = { 'find-replace': findReplace, 'text-slug': slug, 'qr-code': qr, 'case-converter': caseConv, 'word-counter': counter, 'text-diff': diff, 'lorem-ipsum': lorem, 'clean-lines': cleanLines, 'json-formatter': json, 'base64-tool': base64, 'url-encode': url, 'csv-to-json': csvJson, 'hash-generator': hash };
