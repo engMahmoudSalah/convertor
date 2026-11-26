@@ -190,4 +190,96 @@ const htmlFormat: Fn = wrap((t, o) => {
   return out.join('\n');
 });
 
-export const DEV_FNS: Record<string, Fn> = { 'html-to-text': htmlToText, 'text-to-html': textToHtml, 'html-entities': htmlEntities, 'json-to-csv': jsonToCsv, 'json-to-yaml': jsonToYaml, 'yaml-to-json': yamlToJson, 'json-to-xml': jsonToXml, 'xml-to-json': xmlToJson, 'text-to-json': textToJson, 'markdown-to-html': markdownToHtml, 'html-formatter': htmlFormat };
+
+// ---------- batch 2 ----------
+const jsonEscape: Fn = wrap((t, o) => {
+  if (o.mode === 'unescape') { try { return JSON.parse('"' + t.trim().replace(/^"|"$/g, '').replace(/(^|[^\\])"/g, '$1\\"') + '"'); } catch { throw new Error('Could not unescape. Check the backslashes.'); } }
+  return JSON.stringify(t).slice(1, -1);
+});
+const pascal = (k: string) => { const n = k.replace(/[^\p{L}\p{N}]+/gu, ' ').trim().split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(''); return /^[A-Za-z_]/.test(n) ? n : 'T' + n; };
+const jsonToTs: Fn = wrap((t, o) => {
+  const d = parseJson(t), ifaces: string[] = [], used = new Set<string>();
+  const uniq = (n: string) => { let m = n, i = 2; while (used.has(m)) m = n + i++; used.add(m); return m; };
+  const infer = (samples: any[], name: string): string => {
+    const parts: string[] = []; const objs = samples.filter((x) => x && typeof x === 'object' && !Array.isArray(x)); const arrs = samples.filter(Array.isArray);
+    for (const ty of ['string', 'number', 'boolean']) if (samples.some((x) => typeof x === ty)) parts.push(ty);
+    if (samples.some((x) => x === null)) parts.push('null');
+    if (arrs.length) { const items = arrs.flat(); const it = items.length ? infer(items, name) : 'unknown'; parts.push(it.includes(' | ') ? `(${it})[]` : `${it}[]`); }
+    if (objs.length) {
+      const nm = uniq(name), keys: string[] = []; objs.forEach((x) => Object.keys(x).forEach((k) => { if (!keys.includes(k)) keys.push(k); }));
+      const body = keys.map((k) => { const vals = objs.filter((x) => k in x).map((x) => x[k]); const key = /^[A-Za-z_$][\w$]*$/.test(k) ? k : JSON.stringify(k); return `  ${key}${vals.length < objs.length ? '?' : ''}: ${infer(vals, pascal(k))};`; }).join('\n');
+      ifaces.push(`interface ${nm} {\n${body}\n}`); parts.push(nm);
+    }
+    return parts.join(' | ') || 'unknown';
+  };
+  const root = pascal(String(o.root || 'Root')) || 'Root';
+  const top = infer([d], root);
+  const res = ifaces.reverse();
+  if (!/^[A-Za-z0-9_]+$/.test(top) || !used.has(top)) res.push(`type ${root} = ${top};`);
+  return res.join('\n\n');
+});
+const parseCsv = (t: string, delim: string): string[][] => {
+  const rows: string[][] = []; let row: string[] = [], cur = '', q = false;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (q) { if (c === '"') { if (t[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === delim) { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && t[i + 1] === '\n') i++; row.push(cur); cur = ''; if (row.some((x) => x !== '') || row.length > 1) rows.push(row); row = []; }
+    else cur += c;
+  }
+  row.push(cur); if (row.some((x) => x !== '') || row.length > 1) rows.push(row);
+  return rows;
+};
+const detectDelim = (t: string, d: string) => (d === 'tab' ? '\t' : d === 'semi' ? ';' : d === 'comma' ? ',' : (() => { const l = t.split('\n')[0] || ''; const c = [',', ';', '\t'].map((x) => [x, l.split(x).length] as const).sort((a, b) => b[1] - a[1])[0]; return c[1] > 1 ? c[0] : ','; })());
+const csvToHtml: Fn = wrap((t, o) => {
+  const r = parseCsv(t, detectDelim(t, o.delim)); if (!r.length) return '';
+  const row = (c: string[], tag: string) => `    <tr>${c.map((x) => `<${tag}>${esc(x)}</${tag}>`).join('')}</tr>`;
+  return `<table>\n  <thead>\n${row(r[0], 'th')}\n  </thead>\n  <tbody>\n${r.slice(1).map((x) => row(x, 'td')).join('\n')}\n  </tbody>\n</table>`;
+});
+const csvToMd: Fn = wrap((t, o) => {
+  const r = parseCsv(t, detectDelim(t, o.delim)); if (!r.length) return '';
+  const w = Math.max(...r.map((x) => x.length)); const f = (c: string[]) => '| ' + Array.from({ length: w }, (_, i) => (c[i] ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ')).join(' | ') + ' |';
+  return [f(r[0]), '| ' + Array(w).fill('---').join(' | ') + ' |', ...r.slice(1).map(f)].join('\n');
+});
+const csvCell = (v: string, d = ',') => (new RegExp(`[${d}"\\n\\r]`).test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+const htmlTableToCsv: Fn = wrap((t) => {
+  const doc = new DOMParser().parseFromString(t, 'text/html'); const tables = Array.from(doc.querySelectorAll('table'));
+  if (!tables.length) throw new Error('No <table> found in this HTML.');
+  return tables.map((tb) => Array.from(tb.querySelectorAll('tr')).map((tr) => Array.from(tr.querySelectorAll('th,td')).map((c) => csvCell((c.textContent || '').replace(/\s+/g, ' ').trim())).join(',')).join('\n')).join('\n\n');
+});
+const queryToJson: Fn = wrap((t) => {
+  let q = t.trim(); const h = q.indexOf('#'); if (h >= 0) q = q.slice(0, h); const i = q.indexOf('?'); if (i >= 0) q = q.slice(i + 1);
+  const out: any = {}; new URLSearchParams(q).forEach((v, k) => { if (k in out) { if (!Array.isArray(out[k])) out[k] = [out[k]]; out[k].push(v); } else out[k] = v; });
+  return JSON.stringify(out, null, 2);
+});
+const jsonToQuery: Fn = wrap((t) => {
+  const d = parseJson(t); if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Use a JSON object like {"a":1,"b":"x"}.');
+  const p: string[] = []; for (const k of Object.keys(d)) for (const v of Array.isArray(d[k]) ? d[k] : [d[k]]) p.push(`${encodeURIComponent(k)}=${encodeURIComponent(v !== null && typeof v === 'object' ? JSON.stringify(v) : String(v ?? ''))}`);
+  return p.join('&');
+});
+const xmlFormat: Fn = wrap((t, o) => {
+  const doc = new DOMParser().parseFromString(t.trim(), 'application/xml'); if (doc.querySelector('parsererror')) throw new Error('Invalid XML. Check that every tag is closed.');
+  const toks = (t.match(/<\?[\s\S]*?\?>|<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<[^>]+>|[^<]+/g) || []).filter((x) => x.trim() || x[0] === '<');
+  if (o.mode === 'minify') return toks.filter((x) => !x.startsWith('<!--')).map((x) => (x[0] === '<' ? x : x.trim())).join('');
+  let d = 0; const out: string[] = [];
+  for (let i = 0; i < toks.length; i++) {
+    const tk = toks[i].trim(), pad = '  '.repeat(d);
+    if (tk[0] !== '<') { out.push(pad + tk); continue; }
+    if (tk.startsWith('</')) { d = Math.max(0, d - 1); out.push('  '.repeat(d) + tk); continue; }
+    if (/^<(\?|!)/.test(tk) || tk.endsWith('/>')) { out.push(pad + tk); continue; }
+    if (toks[i + 1] && toks[i + 1][0] !== '<' && toks[i + 2] && toks[i + 2].startsWith('</')) { out.push(pad + tk + toks[i + 1].trim() + toks[i + 2].trim()); i += 2; continue; }
+    out.push(pad + tk); d++;
+  }
+  return out.join('\n');
+});
+const cssFormat: Fn = wrap((t, o) => {
+  const c = t.replace(/\/\*[\s\S]*?\*\//g, '');
+  if (o.mode === 'minify') return c.replace(/\s+/g, ' ').replace(/\s*([{};,>])\s*/g, '$1').replace(/:\s+/g, ':').replace(/;}/g, '}').trim();
+  const m = c.replace(/\s+/g, ' ').replace(/\s*\{\s*/g, ' {\n').replace(/;\s*/g, ';\n').replace(/\s*\}\s*/g, '\n}\n');
+  let d = 0; return m.split('\n').map((l) => l.trim()).filter(Boolean).map((l) => { if (l.startsWith('}')) d = Math.max(0, d - 1); const r = '  '.repeat(d) + l; if (l.endsWith('{')) d++; return r; }).join('\n').replace(/\}\n(?=[^}\s])/g, '}\n\n');
+});
+const sortKeys = (v: any): any => (Array.isArray(v) ? v.map(sortKeys) : v && typeof v === 'object' ? Object.keys(v).sort((a, b) => a.localeCompare(b)).reduce((r: any, k) => { r[k] = sortKeys(v[k]); return r; }, {}) : v);
+const jsonSort: Fn = wrap((t) => JSON.stringify(sortKeys(parseJson(t)), null, 2));
+
+export const DEV_FNS: Record<string, Fn> = { 'json-escape': jsonEscape, 'json-to-typescript': jsonToTs, 'csv-to-html-table': csvToHtml, 'csv-to-markdown': csvToMd, 'html-table-to-csv': htmlTableToCsv, 'query-to-json': queryToJson, 'json-to-query': jsonToQuery, 'xml-formatter': xmlFormat, 'css-formatter': cssFormat, 'json-sort-keys': jsonSort, 'html-to-text': htmlToText, 'text-to-html': textToHtml, 'html-entities': htmlEntities, 'json-to-csv': jsonToCsv, 'json-to-yaml': jsonToYaml, 'yaml-to-json': yamlToJson, 'json-to-xml': jsonToXml, 'xml-to-json': xmlToJson, 'text-to-json': textToJson, 'markdown-to-html': markdownToHtml, 'html-formatter': htmlFormat };

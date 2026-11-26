@@ -233,6 +233,46 @@ const COPY: Record<string, Copy> = {
     steps: { en: ["Paste your HTML.", "Pick format or minify.", "Copy or download the result."], ar: ["الصق HTML.", "اختر ترتيباً أو تصغيراً.", "انسخ النتيجة أو نزّلها."] },
     faq: { en: [["Does it change my markup?", "No. It only changes whitespace and removes comments when minifying."], ["Does it handle inline scripts?", "They are kept as they are. For full code beautifying use a dedicated formatter."]], ar: [["هل يغيّر الكود؟", "لا. يغيّر المسافات فقط ويحذف التعليقات عند التصغير."], ["وماذا عن السكربتات؟", "تبقى كما هي. لتنسيق كامل استعمل أداة تنسيق متخصصة."]] },
   },
+  "json-escape": {
+    steps: { en: ["Paste your text.", "Pick escape or unescape.", "Copy the result."], ar: ["الصق النص.", "اختر تهريباً أو فكاً.", "انسخ النتيجة."] },
+    faq: { en: [["What gets escaped?", "Quotes, backslashes, line breaks, tabs and control characters."], ["Are the outer quotes added?", "No. You get the inside of the string only."]], ar: [["ما الذي يُهرَّب؟", "علامات الاقتباس والشرطة المعكوسة والأسطر والتبويب والرموز التحكمية."], ["هل تُضاف علامات الاقتباس الخارجية؟", "لا. تحصل على داخل النص فقط."]] },
+  },
+  "json-to-typescript": {
+    steps: { en: ["Paste a JSON sample.", "Set the root type name.", "Copy the interfaces."], ar: ["الصق عينة JSON.", "اكتب اسم النوع الجذر.", "انسخ الواجهات."] },
+    faq: { en: [["How are optional keys found?", "A key missing from some objects in an array becomes optional with ?."], ["Is it exact?", "It infers from your sample only. Check it against the real API."]], ar: [["كيف تُكتشف المفاتيح الاختيارية؟", "المفتاح الغائب من بعض الكائنات في مصفوفة يصبح اختيارياً بعلامة ?."], ["هل هو دقيق؟", "يستنتج من العينة فقط. راجعه مع الواجهة الحقيقية."]] },
+  },
+  "csv-to-html-table": {
+    steps: { en: ["Paste your CSV.", "Leave the separator on detect or pick one.", "Copy the table code."], ar: ["الصق CSV.", "اترك الفاصل على الاكتشاف أو اختره.", "انسخ كود الجدول."] },
+    faq: { en: [["Is the first row the header?", "Yes. It becomes the th cells."], ["Are cells escaped?", "Yes, so special characters show as text."]], ar: [["هل الصف الأول هو العنوان؟", "نعم. يصبح خلايا th."], ["هل تُهرَّب الخلايا؟", "نعم، فتظهر الرموز الخاصة كنص."]] },
+  },
+  "csv-to-markdown": {
+    steps: { en: ["Paste your CSV.", "Pick the separator or leave detect.", "Copy the Markdown."], ar: ["الصق CSV.", "اختر الفاصل أو اتركه على الاكتشاف.", "انسخ Markdown."] },
+    faq: { en: [["What about pipes in cells?", "They are escaped with a backslash."], ["Where do I use it?", "GitHub, docs and any Markdown editor."]], ar: [["وماذا عن رمز | داخل الخلايا؟", "يُهرَّب بشرطة معكوسة."], ["أين أستخدمه؟", "في GitHub والتوثيق وأي محرر Markdown."]] },
+  },
+  "html-table-to-csv": {
+    steps: { en: ["Paste HTML that has a table.", "Read the CSV on the right.", "Copy or download it."], ar: ["الصق HTML فيه جدول.", "اقرأ CSV على اليمين.", "انسخه أو نزّله."] },
+    faq: { en: [["What if there are several tables?", "Each table is output in turn, separated by a blank line."], ["Are merged cells handled?", "Each cell is read once. Merged cells are not expanded."]], ar: [["وماذا لو وُجدت عدة جداول؟", "يُخرج كل جدول تباعاً بينها سطر فارغ."], ["هل تُعالج الخلايا المدمجة؟", "تُقرأ كل خلية مرة. الخلايا المدمجة لا تُفرد."]] },
+  },
+  "query-to-json": {
+    steps: { en: ["Paste a URL or a query string.", "Read the JSON on the right.", "Copy it."], ar: ["الصق رابطاً أو سلسلة استعلام.", "اقرأ JSON على اليمين.", "انسخه."] },
+    faq: { en: [["What about repeated keys?", "They become an array."], ["Are values decoded?", "Yes, percent codes and plus signs are decoded."]], ar: [["وماذا عن المفاتيح المكررة؟", "تصبح مصفوفة."], ["هل تُفك القيم؟", "نعم، تُفك رموز % والعلامة +."]] },
+  },
+  "json-to-query": {
+    steps: { en: ["Paste a JSON object.", "Read the query string.", "Copy it."], ar: ["الصق كائن JSON.", "اقرأ سلسلة الاستعلام.", "انسخها."] },
+    faq: { en: [["How are arrays written?", "As repeated keys, such as tag=a&tag=b."], ["Are values encoded?", "Yes, with percent encoding."]], ar: [["كيف تُكتب المصفوفات؟", "كمفاتيح مكررة مثل tag=a&tag=b."], ["هل تُرمَّز القيم؟", "نعم، بترميز النسبة المئوية."]] },
+  },
+  "xml-formatter": {
+    steps: { en: ["Paste your XML.", "Pick format or minify.", "Copy the result."], ar: ["الصق XML.", "اختر ترتيباً أو تصغيراً.", "انسخ النتيجة."] },
+    faq: { en: [["Does it check the XML?", "Yes. Broken XML shows an error instead of output."], ["Does it keep comments?", "Format keeps them. Minify removes them."]], ar: [["هل يتحقق من XML؟", "نعم. XML المعطوب يعرض خطأ بدل الناتج."], ["هل تبقى التعليقات؟", "الترتيب يبقيها والتصغير يحذفها."]] },
+  },
+  "css-formatter": {
+    steps: { en: ["Paste your CSS.", "Pick format or minify.", "Copy the result."], ar: ["الصق CSS.", "اختر ترتيباً أو تصغيراً.", "انسخ النتيجة."] },
+    faq: { en: [["Are comments removed?", "Yes, in both modes."], ["Does it handle nested rules?", "Basic nesting and media queries are indented. Very unusual CSS may need a full tool."]], ar: [["هل تُحذف التعليقات؟", "نعم، في الوضعين."], ["هل يعالج القواعد المتداخلة؟", "يرتّب التداخل البسيط وmedia queries. وCSS غير المعتاد قد يحتاج أداة كاملة."]] },
+  },
+  "json-sort-keys": {
+    steps: { en: ["Paste your JSON.", "Read the sorted JSON.", "Copy it."], ar: ["الصق JSON.", "اقرأ JSON المرتب.", "انسخه."] },
+    faq: { en: [["Are arrays reordered?", "No. Only object keys are sorted, at every level."], ["Why sort keys?", "It makes diffs and config files easier to compare."]], ar: [["هل تُعاد ترتيب المصفوفات؟", "لا. تُرتَّب مفاتيح الكائنات فقط في كل المستويات."], ["لماذا ترتيب المفاتيح؟", "يسهّل مقارنة الاختلافات وملفات الإعداد."]] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 

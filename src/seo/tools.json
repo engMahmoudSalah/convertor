@@ -570,6 +570,106 @@
   }
  },
  {
+  "id": "json-escape",
+  "title": "JSON string escape",
+  "desc": "Escape or unescape text for use inside a JSON string",
+  "cat": "dev",
+  "ar": {
+   "title": "تهريب نص JSON",
+   "desc": "هرّب أو فُكّ تهريب النص ليدخل داخل نص JSON"
+  }
+ },
+ {
+  "id": "json-to-typescript",
+  "title": "JSON to TypeScript",
+  "desc": "Generate TypeScript interfaces from a JSON sample",
+  "cat": "dev",
+  "ar": {
+   "title": "JSON إلى TypeScript",
+   "desc": "ولّد واجهات TypeScript من عينة JSON"
+  }
+ },
+ {
+  "id": "csv-to-html-table",
+  "title": "CSV to HTML table",
+  "desc": "Turn CSV rows into a clean HTML table",
+  "cat": "dev",
+  "ar": {
+   "title": "CSV إلى جدول HTML",
+   "desc": "حوّل صفوف CSV إلى جدول HTML نظيف"
+  }
+ },
+ {
+  "id": "csv-to-markdown",
+  "title": "CSV to Markdown table",
+  "desc": "Turn CSV rows into a Markdown table",
+  "cat": "dev",
+  "ar": {
+   "title": "CSV إلى جدول Markdown",
+   "desc": "حوّل صفوف CSV إلى جدول Markdown"
+  }
+ },
+ {
+  "id": "html-table-to-csv",
+  "title": "HTML table to CSV",
+  "desc": "Pull the tables out of HTML and get CSV",
+  "cat": "dev",
+  "ar": {
+   "title": "جدول HTML إلى CSV",
+   "desc": "استخرج الجداول من HTML واحصل على CSV"
+  }
+ },
+ {
+  "id": "query-to-json",
+  "title": "Query string to JSON",
+  "desc": "Parse a URL or query string into a JSON object",
+  "cat": "dev",
+  "ar": {
+   "title": "سلسلة الاستعلام إلى JSON",
+   "desc": "حلّل رابطاً أو سلسلة استعلام إلى كائن JSON"
+  }
+ },
+ {
+  "id": "json-to-query",
+  "title": "JSON to query string",
+  "desc": "Build a URL query string from a JSON object",
+  "cat": "dev",
+  "ar": {
+   "title": "JSON إلى سلسلة استعلام",
+   "desc": "ابنِ سلسلة استعلام رابط من كائن JSON"
+  }
+ },
+ {
+  "id": "xml-formatter",
+  "title": "XML formatter and minifier",
+  "desc": "Indent XML so it reads well, or shrink it",
+  "cat": "dev",
+  "ar": {
+   "title": "منسّق XML ومضغّطه",
+   "desc": "رتّب XML ليسهل قراءته أو صغّره"
+  }
+ },
+ {
+  "id": "css-formatter",
+  "title": "CSS formatter and minifier",
+  "desc": "Indent CSS or shrink it for production",
+  "cat": "dev",
+  "ar": {
+   "title": "منسّق CSS ومضغّطه",
+   "desc": "رتّب CSS أو صغّره للإنتاج"
+  }
+ },
+ {
+  "id": "json-sort-keys",
+  "title": "JSON key sorter",
+  "desc": "Sort every object key in JSON from A to Z",
+  "cat": "dev",
+  "ar": {
+   "title": "ترتيب مفاتيح JSON",
+   "desc": "رتّب كل مفاتيح الكائنات في JSON من A إلى Z"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",
