@@ -20,17 +20,18 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
   const nav = useNavigate(); const { t: tr, lang } = useT(); const Icon = tool.icon; const inp = tool.input!; const ar = lang === 'ar';
   const [text, setText] = useState(''); const [second, setSecond] = useState('');
   const [opts, setOpts] = useState<Record<string, any>>(() => Object.fromEntries((tool.options ?? []).map((o) => [o.key, o.default])));
-  const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [gate, setGate] = useState(false); const [kindPng, setKindPng] = useState(false);
+  const { plan, disabled } = useAuth(); const off = disabled.includes(tool.id); const adSteps = plan ? plan.ads : 2; const [gate, setGate] = useState(false); const [kindPng, setKindPng] = useState(false);
   const [shelf, setShelf] = useState<{ from: string; text: string }[]>(() => readShelf()); const [piped, setPiped] = useState(''); const [out, setOut] = useState(''); const [err, setErr] = useState(''); const [copied, setCopied] = useState(false);
   useEffect(() => { setText(''); setSecond(''); setOut(''); setErr(''); setOpts(Object.fromEntries((tool.options ?? []).map((o) => [o.key, o.default]))); }, [tool.id]);
   useEffect(() => { try { const r = JSON.parse(sessionStorage.getItem('mc_pipe') || 'null'); if (r && r.to === tool.id) { sessionStorage.removeItem('mc_pipe'); setText(String(r.text || '')); setPiped(r.from || ''); } else setPiped(''); } catch { /* ignore */ } }, [tool.id]);
   useEffect(() => {
     let live = true; const h = setTimeout(async () => {
+      if (off) { if (live) { setOut(''); setErr(tr('This tool is temporarily switched off.')); } return; }
       try { const r = await TEXT_FNS[tool.id](text, { ...opts, _ar: ar }, second); if (live) { setOut(r); setErr(''); } }
       catch (e: any) { if (live) { setOut(''); setErr(e?.message ?? 'Something went wrong'); } }
     }, 120);
     return () => { live = false; clearTimeout(h); };
-  }, [tool.id, text, second, opts, ar]);
+  }, [tool.id, text, second, opts, ar, off]);
   const copy = async () => { pushShelf(tool.title, out, tool.category); setShelf(readShelf()); try { await navigator.clipboard.writeText(out); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ } };
   const download = () => { pushShelf(tool.title, out, tool.category); setShelf(readShelf()); setGate(false); const ext = inp.ext ?? 'txt'; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([out], { type: 'text/plain;charset=utf-8' })); a.download = `${tool.id}.${ext}`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); };
   const downloadPng = () => {

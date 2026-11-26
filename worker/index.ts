@@ -355,9 +355,31 @@ export class AppDB extends DurableObject<any> {
       }
       if (path === '/admin/plan' && method === 'POST') {
         const p = this.rows('SELECT * FROM plans WHERE id=?', String(body.id))[0]; if (!p) return json({ error: 'No such plan' }, 404);
-        const n = (k: string, d: number) => (body[k] === undefined ? d : Math.min(1e9, Math.max(0, Number(body[k]) || 0)));
-        this.sql.exec('UPDATE plans SET price_usd=?,price_egp=?,heavy_daily=?,ai_daily=?,max_mb=?,history_days=?,max_files=?,saved_max=?,saved_mb=?,ads=? WHERE id=?', n('price_usd', p.price_usd), n('price_egp', p.price_egp), n('heavy_daily', p.heavy_daily), n('ai_daily', p.ai_daily), n('max_mb', p.max_mb), n('history_days', p.history_days), Math.max(1, n('max_files', p.max_files)), n('saved_max', p.saved_max), n('saved_mb', p.saved_mb), Math.min(2, n('ads', p.ads)), p.id);
+        const num = (k: string, d: number, int = true) => { if (body[k] === undefined) return d; const v = Number(body[k]); const c = Math.min(1e9, Math.max(0, Number.isFinite(v) ? v : 0)); return int ? Math.round(c) : Math.round(c * 100) / 100; };
+        const next: any = { ...p, price_usd: num('price_usd', p.price_usd, false), price_egp: num('price_egp', p.price_egp), heavy_daily: num('heavy_daily', p.heavy_daily), ai_daily: num('ai_daily', p.ai_daily), max_mb: Math.max(1, num('max_mb', p.max_mb)), history_days: num('history_days', p.history_days), max_files: Math.max(1, num('max_files', p.max_files)), saved_max: num('saved_max', p.saved_max), saved_mb: num('saved_mb', p.saved_mb), ads: Math.min(2, num('ads', p.ads)) };
+        // Sound plan logic: free tiers cost nothing, paid tiers have both prices, and each tier is at least as generous as the one below it.
+        const free = p.id === 'guest' || p.id === 'free';
+        if (free && (next.price_usd > 0 || next.price_egp > 0)) return json({ error: 'Guest and Free plans must stay at price 0' }, 400);
+        if (!free && !(next.price_usd > 0 && next.price_egp > 0)) return json({ error: 'A paid plan needs both a USD and an EGP price above 0' }, 400);
+        if (next.saved_max > 0 && next.saved_mb < 1) return json({ error: 'Saved operations need saved MB above 0' }, 400);
+        const all = this.rows('SELECT * FROM plans ORDER BY sort'); const idx = all.findIndex((x: any) => x.id === p.id);
+        const lower = all[idx - 1], upper = all[idx + 1];
+        for (const k of ['price_usd', 'price_egp', 'heavy_daily', 'max_mb', 'max_files', 'saved_max', 'saved_mb', 'history_days']) {
+          if (lower && next[k] < lower[k]) return json({ error: `${k} cannot be lower than the ${lower.name} plan (${lower[k]})` }, 400);
+          if (upper && next[k] > upper[k]) return json({ error: `${k} cannot be higher than the ${upper.name} plan (${upper[k]})` }, 400);
+        }
+        if (lower && next.ads > lower.ads) return json({ error: `ads cannot be higher than the ${lower.name} plan (${lower.ads})` }, 400);
+        if (upper && next.ads < upper.ads) return json({ error: `ads cannot be lower than the ${upper.name} plan (${upper.ads})` }, 400);
+        this.sql.exec('UPDATE plans SET price_usd=?,price_egp=?,heavy_daily=?,ai_daily=?,max_mb=?,history_days=?,max_files=?,saved_max=?,saved_mb=?,ads=? WHERE id=?', next.price_usd, next.price_egp, next.heavy_daily, next.ai_daily, next.max_mb, next.history_days, next.max_files, next.saved_max, next.saved_mb, next.ads, p.id);
         this.audit(u.email, 'edit_plan', p.id, JSON.stringify(body).slice(0, 200)); return json({ ok: true });
+      }
+      if (path === '/admin/rate' && (method === 'GET' || method === 'POST')) {
+        this.sql.exec('CREATE TABLE IF NOT EXISTS settings(k TEXT PRIMARY KEY, v TEXT)');
+        if (method === 'POST') {
+          const r = Number(body.rate); if (!Number.isFinite(r) || r < 1 || r > 10000) return json({ error: 'Rate must be between 1 and 10000 EGP per USD' }, 400);
+          this.sql.exec("INSERT INTO settings VALUES('usd_egp',?) ON CONFLICT(k) DO UPDATE SET v=?", String(r), String(r)); this.audit(u.email, 'set_rate', 'usd_egp', String(r)); return json({ ok: true, rate: r });
+        }
+        const row = this.rows("SELECT v FROM settings WHERE k='usd_egp'")[0]; return json({ rate: row ? Number(row.v) : 50, set: !!row });
       }
       if (path === '/admin/flag' && method === 'POST') {
         if (!/^[a-z0-9-]{1,60}$/.test(String(body.tool ?? ''))) return json({ error: 'Bad tool id' }, 400);

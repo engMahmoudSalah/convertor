@@ -185,7 +185,7 @@ export const AR: Record<string, string> = {
   'suspended': 'موقوف',
   'Restore': 'استعادة',
   'Suspend': 'إيقاف',
-  'Save': 'حفظ',
+  'Save': 'حفظ', 'Saving...': 'جارٍ الحفظ...', 'Not saved': 'لم يُحفظ', 'Exchange rate: EGP per 1 USD': 'سعر الصرف: جنيه لكل 1 دولار', 'Save rate': 'حفظ السعر', 'Exchange rate saved': 'تم حفظ سعر الصرف', 'Editing USD updates EGP, and EGP updates USD, at this rate.': 'تعديل الدولار يغيّر الجنيه، وتعديل الجنيه يغيّر الدولار، بهذا السعر.', "Default rate, please set today's rate.": 'السعر افتراضي، حدّد سعر اليوم.',
   'Date': 'التاريخ',
   'Amount': 'المبلغ',
   'Status': 'الحالة',
