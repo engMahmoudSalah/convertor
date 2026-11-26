@@ -200,4 +200,18 @@ const unitConv: Fn = (t) => t.split('\n').filter((l) => l.trim()).map((l) => {
   throw new Error(`Unknown unit "${m[2]}".`);
 }).join('\n\n');
 
-export const TEXT_FNS: Record<string, Fn> = { 'unit-converter': unitConv, 'color-converter': colorConv, 'timestamp-converter': timestamp, 'number-base': numberBase, 'find-replace': findReplace, 'text-slug': slug, 'qr-code': qr, 'case-converter': caseConv, 'word-counter': counter, 'text-diff': diff, 'lorem-ipsum': lorem, 'clean-lines': cleanLines, 'json-formatter': json, 'base64-tool': base64, 'url-encode': url, 'csv-to-json': csvJson, 'hash-generator': hash };
+const jwtDecode: Fn = (t) => {
+  const parts = t.trim().replace(/^Bearer\s+/i, '').split('.');
+  if (parts.length < 2 || parts.length > 3) return 'This is not a JWT. A token has 2 or 3 parts separated by dots.';
+  const dec = (x: string) => { const b = x.replace(/-/g, '+').replace(/_/g, '/'); const bin = atob(b + '='.repeat((4 - (b.length % 4)) % 4)); return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)))); };
+  try {
+    const h = dec(parts[0]), p = dec(parts[1]); const out = ['HEADER', JSON.stringify(h, null, 2), '', 'PAYLOAD', JSON.stringify(p, null, 2), ''];
+    const d = (n: number) => new Date(n * 1000).toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+    for (const k of ['iat', 'nbf', 'exp']) if (typeof p[k] === 'number') out.push(`${k}: ${d(p[k])}`);
+    if (typeof p.exp === 'number') out.push(p.exp * 1000 < Date.now() ? 'Status: expired' : 'Status: not expired');
+    out.push('', 'Signature is not verified. Never paste a live production token into any site.');
+    return out.join('\n');
+  } catch { return 'Could not decode this token. Check that it is a complete JWT.'; }
+};
+
+export const TEXT_FNS: Record<string, Fn> = { 'jwt-decoder': jwtDecode, 'unit-converter': unitConv, 'color-converter': colorConv, 'timestamp-converter': timestamp, 'number-base': numberBase, 'find-replace': findReplace, 'text-slug': slug, 'qr-code': qr, 'case-converter': caseConv, 'word-counter': counter, 'text-diff': diff, 'lorem-ipsum': lorem, 'clean-lines': cleanLines, 'json-formatter': json, 'base64-tool': base64, 'url-encode': url, 'csv-to-json': csvJson, 'hash-generator': hash };

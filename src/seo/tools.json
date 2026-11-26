@@ -450,6 +450,16 @@
   }
  },
  {
+  "id": "jwt-decoder",
+  "title": "JWT decoder",
+  "desc": "Read the header and payload of a JSON Web Token in your browser",
+  "cat": "dev",
+  "ar": {
+   "title": "قارئ JWT",
+   "desc": "اقرأ الترويسة والمحتوى في رمز JWT داخل متصفحك"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

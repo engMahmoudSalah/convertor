@@ -19,6 +19,8 @@ CASES = [
  ('color-converter', 'zzz', {}, 'Cannot read'),
  ('timestamp-converter', '1700000000', {}, 'UTC    2023-11-14T22:13:20.000Z'),
  ('timestamp-converter', '2023-11-14 22:13:20', {}, 'Seconds       1700000000'),
+ ('jwt-decoder', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJuYW1lIjoiQW5uIiwiZXhwIjoxOTAwMDAwMDAwfQ.sig', {}, '"name": "Ann"'),
+ ('jwt-decoder', 'abc', {}, 'not a JWT'),
  ('number-base', '255', {}, 'Hexadecimal  ff'),
  ('number-base', '0b1010', {}, 'Decimal      10'),
  ('number-base', 'ff', {'Input is': '16'}, 'Binary       11111111'),
