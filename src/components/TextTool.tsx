@@ -13,12 +13,15 @@ import type { Tool } from '../tools/types';
 
 const field = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-400';
 
+const SHELF = 'mc_shelf';
+const readShelf = (): { from: string; text: string }[] => { try { const a = JSON.parse(localStorage.getItem(SHELF) || '[]'); return Array.isArray(a) ? a.filter((x) => x && typeof x.text === 'string').slice(0, 5) : []; } catch { return []; } };
+const pushShelf = (from: string, text: string, cat = '') => { if (cat === 'privacy' || !text || text.length > 20000) return; try { localStorage.setItem(SHELF, JSON.stringify([{ from, text }, ...readShelf().filter((x) => x.text !== text)].slice(0, 5))); } catch { /* ignore */ } };
 export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
   const nav = useNavigate(); const { t: tr, lang } = useT(); const Icon = tool.icon; const inp = tool.input!; const ar = lang === 'ar';
   const [text, setText] = useState(''); const [second, setSecond] = useState('');
   const [opts, setOpts] = useState<Record<string, any>>(() => Object.fromEntries((tool.options ?? []).map((o) => [o.key, o.default])));
   const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [gate, setGate] = useState(false); const [kindPng, setKindPng] = useState(false);
-  const [piped, setPiped] = useState(''); const [out, setOut] = useState(''); const [err, setErr] = useState(''); const [copied, setCopied] = useState(false);
+  const [shelf, setShelf] = useState<{ from: string; text: string }[]>(() => readShelf()); const [piped, setPiped] = useState(''); const [out, setOut] = useState(''); const [err, setErr] = useState(''); const [copied, setCopied] = useState(false);
   useEffect(() => { setText(''); setSecond(''); setOut(''); setErr(''); setOpts(Object.fromEntries((tool.options ?? []).map((o) => [o.key, o.default]))); }, [tool.id]);
   useEffect(() => { try { const r = JSON.parse(sessionStorage.getItem('mc_pipe') || 'null'); if (r && r.to === tool.id) { sessionStorage.removeItem('mc_pipe'); setText(String(r.text || '')); setPiped(r.from || ''); } else setPiped(''); } catch { /* ignore */ } }, [tool.id]);
   useEffect(() => {
@@ -28,15 +31,15 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
     }, 120);
     return () => { live = false; clearTimeout(h); };
   }, [tool.id, text, second, opts]);
-  const copy = async () => { try { await navigator.clipboard.writeText(out); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ } };
-  const download = () => { setGate(false); const ext = inp.ext ?? 'txt'; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([out], { type: 'text/plain;charset=utf-8' })); a.download = `${tool.id}.${ext}`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); };
+  const copy = async () => { pushShelf(tool.title, out, tool.category); setShelf(readShelf()); try { await navigator.clipboard.writeText(out); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ } };
+  const download = () => { pushShelf(tool.title, out, tool.category); setShelf(readShelf()); setGate(false); const ext = inp.ext ?? 'txt'; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([out], { type: 'text/plain;charset=utf-8' })); a.download = `${tool.id}.${ext}`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); };
   const downloadPng = () => {
     const px = Math.max(128, Math.min(2048, Number(opts.size) || 512)); const img = new Image();
     img.onload = () => { const cv = document.createElement('canvas'); cv.width = cv.height = px; const g = cv.getContext('2d')!; g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, px, px); cv.toBlob((b) => { if (!b) return; const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `${tool.id}.png`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); }, 'image/png'); };
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(out);
   };
   const targets = TOOLS.filter((x) => x.kind === 'text' && x.id !== tool.id && x.input && !x.input.none && !x.input.diff && !x.input.second);
-  const sendTo = (id: string) => { if (!id || !out) return; try { sessionStorage.setItem('mc_pipe', JSON.stringify({ to: id, from: tool.title, text: out })); } catch { return; } nav(`/tools/${id}`); };
+  const sendTo = (id: string) => { if (!id || !out) return; pushShelf(tool.title, out, tool.category); try { sessionStorage.setItem('mc_pipe', JSON.stringify({ to: id, from: tool.title, text: out })); } catch { return; } nav(`/tools/${id}`); };
   const lines = inp.diff ? out.split('\n') : [];
   return (
     <div className="pt-24 pb-16 max-w-7xl mx-auto px-4">
@@ -51,6 +54,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
           {!inp.none && <div className="flow-panel p-4">
             <label className="flex items-center justify-between text-xs uppercase tracking-wider opacity-70 mb-2" htmlFor="tt-in"><span>{tr(inp.label)}</span>
               <span className="flex items-center gap-3 normal-case tracking-normal"><span dir="ltr">{[...text].length} {tr('characters')}</span>{text && <button type="button" onClick={() => { setText(''); setSecond(''); }} className="inline-flex items-center gap-1 underline"><Eraser size={12} /> {tr('Clear')}</button>}</span></label>
+            {shelf.length > 0 && !inp.none && <div className="mb-2 flex flex-wrap items-center gap-1.5 text-xs"><span className="opacity-60">{tr('Recent results')}:</span>{shelf.map((x, i) => <button key={i} type="button" onClick={() => setText(x.text)} title={x.text.slice(0, 200)} className="flow-ghost px-2 py-1 rounded-lg max-w-[11rem] truncate">{tr(x.from)}: {x.text.replace(/\s+/g, ' ').slice(0, 18)}</button>)}</div>}
             <textarea id="tt-in" dir="auto" spellCheck={false} value={text} onChange={(e) => setText(e.target.value)} placeholder={inp.placeholder ? tr(inp.placeholder) : ''} className={`${field} font-mono min-h-[240px] resize-y`} />
             {inp.second && <><label className="block text-xs uppercase tracking-wider opacity-70 mt-4 mb-2" htmlFor="tt-in2">{tr(inp.second)}</label>
               <textarea id="tt-in2" dir="auto" spellCheck={false} value={second} onChange={(e) => setSecond(e.target.value)} className={`${field} font-mono min-h-[240px] resize-y`} /></>}
