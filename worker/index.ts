@@ -342,14 +342,33 @@ export class AppDB extends DurableObject<any> {
         });
       }
       if (path === '/admin/users' && method === 'GET') {
-        const q = `%${(url.searchParams.get('q') ?? '').toLowerCase()}%`;
-        return json({ users: this.rows('SELECT id,email,name,plan,role,banned,created_at,last_login FROM users WHERE lower(email) LIKE ? OR lower(name) LIKE ? ORDER BY created_at DESC LIMIT 200', q, q) });
+        const sp = url.searchParams; const q = `%${(sp.get('q') ?? '').toLowerCase().slice(0, 80)}%`;
+        const size = Math.min(2000, Math.max(1, Number(sp.get('size')) || 25)); const page = Math.max(1, Math.floor(Number(sp.get('page')) || 1));
+        const where: string[] = ['(lower(email) LIKE ? OR lower(coalesce(name,\'\')) LIKE ?)']; const args: any[] = [q, q];
+        const plan = sp.get('plan'); if (plan && /^[a-z0-9-]{1,30}$/.test(plan)) { where.push('plan=?'); args.push(plan); }
+        const st = sp.get('status'); if (st === 'banned') where.push('banned=1'); else if (st === 'active') where.push('banned=0');
+        if (sp.get('role') === 'admin') where.push("role='admin'");
+        const vf = sp.get('verified'); if (vf === '1') where.push('email_verified=1'); else if (vf === '0') where.push('coalesce(email_verified,0)=0');
+        const paid = sp.get('paid'); if (paid === '1') where.push("plan NOT IN ('guest','free')"); else if (paid === '0') where.push("plan IN ('guest','free')");
+        const order = ({ newest: 'created_at DESC', oldest: 'created_at ASC', login: 'coalesce(last_login,0) DESC', email: 'lower(email) ASC' } as Record<string, string>)[sp.get('sort') ?? 'newest'] ?? 'created_at DESC';
+        const W = where.join(' AND ');
+        const total = this.rows(`SELECT count(*) n FROM users WHERE ${W}`, ...args)[0].n;
+        const users = this.rows(`SELECT id,email,name,plan,plan_until,role,banned,email_verified,(google_sub IS NOT NULL) AS google,created_at,last_login FROM users WHERE ${W} ORDER BY ${order} LIMIT ? OFFSET ?`, ...args, size, (page - 1) * size);
+        if (users.length) {
+          const ids = users.map((x: any) => x.id); const ph = ids.map(() => '?').join(',');
+          const jobs: Record<string, number> = {}; this.rows(`SELECT subject, count(*) n FROM history WHERE subject IN (${ph}) AND ts>? GROUP BY subject`, ...ids, now() - 30 * 864e5).forEach((r: any) => (jobs[r.subject] = r.n));
+          const sv: Record<string, number> = {}; this.rows(`SELECT user_id, count(*) n FROM saved WHERE user_id IN (${ph}) GROUP BY user_id`, ...ids).forEach((r: any) => (sv[r.user_id] = r.n));
+          users.forEach((x: any) => { x.jobs30 = jobs[x.id] ?? 0; x.saved = sv[x.id] ?? 0; x.me = x.id === u.id; });
+        }
+        const c = this.rows("SELECT count(*) total, sum(CASE WHEN plan NOT IN ('guest','free') THEN 1 ELSE 0 END) paid, sum(banned) banned, sum(CASE WHEN email_verified=1 THEN 1 ELSE 0 END) verified, sum(CASE WHEN role='admin' THEN 1 ELSE 0 END) admins FROM users")[0];
+        return json({ users, total, page, size, counts: { total: c.total ?? 0, paid: c.paid ?? 0, banned: c.banned ?? 0, verified: c.verified ?? 0, admins: c.admins ?? 0 } });
       }
       if (path === '/admin/user' && method === 'POST') {
         const t = this.rows('SELECT * FROM users WHERE id=?', String(body.id))[0]; if (!t) return json({ error: 'No such user' }, 404);
         if (t.id === u.id && (body.banned || (body.role && body.role !== 'admin'))) return json({ error: 'You cannot demote or suspend yourself' }, 400);
         if (body.plan !== undefined) { if (!this.rows('SELECT 1 FROM plans WHERE id=?', body.plan).length || body.plan === 'guest') return json({ error: 'Unknown plan' }, 400); this.sql.exec('UPDATE users SET plan=? WHERE id=?', body.plan, t.id); this.audit(u.email, 'set_plan', t.email, body.plan); }
         if (body.role !== undefined) { if (!['user', 'admin'].includes(body.role)) return json({ error: 'Bad role' }, 400); this.sql.exec('UPDATE users SET role=? WHERE id=?', body.role, t.id); this.audit(u.email, 'set_role', t.email, body.role); }
+        if (body.signout) { this.sql.exec('DELETE FROM sessions WHERE user_id=?', t.id); this.audit(u.email, 'signout_all', t.email); }
         if (body.banned !== undefined) { this.sql.exec('UPDATE users SET banned=? WHERE id=?', body.banned ? 1 : 0, t.id); if (body.banned) this.sql.exec('DELETE FROM sessions WHERE user_id=?', t.id); this.audit(u.email, body.banned ? 'ban' : 'unban', t.email); }
         return json({ ok: true });
       }
