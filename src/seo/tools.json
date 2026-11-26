@@ -410,6 +410,36 @@
   }
  },
  {
+  "id": "color-converter",
+  "title": "Color converter",
+  "desc": "Switch a color between HEX, RGB and HSL",
+  "cat": "dev",
+  "ar": {
+   "title": "محوّل الألوان",
+   "desc": "حوّل اللون بين HEX وRGB وHSL"
+  }
+ },
+ {
+  "id": "timestamp-converter",
+  "title": "Unix timestamp converter",
+  "desc": "Turn a Unix time into a date, or a date into a Unix time",
+  "cat": "dev",
+  "ar": {
+   "title": "محوّل الطابع الزمني Unix",
+   "desc": "حوّل وقت Unix إلى تاريخ أو العكس"
+  }
+ },
+ {
+  "id": "number-base",
+  "title": "Number base converter",
+  "desc": "Binary, octal, decimal and hexadecimal in one view",
+  "cat": "dev",
+  "ar": {
+   "title": "محوّل أنظمة الأعداد",
+   "desc": "ثنائي وثماني وعشري وست عشري في عرض واحد"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

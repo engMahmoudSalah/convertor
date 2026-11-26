@@ -1,4 +1,5 @@
 import { Combine, Scissors, FileX, FilePlus2, RotateCw, ListOrdered, Stamp, Minimize2, Images, FileImage, FileText, ArrowUpDown, Tags, Repeat, Maximize, ImageDown } from 'lucide-react';
+import { Clock, Calculator } from 'lucide-react';
 import type { Tool } from './types';
 import { Lock, Unlock, Wrench, Crop, PenLine, EyeOff, GitCompare, FileCode2, Sheet, Presentation, FileSpreadsheet } from 'lucide-react';
 import { Layers, Ruler, Crop as CropIcon, Copyright, QrCode, LayoutGrid, PanelTop, FileImage as FileImg2, Palette, Globe, AlignLeft, CaseSensitive, Hash, Diff, Pilcrow, ListFilter, Braces, Binary, Link2, Table2, Fingerprint, FlipHorizontal2, SlidersHorizontal, Frame } from 'lucide-react';
@@ -93,6 +94,10 @@ export const TOOLS: Tool[] = [
   { id: 'text-slug', title: 'Text to slug', desc: 'Turn titles into clean URL slugs, one per line', category: 'text', icon: Link2, accept: [], multiple: false, kind: 'text', input: { label: 'Titles, one per line', placeholder: 'My First Blog Post!' }, run: NOOP,
     options: [{ key: 'sep', label: 'Separator', type: 'select', default: 'dash', options: [{ v: 'dash', l: 'Dash (-)' }, { v: 'underscore', l: 'Underscore (_)' }] }, { key: 'skipEmpty', label: 'Drop empty lines', type: 'check', default: true }] },
   { id: 'extract-images', title: 'Extract images from PDF', desc: 'Pull the original JPG pictures out of a PDF', category: 'from-pdf', icon: Images, accept: PDF, multiple: false, run: L('P', 'extractImages') },
+  { id: 'color-converter', title: 'Color converter', desc: 'Switch a color between HEX, RGB and HSL', category: 'dev', icon: Palette, accept: [], multiple: false, kind: 'text', input: { label: 'Colors, one per line', placeholder: '#e8590c\nrgb(30, 144, 255)\nhsl(160, 60%, 40%)' }, run: NOOP },
+  { id: 'timestamp-converter', title: 'Unix timestamp converter', desc: 'Turn a Unix time into a date, or a date into a Unix time', category: 'dev', icon: Clock, accept: [], multiple: false, kind: 'text', input: { label: 'Unix times or dates, one per line', placeholder: '1790000000\n2026-11-26 10:30' }, run: NOOP },
+  { id: 'number-base', title: 'Number base converter', desc: 'Binary, octal, decimal and hexadecimal in one view', category: 'dev', icon: Calculator, accept: [], multiple: false, kind: 'text', input: { label: 'Numbers, one per line', placeholder: '255\n0xff\n0b1010' }, run: NOOP,
+    options: [{ key: 'from', label: 'Input is', type: 'select', default: 'auto', options: [{ v: 'auto', l: 'Detect (0x, 0b, 0o, else decimal)' }, { v: '2', l: 'Binary' }, { v: '8', l: 'Octal' }, { v: '10', l: 'Decimal' }, { v: '16', l: 'Hexadecimal' }] }] },
   { id: 'resize-image', title: 'Resize image', desc: 'By pixels or percent, keeps the ratio', category: 'image', icon: Maximize, accept: IMG, multiple: true, run: L('I', 'resizeImages'),
     options: [{ key: 'mode', label: 'Mode', type: 'select', default: 'percent', options: [{ v: 'percent', l: 'Percent' }, { v: 'pixels', l: 'Pixels' }] }, { key: 'percent', label: 'Percent', type: 'number', default: 50, min: 1, max: 400 },
       { key: 'width', label: 'Width px', type: 'number', default: 0, min: 0 }, { key: 'height', label: 'Height px', type: 'number', default: 0, min: 0 }, { key: 'keep', label: 'Keep aspect ratio', type: 'check', default: true }] },
