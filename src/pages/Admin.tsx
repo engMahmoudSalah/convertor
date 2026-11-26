@@ -1,3 +1,4 @@
+import { AdminUsage } from '../components/AdminUsage';
 import { AdminPayments } from '../components/AdminPayments';
 import { PageHeader, CountUp, EmptyArt } from '../components/PageArt';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -52,8 +53,7 @@ export const Admin: React.FC = () => {
     {tab === 'Plans' && <AdminPlans plans={plans} usersByPlan={Object.fromEntries((ov?.plans ?? []).map((x: any) => [x.id, x.n]))} advancedCount={(heavy ?? []).length} toast={setToast} refresh={refresh} />}
     {tab === 'Payments' && <AdminPayments sysPayments={!!sys?.payments} plans={plans} />}
     {tab === 'Tools' && <AdminTools disabled={disabled} heavy={heavy ?? []} reload={async () => { await load(); await refresh(); }} toast={setToast} />}
-    {tab === 'Usage' && ov && <div className="overflow-x-auto"><table className="text-sm w-full"><caption className="text-start font-bold mb-2">{t('Per tool, last 30 days')}</caption><thead><tr><th className={th}>{t('Tool')}</th><th className={th}>{t('Jobs')}</th><th className={th}>{t('Data')}</th><th className={th}>{t('Avg time')}</th></tr></thead><tbody>{ov.topTools30.map((x: any) => <tr key={x.tool} className="border-t border-white/10"><td className="py-1">{x.tool}</td><td>{x.n}</td><td dir="ltr">{fmtB(x.bytes)}</td><td dir="ltr">{Math.round(x.ms)} ms</td></tr>)}</tbody></table>
-      <p className="text-sm mt-4 opacity-80">{t('Saved operations')}: {ov.saved} · <bdi dir="ltr">{fmtB(ov.savedBytes)}</bdi></p></div>}
+    {tab === 'Usage' && <><AdminUsage />{ov && <p className="text-sm mt-4 opacity-80">{t('Saved operations')}: {ov.saved} · <bdi dir="ltr">{fmtB(ov.savedBytes)}</bdi></p>}</>}
     {tab === 'Ads and SEO' && sys && <div className="grid md:grid-cols-2 gap-4"><div className={card}><p className="font-bold mb-2">{t('Ads')}</p>
       <p className="text-sm">{dot(sys.ads.publisher)}{t('AdSense publisher ID')}: {sys.ads.publisher ? t('set') : t('not set')}</p><p className="text-sm">{dot(sys.ads.live)}{t('Real ads')}: {sys.ads.live ? t('on') : t('off (placeholder shown)')}</p>
       <p className="text-xs opacity-70 mt-2">{t('Ad steps per plan')}: {plans.map((p) => `${p.name} ${p.ads}`).join(' · ')}</p></div>

@@ -348,6 +348,22 @@ export class AppDB extends DurableObject<any> {
         const day0 = Date.now() - 29 * 864e5; const byDay = this.rows("SELECT cast(o.paid_at/86400000 AS INTEGER) d, o.currency, coalesce(sum(o.amount),0) amt, count(*) n FROM orders o WHERE o.status='paid' AND o.paid_at>=? GROUP BY d, o.currency ORDER BY d", day0);
         return json({ orders, total, page, size, totals, byDay, providers: this.rows('SELECT DISTINCT provider p FROM orders').map((r: any) => r.p) });
       }
+      if (path === '/admin/usage' && method === 'GET') {
+        const days = [7, 30, 90].includes(Number(url.searchParams.get('days'))) ? Number(url.searchParams.get('days')) : 30; const t = now(); const since = t - days * 864e5; const prev = since - days * 864e5;
+        const agg = (a: number, b: number) => this.rows('SELECT count(*) jobs, coalesce(sum(bytes),0) bytes, coalesce(avg(ms),0) ms, count(DISTINCT subject) visitors FROM history WHERE ts>? AND ts<=?', a, b)[0];
+        return json({
+          days, cur: agg(since, t), prev: agg(prev, since),
+          perDay: this.rows("SELECT strftime('%Y-%m-%d', ts/1000, 'unixepoch') d, count(*) n, coalesce(sum(bytes),0) bytes FROM history WHERE ts>? GROUP BY d ORDER BY d", since),
+          perHour: this.rows("SELECT cast(strftime('%H', ts/1000, 'unixepoch') AS INTEGER) h, count(*) n FROM history WHERE ts>? GROUP BY h ORDER BY h", since),
+          tools: this.rows('SELECT tool, count(*) n, coalesce(sum(files),0) files, coalesce(sum(bytes),0) bytes, coalesce(avg(ms),0) ms, count(DISTINCT subject) visitors, max(ts) last FROM history WHERE ts>? GROUP BY tool ORDER BY n DESC', since),
+        });
+      }
+      if (path === '/admin/usage/seed' && method === 'POST' && this.env.ALLOW_TEST_SEED === '1') {
+        const tl = ['merge-pdf', 'compress-pdf', 'json-to-csv', 'word-counter']; const n = Math.min(200, Number(body.n) || 40);
+        for (let i = 0; i < n; i++) this.sql.exec('INSERT INTO history(subject,tool,files,bytes,ms,ts) VALUES(?,?,?,?,?,?)', 'seedtest' + (i % 4), tl[i % tl.length], 1 + (i % 3), 1000 * (i + 1), 100 + i, Date.now() - i * 36e5 * 5);
+        return json({ ok: true });
+      }
+      if (path === '/admin/usage/seed' && method === 'DELETE' && this.env.ALLOW_TEST_SEED === '1') { this.sql.exec("DELETE FROM history WHERE subject LIKE 'seedtest%'"); return json({ ok: true }); }
       if (path === '/admin/orders/seed' && method === 'POST' && this.env.ALLOW_TEST_SEED === '1') {
         const n = Math.min(60, Number(body.n) || 12); const sts = ['paid', 'pending', 'failed', 'refunded', 'paid']; const ids: string[] = [];
         for (let i = 0; i < n; i++) { const id = 'ord_t' + rnd(8); const st = sts[i % 5]; const egp = i % 2 === 0; const t0 = Date.now() - i * 864e5 * 0.7; this.sql.exec('INSERT INTO orders VALUES(?,?,?,?,?,?,?,?,?,?,?)', id, u.id, i % 3 ? 'pro' : 'business', 'paymob', egp ? 249 + i : 9 + i, egp ? 'EGP' : 'USD', st, 'tref' + i, st === 'paid' ? 'tx' + i : '', t0, st === 'paid' ? t0 + 6e4 : null); ids.push(id); }
