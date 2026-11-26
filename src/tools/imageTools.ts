@@ -226,3 +226,39 @@ export async function colorPalette(files: File[], o: any, c: Ctx): Promise<Out[]
   }
   return outs;
 }
+
+export async function cropImages(files: File[], o: any, c: Ctx): Promise<Out[]> {
+  const outs: Out[] = [];
+  for (let i = 0; i < files.length; i++) {
+    c.progress(i, files.length);
+    const img = await loadImage(files[i]); const W = img.naturalWidth, H = img.naturalHeight; let w = W, h = H;
+    if (o.ratio === 'custom') {
+      const t = Math.max(0, Math.min(45, Number(o.top) || 0)), b = Math.max(0, Math.min(45, Number(o.bottom) || 0)), l = Math.max(0, Math.min(45, Number(o.left) || 0)), r = Math.max(0, Math.min(45, Number(o.right) || 0));
+      const x = Math.round(W * l / 100), y = Math.round(H * t / 100); w = Math.round(W * (1 - (l + r) / 100)); h = Math.round(H * (1 - (t + b) / 100));
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d')!; const fmt = outFmt(files[i].name); if (fmt === 'jpg') { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); }
+      g.drawImage(img, x, y, w, h, 0, 0, w, h);
+      outs.push({ name: `${baseName(files[i].name)}-cropped.${fmt}`, blob: await encode(cv, fmt, 0.92), note: `${W}x${H} to ${w}x${h}` }); continue;
+    }
+    const [a, bb] = String(o.ratio).split(':').map(Number); const target = a / bb;
+    if (W / H > target) w = Math.round(H * target); else h = Math.round(W / target);
+    const ax = o.anchor === 'start' ? 0 : o.anchor === 'end' ? 1 : 0.5; const x = Math.round((W - w) * ax), y = Math.round((H - h) * ax);
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d')!; const fmt = outFmt(files[i].name); if (fmt === 'jpg') { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); }
+    g.drawImage(img, x, y, w, h, 0, 0, w, h);
+    outs.push({ name: `${baseName(files[i].name)}-${a}x${bb}.${fmt}`, blob: await encode(cv, fmt, 0.92), note: `${W}x${H} to ${w}x${h}` });
+  }
+  return outs;
+}
+
+export async function watermarkImages(files: File[], o: any, c: Ctx): Promise<Out[]> {
+  const outs: Out[] = []; const text = String(o.text || '').trim(); if (!text) throw new Error('Type the watermark text.');
+  for (let i = 0; i < files.length; i++) {
+    c.progress(i, files.length);
+    const img = await loadImage(files[i]); const W = img.naturalWidth, H = img.naturalHeight; const cv = drawImage(img, W, H, outFmt(files[i].name) === 'jpg' ? '#fff' : undefined); const g = cv.getContext('2d')!;
+    const size = Math.max(10, Math.round(Math.min(W, H) * (Number(o.size) || 6) / 100)); g.font = `700 ${size}px system-ui, "Segoe UI", Arial, sans-serif`; g.globalAlpha = Math.max(0.05, Math.min(1, Number(o.opacity) || 0.5)); g.fillStyle = o.color || '#ffffff';
+    g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = size / 8; g.textBaseline = 'middle';
+    if (o.position === 'tile') { g.save(); g.translate(W / 2, H / 2); g.rotate(-Math.PI / 6); g.textAlign = 'center'; const sx = g.measureText(text).width + size * 2, sy = size * 3; const R = Math.hypot(W, H); for (let y = -R; y < R; y += sy) for (let x = -R; x < R; x += sx) g.fillText(text, x + ((Math.round(y / sy) % 2) * sx) / 2, y); g.restore(); }
+    else { const pad = size; const [v, h] = String(o.position).split('-'); g.textAlign = h === 'left' ? 'left' : h === 'right' ? 'right' : 'center'; g.fillText(text, h === 'left' ? pad : h === 'right' ? W - pad : W / 2, v === 'top' ? pad + size / 2 : v === 'middle' ? H / 2 : H - pad - size / 2); }
+    const fmt = outFmt(files[i].name); outs.push({ name: `${baseName(files[i].name)}-watermarked.${fmt}`, blob: await encode(cv, fmt, 0.92), note: `${W}x${H}` });
+  }
+  return outs;
+}

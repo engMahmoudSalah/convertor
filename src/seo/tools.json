@@ -340,6 +340,26 @@
   }
  },
  {
+  "id": "crop-image",
+  "title": "Crop image",
+  "desc": "Crop to a ratio like 1:1 or 16:9, or trim the edges by percent",
+  "cat": "image",
+  "ar": {
+   "title": "قص الصورة",
+   "desc": "قص بنسبة مثل 1:1 أو 16:9 أو اقتطع الحواف بالنسبة المئوية"
+  }
+ },
+ {
+  "id": "watermark-image",
+  "title": "Watermark image",
+  "desc": "Stamp your name or a note on a photo, once or tiled",
+  "cat": "image",
+  "ar": {
+   "title": "علامة مائية على الصورة",
+   "desc": "اطبع اسمك أو ملاحظة على الصورة، مرة أو مكررة"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",
