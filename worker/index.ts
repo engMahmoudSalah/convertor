@@ -348,11 +348,12 @@ export class AppDB extends DurableObject<any> {
       }
       if (path === '/admin/plan' && method === 'POST') {
         const p = this.rows('SELECT * FROM plans WHERE id=?', String(body.id))[0]; if (!p) return json({ error: 'No such plan' }, 404);
-        const n = (k: string, d: number) => (body[k] === undefined ? d : Math.max(0, Number(body[k]) || 0));
+        const n = (k: string, d: number) => (body[k] === undefined ? d : Math.min(1e9, Math.max(0, Number(body[k]) || 0)));
         this.sql.exec('UPDATE plans SET price_usd=?,price_egp=?,heavy_daily=?,ai_daily=?,max_mb=?,history_days=?,max_files=?,saved_max=?,saved_mb=?,ads=? WHERE id=?', n('price_usd', p.price_usd), n('price_egp', p.price_egp), n('heavy_daily', p.heavy_daily), n('ai_daily', p.ai_daily), n('max_mb', p.max_mb), n('history_days', p.history_days), Math.max(1, n('max_files', p.max_files)), n('saved_max', p.saved_max), n('saved_mb', p.saved_mb), Math.min(2, n('ads', p.ads)), p.id);
         this.audit(u.email, 'edit_plan', p.id, JSON.stringify(body).slice(0, 200)); return json({ ok: true });
       }
       if (path === '/admin/flag' && method === 'POST') {
+        if (!/^[a-z0-9-]{1,60}$/.test(String(body.tool ?? ''))) return json({ error: 'Bad tool id' }, 400);
         this.sql.exec('INSERT INTO flags VALUES(?,?) ON CONFLICT(tool) DO UPDATE SET enabled=?', String(body.tool), body.enabled ? 1 : 0, body.enabled ? 1 : 0);
         this.audit(u.email, body.enabled ? 'enable_tool' : 'disable_tool', String(body.tool)); return json({ ok: true });
       }
