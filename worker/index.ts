@@ -245,6 +245,13 @@ export class AppDB extends DurableObject<any> {
       }
       return json({ ok: true, usage: this.usageToday(subject) });
     }
+    if (path === '/me/export' && method === 'GET') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      if (!this.limit(`ex:${u.id}`, 5, 3600e3)) return json({ error: 'Too many attempts, try again later' }, 429);
+      this.audit(u.id, 'data_export', '');
+      const data = { exported_at: new Date().toISOString(), account: this.pub(u), history: this.rows('SELECT tool,files,bytes,ms,ts FROM history WHERE subject=? ORDER BY ts DESC LIMIT 5000', u.id), saved: this.rows('SELECT id,tool,name,opts,files,summary,ts,out_name,out_size,out_mime FROM saved WHERE user_id=? ORDER BY ts DESC', u.id), orders: this.rows('SELECT id,plan,amount,currency,status,created_at FROM orders WHERE user_id=? ORDER BY created_at DESC', u.id) };
+      return new Response(JSON.stringify(data, null, 2), { headers: { 'content-type': 'application/json', 'content-disposition': `attachment; filename="magic-convertor-my-data-${day()}.json"`, 'cache-control': 'no-store' } });
+    }
     if (path === '/history' && method === 'POST') {
       this.sql.exec('INSERT INTO history(subject,tool,files,bytes,ms,ts) VALUES(?,?,?,?,?,?)', subject, String(body.tool ?? '').slice(0, 40), Number(body.files) || 0, Number(body.bytes) || 0, Number(body.ms) || 0, now());
       return json({ ok: true });
