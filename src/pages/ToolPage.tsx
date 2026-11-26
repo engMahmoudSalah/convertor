@@ -26,12 +26,14 @@ import { Stepper, AfterView, SizeSummary } from '../components/FlowParts';
 import { ArrowRight, Home, Pencil, BookmarkPlus, CheckCircle2, Eye } from 'lucide-react';
 
 const save = (b: Blob, name: string) => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
+const splitName = (n: string) => { const i = n.lastIndexOf('.'); return i > 0 ? [n.slice(0, i), n.slice(i)] : [n, '']; };
+const cleanName = (v: string) => v.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').replace(/\.+$/, '').trim().slice(0, 120);
 const field = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-400';
 
 export const ToolPage: React.FC = () => {
   const { t: tr, lang } = useT(); const { id } = useParams(); const tool = getTool(id); const { disabled, refresh, plan: myPlan, plans, heavy, usage: myUsage } = useAuth(); const [upgrade, setUpgrade] = useState(false); const [stage, setStage] = useState<'upload' | 'board' | 'final'>('upload'); const [tab, setTab] = useState<'before' | 'after'>('before'); const [saved, setSaved] = useState<'' | 'ok' | 'login' | 'busy'>(''); const loc = useLocation(); const { user } = useAuth(); const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [adDone, setAdDone] = useState(false);
   const [files, setFiles] = useState<File[]>([]); const [outs, setOuts] = useState<Out[]>([]);
-  const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [prog, setProg] = useState('');
+  const [dlName, setDlName] = useState(''); const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [prog, setProg] = useState('');
   const [opts, setOpts] = useState<Record<string, any>>({}); const [sel, setSel] = useState<Set<number>>(new Set()); const mode = tool ? usePreviewMode(tool) : 'first';
   React.useEffect(() => { setFiles([]); setOuts([]); setErr(''); setSel(new Set()); setOpts({ ...Object.fromEntries((tool?.options ?? []).map((o) => [o.key, o.default])), ...((loc.state as any)?.opts ?? {}) }); setStage('upload'); setTab('before'); setSaved(''); }, [id]);
   const onDrop = useCallback((acc: File[]) => {
@@ -46,7 +48,7 @@ export const ToolPage: React.FC = () => {
   const Icon = tool.icon; const off = disabled.includes(tool.id);
   const move = (i: number, d: number) => setFiles((f) => { const n = [...f]; [n[i], n[i + d]] = [n[i + d], n[i]]; return n; });
   const run = async () => {
-    setBusy(true); setErr(''); setOuts([]); setUpgrade(false); setAdDone(false);
+    setBusy(true); setErr(''); setOuts([]); setDlName(''); setUpgrade(false); setAdDone(false);
     const bytes = files.reduce((a, f) => a + f.size, 0); const t0 = Date.now();
     const q = await api('/usage/consume', { tool: tool.id, bytes, files: files.length });
     if (q._status >= 400 && q._status !== 404) { setErr(q.error ?? 'Not allowed'); setUpgrade(!!q.upgrade); setBusy(false); return; }
@@ -55,9 +57,10 @@ export const ToolPage: React.FC = () => {
     setBusy(false); setProg('');
   };
   const need = tool.minFiles ?? 1;
+  const finalName = (orig: string) => { const [b, e] = splitName(orig); return (cleanName(dlName) || b) + e; };
   const stripOpts = () => Object.fromEntries(Object.entries(opts).filter(([, v]) => !(v instanceof File)));
   const outBlob = async () => outs.length === 1 ? outs[0].blob : (await import('../tools/pdfTools')).zipOuts(outs);
-  const payload = () => ({ tool: tool.id, name: `${tool.title} ${new Date().toLocaleDateString()}`, opts: stripOpts(), files: files.slice(0, 20).map((f) => ({ name: f.name, size: f.size })), summary: { inBytes: files.reduce((n, f) => n + f.size, 0), outBytes: outs.reduce((n, o) => n + o.blob.size, 0), fileCount: files.length, outCount: outs.length, status: 'done' }, out_name: outs.length === 1 ? outs[0].name : 'magic-convertor.zip', out_size: outs.reduce((n, o) => n + o.blob.size, 0), out_mime: outs.length === 1 ? (outs[0].blob.type || 'application/octet-stream') : 'application/zip' });
+  const payload = () => ({ tool: tool.id, name: `${tool.title} ${new Date().toLocaleDateString()}`, opts: stripOpts(), files: files.slice(0, 20).map((f) => ({ name: f.name, size: f.size })), summary: { inBytes: files.reduce((n, f) => n + f.size, 0), outBytes: outs.reduce((n, o) => n + o.blob.size, 0), fileCount: files.length, outCount: outs.length, status: 'done' }, out_name: outs.length === 1 ? finalName(outs[0].name) : (cleanName(dlName) || 'magic-convertor') + '.zip', out_size: outs.reduce((n, o) => n + o.blob.size, 0), out_mime: outs.length === 1 ? (outs[0].blob.type || 'application/octet-stream') : 'application/zip' });
   const saveProfile = async () => {
     if (!user) { try { localStorage.setItem('mc_pending_save', JSON.stringify(payload())); } catch { /* ignore */ } setSaved('login'); return; }
     setSaved('busy'); const r = await saveOperation(payload(), await outBlob()); if (!r.ok) { setErr(r.error ?? 'Could not save'); setSaved(''); } else { if (r.error) setErr(r.error); setSaved('ok'); }
@@ -83,6 +86,7 @@ export const ToolPage: React.FC = () => {
       <p className="text-xs text-emerald-300/80 flex items-center gap-1 mb-6"><ShieldCheck size={13} /> {tr('Runs in your browser. Your files are not uploaded.')}</p>
       <Stepper stage={stage} />
       {stage === 'upload' && <div className="max-w-2xl mx-auto">
+      {(loc.state as any)?.restored && files.length === 0 && <div data-restored role="status" className="flow-note rounded-2xl p-4 mb-4 text-sm text-start"><p className="font-bold">{ar ? 'رجعنا إعداداتك المحفوظة' : 'Your saved settings are back'}</p><p className="mt-1 opacity-90">{ar ? 'نتيجة هذه الأداة لا تُفتح كمدخل لها، فأضف ملفاتك الأصلية مرة أخرى وتكمل بنفس الإعدادات.' : 'The result of this tool cannot be opened as its own input, so add your original file(s) again and continue with the same settings.'}</p>{((loc.state as any).names ?? []).length > 0 && <p className="mt-2 opacity-80" dir="auto">{ar ? 'الملفات الأصلية: ' : 'Original files: '}{((loc.state as any).names as string[]).slice(0, 4).join(', ')}</p>}</div>}
       <div {...dz.getRootProps()} className={`mc-drop border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition ${dz.isDragActive ? 'drag border-violet-400 bg-violet-500/10' : 'border-white/20 hover:border-violet-400/60 bg-white/5'}`}>
         <input {...dz.getInputProps()} /><UploadCloud className="mx-auto mb-2 text-violet-300" size={36} />
         <p>{tr(tool.multiple ? 'Drop files here or click to choose' : 'Drop a file here or click to choose')}</p>
@@ -134,8 +138,9 @@ export const ToolPage: React.FC = () => {
       {stage === 'board' && <div className="flow-bar mt-6 flex items-center justify-between gap-3"><button onClick={() => setStage('upload')} className="flow-ghost px-4 py-2.5 rounded-xl text-sm font-semibold inline-flex items-center gap-2"><ArrowLeft size={16} className="rtl:rotate-180" /> {tr('Back')}</button>{outs.length === 0 && !busy && <span className="text-xs opacity-70 hidden sm:inline">{tr('Apply the tool, then press Next. You can keep editing until then.')}</span>}<button disabled={!outs.length || busy} onClick={() => setStage('final')} className="flow-next px-6 py-2.5 rounded-xl font-semibold inline-flex items-center gap-2 disabled:opacity-40">{tr('Next')} <ArrowRight size={18} className="rtl:rotate-180" /></button></div>}
       {stage === 'final' && <div className="max-w-2xl mx-auto relative"><Confetti /><div className="flow-panel p-6 sm:p-8 text-center"><CheckCircle2 className="mx-auto mb-3 text-[color:var(--ac)]" size={40} /><h2 className="text-2xl font-bold mb-1">{tr('Done')}</h2><p className="text-sm opacity-70 mb-4">{tr(tool.title)} · {outs.length} {tr(outs.length === 1 ? 'file' : 'files')}</p><div className="flex justify-center mb-6"><SizeSummary inBytes={inBytes} outs={outs} /></div>
         {adSteps > 0 && !adDone ? <AdGate steps={adSteps} onDone={() => setAdDone(true)} onBack={() => { setStage('board'); setTab('after'); }} /> : <>
-        {outs.length === 1 ? <button onClick={() => save(outs[0].blob, outs[0].name)} className="flow-next w-full py-4 rounded-2xl text-lg font-bold inline-flex items-center justify-center gap-2"><Download size={22} /> {tr('Download')}</button>
-          : <><button onClick={async () => save(await (await import('../tools/pdfTools')).zipOuts(outs), 'magic-convertor.zip')} className="flow-next w-full py-4 rounded-2xl text-lg font-bold inline-flex items-center justify-center gap-2"><Download size={22} /> {tr('Download all as ZIP')}</button>
+        <div className="text-start mb-3"><label className="block text-xs uppercase tracking-wider opacity-60 mb-1" htmlFor="dl-name">{tr('File name (optional)')}</label><div className="flex items-center gap-2"><input id="dl-name" dir="auto" maxLength={120} value={dlName} onChange={(e) => setDlName(e.target.value)} placeholder={outs.length === 1 ? splitName(outs[0].name)[0] : 'magic-convertor'} className={field} /><span dir="ltr" className="text-sm opacity-70 shrink-0">{outs.length === 1 ? splitName(outs[0].name)[1] : '.zip'}</span></div></div>
+        {outs.length === 1 ? <button onClick={() => save(outs[0].blob, finalName(outs[0].name))} className="flow-next w-full py-4 rounded-2xl text-lg font-bold inline-flex items-center justify-center gap-2"><Download size={22} /> {tr('Download')}</button>
+          : <><button onClick={async () => save(await (await import('../tools/pdfTools')).zipOuts(outs), (cleanName(dlName) || 'magic-convertor') + '.zip')} className="flow-next w-full py-4 rounded-2xl text-lg font-bold inline-flex items-center justify-center gap-2"><Download size={22} /> {tr('Download all as ZIP')}</button>
             <ul className="mt-3 space-y-1.5 text-sm text-start">{outs.map((o, i) => <li key={i} className="flex items-center gap-2"><span className="flex-1 truncate">{o.name}</span><span dir="ltr" className="opacity-70">{fmtSize(o.blob.size)}</span><button aria-label={`${tr('Download')} ${o.name}`} onClick={() => save(o.blob, o.name)} className="p-2 rounded-lg flow-ghost"><Download size={15} /></button></li>)}</ul></>}
         </>}
         <div className="grid sm:grid-cols-3 gap-3 mt-4">

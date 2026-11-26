@@ -5,7 +5,7 @@ import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { useT } from '../lib/i18n';
 import { TOOLS } from '../tools/registry';
-const card = 'p-4 rounded-2xl bg-white/5 border border-white/10';
+const card = 'flow-panel p-4';
 const inp = 'bg-white/5 border border-white/10 rounded px-2 py-1 text-sm w-24';
 const fmtB = (n: number) => (n > 1e9 ? (n / 1e9).toFixed(1) + ' GB' : n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : n > 1e3 ? Math.round(n / 1e3) + ' KB' : (n || 0) + ' B');
 const days = (n = 14) => Array.from({ length: n }, (_, i) => new Date(Date.now() - (n - 1 - i) * 864e5).toISOString().slice(0, 10));
@@ -18,7 +18,7 @@ const Bars: React.FC<{ title: string; data: { d: string; n: number }[]; fmt?: (n
 const TABS = ['Overview', 'Users', 'Plans', 'Payments', 'Tools', 'Usage', 'Ads and SEO', 'Abuse', 'Audit', 'Backup'] as const;
 export const Admin: React.FC = () => {
   const { t } = useT(); const { user, loading, plans, disabled, refresh, adminExists } = useAuth();
-  const [tab, setTab] = useState<(typeof TABS)[number]>('Overview'); const [ov, setOv] = useState<any>(null); const [sys, setSys] = useState<any>(null); const [orders, setOrders] = useState<any[]>([]); const [abuse, setAbuse] = useState<any>(null);
+  const [toast, setToast] = useState(''); const [tab, setTab] = useState<(typeof TABS)[number]>('Overview'); const [ov, setOv] = useState<any>(null); const [sys, setSys] = useState<any>(null); const [orders, setOrders] = useState<any[]>([]); const [abuse, setAbuse] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]); const [q, setQ] = useState(''); const [pf, setPf] = useState(''); const [audit, setAudit] = useState<any[]>([]); const [aq, setAq] = useState(''); const [key, setKey] = useState(''); const [msg, setMsg] = useState(''); const [pl, setPl] = useState<any[]>([]); const [st, setSt] = useState<any>(null);
   const load = useCallback(async () => {
     const [s, o, u, a, y, ord, ab] = await Promise.all([api('/admin/stats'), api('/admin/overview'), api('/admin/users?q=' + encodeURIComponent(q)), api('/admin/audit?q=' + encodeURIComponent(aq)), api('/admin/system'), api('/admin/orders'), api('/admin/abuse')]);
@@ -29,14 +29,15 @@ export const Admin: React.FC = () => {
   if (user.role !== 'admin') return (<div className="pt-28 max-w-md mx-auto px-4"><h1 className="text-2xl font-bold mb-3">Admin setup</h1><p className="text-xs text-gray-500 mb-3">Signed in as {user.email}</p>{adminExists && <p className="text-amber-300 text-sm mb-4">An administrator already exists. If this is your account, enter the setup key to take over admin access.</p>}<p className="text-gray-400 text-sm mb-4">Enter the setup key to make this account an administrator.</p>
     <input className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 mb-3" type="password" placeholder="Setup key" value={key} onChange={(e) => setKey(e.target.value)} />
     <button className="w-full py-2.5 rounded-xl bg-violet-500/40" onClick={async () => { const r = await api('/admin/claim', { key }); setMsg(r.error ?? 'Done'); if (r.ok) { await refresh(); } }}>Claim admin</button>{msg && <p className="text-sm mt-3 text-gray-300">{msg}</p>}</div>);
-  const act = async (path: string, body: any) => { const r = await api(path, body); if (r.error) alert(r.error); await load(); await refresh(); };
+  const act = async (path: string, body: any) => { const r = await api(path, body); if (r.error) setToast(String(r.error)); await load(); await refresh(); };
   const shownUsers = users.filter((x) => !pf || x.plan === pf);
   const csv = () => { const rows = [['email', 'name', 'plan', 'role', 'suspended', 'joined'], ...shownUsers.map((x) => [x.email, x.name ?? '', x.plan, x.role, x.banned ? 'yes' : 'no', new Date(x.created_at).toISOString()])]; const b = new Blob(['\ufeff' + rows.map((r) => r.map((c) => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n')], { type: 'text/csv' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'users.csv'; a.click(); };
   const dot = (ok: boolean) => <span aria-hidden="true" className={`inline-block w-2.5 h-2.5 rounded-full me-2 ${ok ? 'bg-emerald-500' : 'bg-amber-500'}`} />;
-  const th = 'text-start pe-3 py-1 font-semibold opacity-70';
+  const th = 'text-start pe-3 py-2 font-semibold opacity-70 whitespace-nowrap';
   return (<div className="pt-24 pb-16 max-w-6xl mx-auto px-4">
     <PageHeader kind="admin" title={t('Admin dashboard')} sub={t('Users, plans, payments, usage, abuse and audit trail')} />
-    <div role="tablist" aria-label={t('Admin sections')} className="flex flex-wrap gap-2 mb-6">{TABS.map((x) => <button key={x} role="tab" aria-selected={tab === x} onClick={() => setTab(x)} className={`px-3 py-1.5 rounded-full text-sm font-semibold border ${tab === x ? 'flow-next' : 'flow-ghost'}`}>{t(x)}</button>)}</div>
+    {toast && <p role="alert" className="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 p-3 text-sm flex justify-between gap-3"><span>{toast}</span><button className="underline" onClick={() => setToast('')}>{t('Close')}</button></p>}
+    <div className="grid lg:grid-cols-[12rem_1fr] gap-6 items-start"><div role="tablist" aria-orientation="vertical" aria-label={t('Admin sections')} className="flex lg:flex-col gap-1 overflow-x-auto lg:sticky lg:top-24 pb-1">{TABS.map((x) => <button key={x} role="tab" aria-selected={tab === x} onClick={() => setTab(x)} className={`whitespace-nowrap text-start px-4 py-2.5 rounded-xl text-sm font-semibold ${tab === x ? 'flow-next' : 'flow-ghost'}`}>{t(x)}</button>)}</div><section className="min-w-0">
     {tab === 'Overview' && st && ov && <><div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       {[['Users', st.users], ['Paid users', st.pro], ['Signups (7d)', st.signups7], ['Jobs (24h)', st.jobs24], ['Jobs (7d)', st.jobs7], ['Suspended', st.banned], ['Abuse events (24h)', ov.abuse24], ['MRR (list price)', `$${st.mrrUsd}`]].map(([l, v]) => <div key={l as string} className={card}><p className="text-xs opacity-70">{t(l as string)}</p><p className="text-2xl font-bold"><CountUp value={v} /></p></div>)}</div>
       <div className="grid md:grid-cols-3 gap-4 mb-6"><Bars title={t('Signups per day')} data={ov.signupsPerDay} /><Bars title={t('Jobs per day')} data={ov.jobsPerDay} /><Bars title={t('Data processed per day')} data={ov.bytesPerDay} fmt={fmtB} /></div>
@@ -69,5 +70,6 @@ export const Admin: React.FC = () => {
       <ul className="text-xs space-y-1">{abuse.events.map((a: any) => <li key={a.id}>{new Date(a.ts).toLocaleString()} · {a.action} · {a.target} {a.detail}</li>)}</ul></>}
     {tab === 'Audit' && <><input aria-label={t('Filter the audit log')} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm mb-3 w-72" placeholder={t('Filter the audit log')} value={aq} onChange={(e) => setAq(e.target.value)} /><ul className="text-xs space-y-1">{audit.map((a) => <li key={a.id}>{new Date(a.ts).toLocaleString()} · {a.actor} · {a.action} · {a.target} {a.detail}</li>)}</ul></>}
     {tab === 'Backup' && <><p className="text-sm opacity-80 mb-3">{t('Download all users (no password data), plans, flags, orders, saved-operation records, history and audit log as one JSON file. Saved file contents are not included.')}</p><a href="/api/admin/export" download className="flow-ghost inline-block px-4 py-2 rounded-xl font-semibold">{t('Download backup (JSON)')}</a></>}
+    </section></div>
   </div>);
 };
