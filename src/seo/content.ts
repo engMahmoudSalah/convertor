@@ -81,6 +81,34 @@ const COPY: Record<string, Copy> = {
     steps: { en: ['Add a PDF that has selectable text.', 'Run it to extract the text.', 'Copy it or download it as a text file.'], ar: ['أضف ملف PDF يحتوي على نص قابل للتحديد.', 'نفّذ لاستخراج النص.', 'انسخه أو نزّله كملف نصي.'] },
     faq: { en: [['Why is the text empty?', 'The PDF is probably a scan, which is a picture of text. Use OCR PDF for that.'], ['Are my PDFs uploaded?', 'No. Extraction runs in your browser.']], ar: [['ليه النص فاضي؟', 'غالباً الملف ممسوح ضوئياً أي صورة للنص. استخدم أداة OCR لملف PDF.'], ['هل ملفاتي بتتحمّل على سيرفر؟', 'لا. الاستخراج يتم داخل متصفحك.']] },
   },
+  "flatten-pdf": {
+    steps: { en: ["Add your PDF with forms, comments or stamps.", "Pick the quality. Standard is a good start.", "Run it and download the flattened copy."], ar: ["أضف ملف PDF فيه حقول أو تعليقات أو أختام.", "اختر الجودة. العادي بداية جيدة.", "نفّذ ثم نزّل النسخة المسطّحة."] },
+    faq: { en: [["What does flatten do?", "It turns each page into a picture, so form fields, notes and stamps are fixed and cannot be edited."], ["Will I still be able to select text?", "No. The text becomes part of the picture. Run OCR afterwards if you need selectable text."]], ar: [["ماذا يفعل التسطيح؟", "يحوّل كل صفحة إلى صورة، فتثبت الحقول والملاحظات والأختام ولا يمكن تعديلها."], ["هل أستطيع تحديد النص بعدها؟", "لا. يصبح النص جزءاً من الصورة. استخدم التعرف على النص إذا احتجت نصاً قابلاً للتحديد."]] },
+  },
+  "page-size": {
+    steps: { en: ["Add one PDF.", "Pick the paper size, direction and margin.", "Run it and download the resized PDF."], ar: ["أضف ملف PDF واحداً.", "اختر مقاس الورق والاتجاه والهامش.", "نفّذ ثم نزّل الملف بالمقاس الجديد."] },
+    faq: { en: [["Are my pages stretched?", "No. Each page is scaled to fit and centred, keeping its proportions."], ["Is the text still selectable?", "Yes. Pages are placed as they are, not turned into pictures."]], ar: [["هل تتمدد الصفحات؟", "لا. تُصغَّر الصفحة لتناسب المقاس وتتوسط مع الحفاظ على النسبة."], ["هل يبقى النص قابلاً للتحديد؟", "نعم. توضع الصفحات كما هي دون تحويلها إلى صور."]] },
+  },
+  "qr-code": {
+    steps: { en: ["Type a link, text or contact details.", "Pick the error correction level and colours.", "Download the QR code as PNG or SVG."], ar: ["اكتب رابطاً أو نصاً أو بيانات اتصال.", "اختر مستوى تصحيح الخطأ والألوان.", "نزّل الرمز بصيغة PNG أو SVG."] },
+    faq: { en: [["Which level should I pick?", "Medium suits most uses. Choose High if you will add a logo or print on rough surfaces."], ["Is my text sent anywhere?", "No. The code is made in your browser."]], ar: [["أي مستوى أختار؟", "المتوسط يناسب أغلب الاستخدامات. اختر العالي إذا ستضيف شعاراً أو تطبع على سطح خشن."], ["هل يُرسل نصي إلى أي مكان؟", "لا. يُنشأ الرمز داخل متصفحك."]] },
+  },
+  "json-formatter": {
+    steps: { en: ["Paste your JSON.", "Pick format or minify.", "Copy the result or download it."], ar: ["الصق JSON الخاص بك.", "اختر التنسيق أو التصغير.", "انسخ النتيجة أو نزّلها."] },
+    faq: { en: [["What if my JSON is invalid?", "The tool shows the error so you can fix it. Nothing is changed."], ["Is my data uploaded?", "No. It is processed in your browser."]], ar: [["ماذا لو كان JSON غير صالح؟", "تظهر رسالة الخطأ لتصلحه. لا يتغير شيء."], ["هل تُرفع بياناتي؟", "لا. تُعالج داخل متصفحك."]] },
+  },
+  "word-counter": {
+    steps: { en: ["Paste or type your text.", "Read the counts for words, characters, sentences and reading time."], ar: ["الصق نصك أو اكتبه.", "اقرأ عدد الكلمات والأحرف والجمل ووقت القراءة."] },
+    faq: { en: [["Does it count Arabic?", "Yes. Words are split on spaces, so Arabic and English both work."], ["Is my text stored?", "No. Nothing leaves your browser."]], ar: [["هل يحسب العربية؟", "نعم. تُقسّم الكلمات بالمسافات فيعمل مع العربية والإنجليزية."], ["هل يُحفظ نصي؟", "لا. لا يغادر شيء متصفحك."]] },
+  },
+  "hash-generator": {
+    steps: { en: ["Type or paste your text.", "Pick the SHA algorithm and read the hash.", "Copy the one you need."], ar: ["اكتب نصك أو الصقه.", "اختر خوارزمية SHA واقرأ قيمة التجزئة.", "انسخ ما تحتاجه."] },
+    faq: { en: [["Can a hash be reversed?", "No. A hash is one way. The same text always gives the same hash."], ["Is MD5 offered?", "No. Browsers do not include it, so only SHA algorithms are offered."]], ar: [["هل يمكن عكس التجزئة؟", "لا. التجزئة باتجاه واحد، والنص نفسه يعطي القيمة نفسها دائماً."], ["هل يوجد MD5؟", "لا. المتصفحات لا تتضمنه، لذلك تتوفر خوارزميات SHA فقط."]] },
+  },
+  "crop-image": {
+    steps: { en: ["Add an image.", "Choose a ratio or percent crop.", "Run it and download the cropped image."], ar: ["أضف صورة.", "اختر نسبة أو قصاً بالنسبة المئوية.", "نفّذ ثم نزّل الصورة المقصوصة."] },
+    faq: { en: [["Is the quality kept?", "Yes. Pixels are cut, not recompressed more than the chosen format needs."], ["Can I drag to crop?", "Not yet. Use ratio or percent values for now."]], ar: [["هل تبقى الجودة؟", "نعم. تُقص البكسلات دون ضغط إضافي إلا بقدر الصيغة المختارة."], ["هل أستطيع القص بالسحب؟", "ليس بعد. استخدم النسبة أو القيم المئوية حالياً."]] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 
