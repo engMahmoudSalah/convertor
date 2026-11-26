@@ -10,7 +10,7 @@ import { TOOLS } from '../tools/registry';
 import { Gauge } from 'lucide-react';
 import { PlanBadge, unlockPlan, Feat } from '../components/PlanBadge';
 const feats = (p: any, ar: boolean) => ar ? [
-  `${p.heavy_daily >= 100000 ? 'غير محدودة' : p.heavy_daily} مهمة متقدمة يومياً`, `ملفات حتى ${p.max_mb} ميجابايت`, `حتى ${p.max_files} ملف في الدفعة`,
+  (p.heavy_daily >= 100000 ? 'مهام متقدمة غير محدودة يومياً' : `${p.heavy_daily} مهمة متقدمة يومياً`), `ملفات حتى ${p.max_mb} ميجابايت`, `حتى ${p.max_files} ملف في الدفعة`,
   p.saved_max ? `حفظ حتى ${p.saved_max} عملية (${p.saved_mb} ميجابايت)` : 'بدون حفظ العمليات', p.history_days ? `سجل المهام ${p.history_days} يوم` : 'بدون سجل مهام',
   p.ads === 0 ? 'بدون إعلانات قبل التحميل' : `${p.ads} ${p.ads === 1 ? 'إعلان' : 'إعلانات'} قبل التحميل`, 'كل الأدوات الأساسية بلا حد', 'ملفاتك تبقى في متصفحك'] : [
   `${p.heavy_daily >= 100000 ? 'Unlimited' : p.heavy_daily} advanced jobs per day`, `Files up to ${p.max_mb} MB`, `Up to ${p.max_files} files per batch`,
