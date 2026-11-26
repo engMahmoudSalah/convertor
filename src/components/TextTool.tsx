@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, ShieldCheck, Copy, Check, Download, SlidersHorizontal, Eraser } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { TOOLS } from '../tools/registry';
 import { useT } from '../lib/i18n';
 import { PageArt } from './PageArt';
 import { ToolInfo } from './ToolInfo';
@@ -13,12 +14,13 @@ import type { Tool } from '../tools/types';
 const field = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-400';
 
 export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
-  const { t: tr, lang } = useT(); const Icon = tool.icon; const inp = tool.input!; const ar = lang === 'ar';
+  const nav = useNavigate(); const { t: tr, lang } = useT(); const Icon = tool.icon; const inp = tool.input!; const ar = lang === 'ar';
   const [text, setText] = useState(''); const [second, setSecond] = useState('');
   const [opts, setOpts] = useState<Record<string, any>>(() => Object.fromEntries((tool.options ?? []).map((o) => [o.key, o.default])));
   const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [gate, setGate] = useState(false); const [kindPng, setKindPng] = useState(false);
-  const [out, setOut] = useState(''); const [err, setErr] = useState(''); const [copied, setCopied] = useState(false);
+  const [piped, setPiped] = useState(''); const [out, setOut] = useState(''); const [err, setErr] = useState(''); const [copied, setCopied] = useState(false);
   useEffect(() => { setText(''); setSecond(''); setOut(''); setErr(''); setOpts(Object.fromEntries((tool.options ?? []).map((o) => [o.key, o.default]))); }, [tool.id]);
+  useEffect(() => { try { const r = JSON.parse(sessionStorage.getItem('mc_pipe') || 'null'); if (r && r.to === tool.id) { sessionStorage.removeItem('mc_pipe'); setText(String(r.text || '')); setPiped(r.from || ''); } else setPiped(''); } catch { /* ignore */ } }, [tool.id]);
   useEffect(() => {
     let live = true; const h = setTimeout(async () => {
       try { const r = await TEXT_FNS[tool.id](text, opts, second); if (live) { setOut(r); setErr(''); } }
@@ -33,6 +35,8 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
     img.onload = () => { const cv = document.createElement('canvas'); cv.width = cv.height = px; const g = cv.getContext('2d')!; g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, px, px); cv.toBlob((b) => { if (!b) return; const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `${tool.id}.png`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); }, 'image/png'); };
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(out);
   };
+  const targets = TOOLS.filter((x) => x.kind === 'text' && x.id !== tool.id && x.input && !x.input.none && !x.input.diff && !x.input.second);
+  const sendTo = (id: string) => { if (!id || !out) return; try { sessionStorage.setItem('mc_pipe', JSON.stringify({ to: id, from: tool.title, text: out })); } catch { return; } nav(`/tools/${id}`); };
   const lines = inp.diff ? out.split('\n') : [];
   return (
     <div className="pt-24 pb-16 max-w-7xl mx-auto px-4">
@@ -40,6 +44,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
       <div className="flex items-center gap-3 mb-2"><div className="p-3 tool-tile"><Icon /></div>
         <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-blue-400 text-transparent bg-clip-text">{tr(tool.title)}</h1><PageArt kind={tool.category === 'dev' ? 'documents' : 'documents'} className="ms-auto hidden sm:block w-28 h-20 opacity-90" /></div>
       <p className="text-gray-400 mb-2">{tr(tool.desc)}</p>
+      {piped && <p className="text-xs mb-2 opacity-80">{tr('Input came from')}: {tr(piped)}</p>}
       <p className="text-xs text-emerald-300/80 flex items-center gap-1 mb-6"><ShieldCheck size={13} /> {tr('Runs in your browser. Your text is not uploaded.')}</p>
       <div className="grid lg:grid-cols-2 gap-6 items-start">
         <div className="space-y-4">
@@ -70,6 +75,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
           {inp.svg ? null : inp.diff
             ? <pre dir="auto" className="text-sm font-mono whitespace-pre-wrap break-words min-h-[240px] max-h-[70vh] overflow-auto">{lines.map((l, i) => <span key={i} className={`block px-1 ${l.startsWith('+ ') ? 'bg-emerald-500/15 text-emerald-300' : l.startsWith('- ') ? 'bg-red-500/15 text-red-300' : i === 0 ? 'font-bold' : 'opacity-70'}`}>{l || ' '}</span>)}</pre>
             : <pre dir="auto" className="text-sm font-mono whitespace-pre-wrap break-words min-h-[240px] max-h-[70vh] overflow-auto">{out || (err ? '' : <span className="opacity-50">{inp.none ? '' : tr('Your result appears here as you type.')}</span>)}</pre>}
+          {out && !inp.svg && !inp.diff && <label className="flex items-center gap-2 mt-3 text-sm"><span className="opacity-70 shrink-0">{tr('Use this result in')}</span><select className={field} value="" onChange={(e) => sendTo(e.target.value)}><option value="">{tr('Choose a tool')}</option>{targets.map((x) => <option key={x.id} value={x.id}>{tr(x.title)}</option>)}</select></label>}
           {out && <p dir="ltr" className="text-xs opacity-60 mt-2 text-start">{fmtSize(new Blob([out]).size)}</p>}
         </section>
       </div>
