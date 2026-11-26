@@ -1,3 +1,4 @@
+import { AdminPayments } from '../components/AdminPayments';
 import { PageHeader, CountUp, EmptyArt } from '../components/PageArt';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
@@ -49,8 +50,7 @@ export const Admin: React.FC = () => {
         <div className={card}><p className="text-xs opacity-70 mb-2">{t('Top tools (30d)')}</p>{ov.topTools30.length ? ov.topTools30.map((x: any) => <p key={x.tool} className="text-sm flex justify-between"><span>{x.tool}</span><b>{x.n}</b></p>) : <EmptyArt text={t('No jobs yet')} />}</div></div></>}
     {tab === 'Users' && <AdminUsers plans={plans} toast={setToast} />}
     {tab === 'Plans' && <AdminPlans plans={plans} usersByPlan={Object.fromEntries((ov?.plans ?? []).map((x: any) => [x.id, x.n]))} advancedCount={(heavy ?? []).length} toast={setToast} refresh={refresh} />}
-    {tab === 'Payments' && <div className="overflow-x-auto"><div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">{(ov?.revenue ?? []).map((r: any) => <div key={r.status + r.currency} className={card}><p className="text-xs opacity-70">{r.status} · {r.currency}</p><p className="text-xl font-bold">{r.amt}</p><p className="text-xs opacity-70">{r.n} {t('orders')}</p></div>)}</div>
-      {orders.length ? <table className="text-sm w-full"><thead><tr><th className={th}>{t('Date')}</th><th className={th}>Email</th><th className={th}>{t('Plan')}</th><th className={th}>{t('Amount')}</th><th className={th}>{t('Status')}</th></tr></thead><tbody>{orders.map((o) => <tr key={o.id} className="border-t border-white/10"><td className="py-1 pe-3">{new Date(o.created_at).toLocaleString()}</td><td className="pe-3">{o.email}</td><td className="pe-3">{o.plan}</td><td className="pe-3">{o.amount} {o.currency}</td><td>{o.status}</td></tr>)}</tbody></table> : <EmptyArt text={t('No orders yet. Payments open when the payment keys are added.')} />}</div>}
+    {tab === 'Payments' && <AdminPayments sysPayments={!!sys?.payments} plans={plans} />}
     {tab === 'Tools' && <AdminTools disabled={disabled} heavy={heavy ?? []} reload={async () => { await load(); await refresh(); }} toast={setToast} />}
     {tab === 'Usage' && ov && <div className="overflow-x-auto"><table className="text-sm w-full"><caption className="text-start font-bold mb-2">{t('Per tool, last 30 days')}</caption><thead><tr><th className={th}>{t('Tool')}</th><th className={th}>{t('Jobs')}</th><th className={th}>{t('Data')}</th><th className={th}>{t('Avg time')}</th></tr></thead><tbody>{ov.topTools30.map((x: any) => <tr key={x.tool} className="border-t border-white/10"><td className="py-1">{x.tool}</td><td>{x.n}</td><td dir="ltr">{fmtB(x.bytes)}</td><td dir="ltr">{Math.round(x.ms)} ms</td></tr>)}</tbody></table>
       <p className="text-sm mt-4 opacity-80">{t('Saved operations')}: {ov.saved} · <bdi dir="ltr">{fmtB(ov.savedBytes)}</bdi></p></div>}

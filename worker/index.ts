@@ -330,7 +330,30 @@ export class AppDB extends DurableObject<any> {
     }
     if (path.startsWith('/admin/')) {
       if (!u || u.role !== 'admin') return json({ error: 'Admins only' }, 403);
-      if (path === '/admin/orders' && method === 'GET') return json({ orders: this.rows('SELECT o.*, u.email FROM orders o LEFT JOIN users u ON u.id=o.user_id ORDER BY o.created_at DESC LIMIT 100') });
+      if (path === '/admin/orders' && method === 'GET') {
+        const sp = url.searchParams; const q = `%${(sp.get('q') ?? '').toLowerCase().slice(0, 80)}%`;
+        const size = Math.min(2000, Math.max(1, Number(sp.get('size')) || 20)); const page = Math.max(1, Math.floor(Number(sp.get('page')) || 1));
+        const where: string[] = ["(lower(coalesce(u.email,'')) LIKE ? OR lower(coalesce(o.ref,'')) LIKE ? OR lower(o.id) LIKE ?)"]; const args: any[] = [q, q, q];
+        const st = sp.get('status'); if (st && ['paid', 'pending', 'failed', 'refunded'].includes(st)) { where.push('o.status=?'); args.push(st); }
+        const cur = sp.get('currency'); if (cur && /^[A-Z]{3}$/.test(cur)) { where.push('o.currency=?'); args.push(cur); }
+        const prov = sp.get('provider'); if (prov && /^[a-z0-9_-]{1,20}$/.test(prov)) { where.push('o.provider=?'); args.push(prov); }
+        const plan = sp.get('plan'); if (plan && /^[a-z0-9-]{1,30}$/.test(plan)) { where.push('o.plan=?'); args.push(plan); }
+        const from = Number(sp.get('from')); if (Number.isFinite(from) && from > 0) { where.push('o.created_at>=?'); args.push(from); }
+        const to = Number(sp.get('to')); if (Number.isFinite(to) && to > 0) { where.push('o.created_at<=?'); args.push(to); }
+        const w = where.join(' AND '); const base = 'FROM orders o LEFT JOIN users u ON u.id=o.user_id WHERE ' + w;
+        const sort = sp.get('sort') === 'amount' ? 'o.amount DESC' : 'o.created_at DESC';
+        const total = this.rows('SELECT count(*) c ' + base, ...args)[0].c;
+        const orders = this.rows('SELECT o.*, u.email ' + base + ' ORDER BY ' + sort + ' LIMIT ? OFFSET ?', ...args, size, (page - 1) * size);
+        const totals = this.rows('SELECT o.status, o.currency, count(*) n, coalesce(sum(o.amount),0) amt ' + base + ' GROUP BY o.status, o.currency', ...args);
+        const day0 = Date.now() - 29 * 864e5; const byDay = this.rows("SELECT cast(o.paid_at/86400000 AS INTEGER) d, o.currency, coalesce(sum(o.amount),0) amt, count(*) n FROM orders o WHERE o.status='paid' AND o.paid_at>=? GROUP BY d, o.currency ORDER BY d", day0);
+        return json({ orders, total, page, size, totals, byDay, providers: this.rows('SELECT DISTINCT provider p FROM orders').map((r: any) => r.p) });
+      }
+      if (path === '/admin/orders/seed' && method === 'POST' && this.env.ALLOW_TEST_SEED === '1') {
+        const n = Math.min(60, Number(body.n) || 12); const sts = ['paid', 'pending', 'failed', 'refunded', 'paid']; const ids: string[] = [];
+        for (let i = 0; i < n; i++) { const id = 'ord_t' + rnd(8); const st = sts[i % 5]; const egp = i % 2 === 0; const t0 = Date.now() - i * 864e5 * 0.7; this.sql.exec('INSERT INTO orders VALUES(?,?,?,?,?,?,?,?,?,?,?)', id, u.id, i % 3 ? 'pro' : 'business', 'paymob', egp ? 249 + i : 9 + i, egp ? 'EGP' : 'USD', st, 'tref' + i, st === 'paid' ? 'tx' + i : '', t0, st === 'paid' ? t0 + 6e4 : null); ids.push(id); }
+        return json({ ok: true, ids });
+      }
+      if (path === '/admin/orders/seed' && method === 'DELETE' && this.env.ALLOW_TEST_SEED === '1') { this.sql.exec("DELETE FROM orders WHERE id LIKE 'ord_t%'"); return json({ ok: true }); }
       if (path === '/admin/stats') {
         const c = (q: string, ...a: any[]) => this.rows(q, ...a)[0].c as number; const t = now();
         return json({
