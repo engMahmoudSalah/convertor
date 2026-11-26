@@ -297,6 +297,38 @@ const COPY: Record<string, Copy> = {
     steps: { en: ["Paste a full URL.", "Read each part.", "Copy what you need."], ar: ["الصق رابطاً كاملاً.", "اقرأ كل جزء.", "انسخ ما تحتاجه."] },
     faq: { en: [["Does it fetch the URL?", "No. It only splits the text. Nothing is opened."], ["What if the URL has no scheme?", "Add https:// in front. A scheme is needed to split it."]], ar: [["هل يفتح الرابط؟", "لا. يقسّم النص فقط ولا يفتح شيئاً."], ["وماذا لو لم يحوِ الرابط بروتوكولاً؟", "أضف https:// في أوله. يلزم بروتوكول للتقسيم."]] },
   },
+  "html-to-markdown": {
+    steps: { en: ["Paste your HTML.", "Read the Markdown.", "Copy or download it."], ar: ["الصق HTML.", "اقرأ Markdown.", "انسخه أو نزّله."] },
+    faq: { en: [["Which tags are handled?", "Headings, paragraphs, bold, italic, code, links, images, lists, quotes and rules. Tables are not converted yet."], ["Are scripts removed?", "Yes. Script and style content is dropped."]], ar: [["ما الوسوم المدعومة؟", "العناوين والفقرات والعريض والمائل والأكواد والروابط والصور والقوائم والاقتباسات والخطوط. الجداول لا تُحوَّل بعد."], ["هل تُحذف السكربتات؟", "نعم. يُحذف محتوى script وstyle."]] },
+  },
+  "csv-to-yaml": {
+    steps: { en: ["Paste your CSV with a header row.", "Read the YAML.", "Copy or download it."], ar: ["الصق CSV بصف عناوين.", "اقرأ YAML.", "انسخه أو نزّله."] },
+    faq: { en: [["Is the separator detected?", "Yes. Comma, semicolon and tab are detected from the first line."], ["Are numbers kept as numbers?", "Values stay as text, so nothing is changed by guessing."]], ar: [["هل يُكتشف الفاصل؟", "نعم. تُكتشف الفاصلة والمنقوطة والتبويب من السطر الأول."], ["هل تبقى الأرقام أرقاماً؟", "تبقى القيم نصاً فلا يتغير شيء بالتخمين."]] },
+  },
+  "csv-to-xml": {
+    steps: { en: ["Paste your CSV with a header row.", "Read the XML.", "Copy or download it."], ar: ["الصق CSV بصف عناوين.", "اقرأ XML.", "انسخه أو نزّله."] },
+    faq: { en: [["What are the tag names?", "Headers become tag names. Characters XML does not allow become underscores."], ["What is the root tag?", "rows, with one row tag per record."]], ar: [["ما أسماء الوسوم؟", "العناوين تصبح أسماء الوسوم، والرموز غير المسموحة في XML تصبح شرطة سفلية."], ["ما الوسم الجذر؟", "rows، مع وسم row لكل سجل."]] },
+  },
+  "json-to-html-table": {
+    steps: { en: ["Paste a JSON array of objects.", "Read the table code.", "Copy it."], ar: ["الصق مصفوفة JSON من الكائنات.", "اقرأ كود الجدول.", "انسخه."] },
+    faq: { en: [["Are nested objects handled?", "They are flattened with dots, one column each."], ["Are values escaped?", "Yes, so special characters show as text."]], ar: [["هل تُعالج الكائنات المتداخلة؟", "تُسطَّح بنقاط، عمود لكل منها."], ["هل تُهرَّب القيم؟", "نعم، فتظهر الرموز الخاصة كنص."]] },
+  },
+  "text-to-binary": {
+    steps: { en: ["Type or paste text.", "Read the binary bytes.", "Copy it."], ar: ["اكتب النص أو الصقه.", "اقرأ البايتات الثنائية.", "انسخها."] },
+    faq: { en: [["Does it support Arabic and emoji?", "Yes. Text is encoded as UTF-8, so each character may use several bytes."], ["How are bytes shown?", "As groups of 8 digits separated by spaces."]], ar: [["هل يدعم العربية والرموز التعبيرية؟", "نعم. يُرمَّز النص بـ UTF-8 فقد يأخذ الحرف عدة بايتات."], ["كيف تظهر البايتات؟", "مجموعات من 8 أرقام تفصل بينها مسافات."]] },
+  },
+  "binary-to-text": {
+    steps: { en: ["Paste binary in groups of 8.", "Read the text.", "Copy it."], ar: ["الصق الثنائي في مجموعات من 8.", "اقرأ النص.", "انسخه."] },
+    faq: { en: [["Do spaces matter?", "No. Anything other than 0 and 1 is ignored, but the total must be a multiple of 8 digits."], ["Which encoding is read?", "UTF-8."]], ar: [["هل تهم المسافات؟", "لا. يُتجاهل كل ما عدا 0 و1، لكن يجب أن يكون العدد مضاعفاً للرقم 8."], ["أي ترميز يُقرأ؟", "UTF-8."]] },
+  },
+  "text-to-hex": {
+    steps: { en: ["Type or paste text.", "Read the hex bytes.", "Copy them."], ar: ["اكتب النص أو الصقه.", "اقرأ البايتات الست عشرية.", "انسخها."] },
+    faq: { en: [["Which encoding is used?", "UTF-8, so Arabic and emoji work."], ["Can I get capital letters?", "Yes, tick the uppercase option."]], ar: [["أي ترميز يُستخدم؟", "UTF-8 فتعمل العربية والرموز التعبيرية."], ["هل يمكن الحصول على أحرف كبيرة؟", "نعم، فعّل خيار الأحرف الكبيرة."]] },
+  },
+  "hex-to-text": {
+    steps: { en: ["Paste hex bytes.", "Read the text.", "Copy it."], ar: ["الصق البايتات الست عشرية.", "اقرأ النص.", "انسخه."] },
+    faq: { en: [["Which separators work?", "Spaces, commas, colons, dashes and 0x prefixes are all accepted."], ["Which encoding is read?", "UTF-8."]], ar: [["أي فواصل تعمل؟", "تُقبل المسافات والفواصل والنقطتان والشرطات والبادئة 0x."], ["أي ترميز يُقرأ؟", "UTF-8."]] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 

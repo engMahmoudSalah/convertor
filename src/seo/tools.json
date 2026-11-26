@@ -730,6 +730,86 @@
   }
  },
  {
+  "id": "html-to-markdown",
+  "title": "HTML to Markdown",
+  "desc": "Turn HTML into Markdown: headings, lists, links, code and quotes",
+  "cat": "dev",
+  "ar": {
+   "title": "HTML إلى Markdown",
+   "desc": "حوّل HTML إلى Markdown: عناوين وقوائم وروابط وأكواد واقتباسات"
+  }
+ },
+ {
+  "id": "csv-to-yaml",
+  "title": "CSV to YAML",
+  "desc": "Turn CSV rows into a YAML list of records",
+  "cat": "dev",
+  "ar": {
+   "title": "CSV إلى YAML",
+   "desc": "حوّل صفوف CSV إلى قائمة YAML من السجلات"
+  }
+ },
+ {
+  "id": "csv-to-xml",
+  "title": "CSV to XML",
+  "desc": "Turn CSV rows into XML, one row tag per record",
+  "cat": "dev",
+  "ar": {
+   "title": "CSV إلى XML",
+   "desc": "حوّل صفوف CSV إلى XML بوسم row لكل سجل"
+  }
+ },
+ {
+  "id": "json-to-html-table",
+  "title": "JSON to HTML table",
+  "desc": "Turn a JSON array of objects into an HTML table",
+  "cat": "dev",
+  "ar": {
+   "title": "JSON إلى جدول HTML",
+   "desc": "حوّل مصفوفة JSON من الكائنات إلى جدول HTML"
+  }
+ },
+ {
+  "id": "text-to-binary",
+  "title": "Text to binary",
+  "desc": "Turn text into 8-bit binary, Unicode safe",
+  "cat": "dev",
+  "ar": {
+   "title": "نص إلى ثنائي",
+   "desc": "حوّل النص إلى ثنائي 8 بت يدعم يونيكود"
+  }
+ },
+ {
+  "id": "binary-to-text",
+  "title": "Binary to text",
+  "desc": "Turn 8-bit binary back into text",
+  "cat": "dev",
+  "ar": {
+   "title": "ثنائي إلى نص",
+   "desc": "أعد الثنائي 8 بت إلى نص"
+  }
+ },
+ {
+  "id": "text-to-hex",
+  "title": "Text to hex",
+  "desc": "Turn text into hexadecimal bytes",
+  "cat": "dev",
+  "ar": {
+   "title": "نص إلى ست عشري",
+   "desc": "حوّل النص إلى بايتات بالنظام الست عشري"
+  }
+ },
+ {
+  "id": "hex-to-text",
+  "title": "Hex to text",
+  "desc": "Turn hexadecimal bytes back into text",
+  "cat": "dev",
+  "ar": {
+   "title": "ست عشري إلى نص",
+   "desc": "أعد البايتات الست عشرية إلى نص"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

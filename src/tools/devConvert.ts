@@ -329,4 +329,44 @@ const urlParse: Fn = wrap((t) => {
   return rows.map((r) => `${r[0].padEnd(9)} ${r[1]}`).join('\n') + (q.length ? '\n\nQuery parameters\n' + q.join('\n') : '');
 });
 
-export const DEV_FNS: Record<string, Fn> = { 'regex-tester': regexTest, 'sql-formatter': sqlFormat, 'env-to-json': envToJson, 'json-to-env': jsonToEnv, 'ini-to-json': iniToJson, 'url-parser': urlParse, 'json-escape': jsonEscape, 'json-to-typescript': jsonToTs, 'csv-to-html-table': csvToHtml, 'csv-to-markdown': csvToMd, 'html-table-to-csv': htmlTableToCsv, 'query-to-json': queryToJson, 'json-to-query': jsonToQuery, 'xml-formatter': xmlFormat, 'css-formatter': cssFormat, 'json-sort-keys': jsonSort, 'html-to-text': htmlToText, 'text-to-html': textToHtml, 'html-entities': htmlEntities, 'json-to-csv': jsonToCsv, 'json-to-yaml': jsonToYaml, 'yaml-to-json': yamlToJson, 'json-to-xml': jsonToXml, 'xml-to-json': xmlToJson, 'text-to-json': textToJson, 'markdown-to-html': markdownToHtml, 'html-formatter': htmlFormat };
+// ---------- batch 4 ----------
+const htmlToMd: Fn = wrap((t) => {
+  const doc = new DOMParser().parseFromString(t, 'text/html'); doc.querySelectorAll('script,style,noscript,template,head').forEach((n) => n.remove());
+  const inl = (n: Node): string => Array.from(n.childNodes).map(node).join('');
+  const node = (n: Node): string => {
+    if (n.nodeType === 3) return (n.nodeValue || '').replace(/\s+/g, ' ');
+    if (n.nodeType !== 1) return '';
+    const e = n as Element, tag = e.tagName.toLowerCase();
+    if (/^h[1-6]$/.test(tag)) return `\n\n${'#'.repeat(Number(tag[1]))} ${inl(e).trim()}\n\n`;
+    switch (tag) {
+      case 'p': case 'div': case 'section': case 'article': return `\n\n${inl(e).trim()}\n\n`;
+      case 'br': return '  \n';
+      case 'strong': case 'b': return `**${inl(e).trim()}**`;
+      case 'em': case 'i': return `*${inl(e).trim()}*`;
+      case 'code': return e.parentElement?.tagName === 'PRE' ? e.textContent || '' : '`' + (e.textContent || '') + '`';
+      case 'pre': return `\n\n\`\`\`\n${(e.textContent || '').replace(/\n$/, '')}\n\`\`\`\n\n`;
+      case 'a': return e.getAttribute('href') ? `[${inl(e).trim()}](${e.getAttribute('href')})` : inl(e);
+      case 'img': return `![${e.getAttribute('alt') || ''}](${e.getAttribute('src') || ''})`;
+      case 'hr': return '\n\n---\n\n';
+      case 'blockquote': return '\n\n' + inl(e).trim().split('\n').map((l) => '> ' + l).join('\n') + '\n\n';
+      case 'ul': case 'ol': return '\n\n' + Array.from(e.children).filter((c) => c.tagName === 'LI').map((c, i) => `${tag === 'ol' ? i + 1 + '.' : '-'} ${inl(c).trim().replace(/\n+/g, ' ')}`).join('\n') + '\n\n';
+      default: return inl(e);
+    }
+  };
+  return inl(doc.body).replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+});
+const csvRows = (t: string): any[] => { const r = parseCsv(t, detectDelim(t, 'auto')); if (r.length < 2) throw new Error('Add a header row and at least one data row.'); return r.slice(1).map((x) => Object.fromEntries(r[0].map((h, i) => [h.trim() || `col${i + 1}`, x[i] ?? '']))); };
+const csvToYaml: Fn = wrap((t) => toYaml(csvRows(t), 0));
+const csvToXml: Fn = wrap((t) => '<?xml version="1.0" encoding="UTF-8"?>\n<rows>\n' + csvRows(t).map((r) => toXml('row', r, 1)).join('\n') + '\n</rows>');
+const jsonToHtmlTable: Fn = wrap((t) => {
+  let d = parseJson(t); if (!Array.isArray(d)) d = [d];
+  const rows = d.map((r: any) => { const o: Record<string, any> = {}; flat(r, '', o); return o; }); const keys: string[] = []; rows.forEach((r: any) => Object.keys(r).forEach((k) => { if (!keys.includes(k)) keys.push(k); }));
+  const cell = (v: any) => esc(v === null || v === undefined ? '' : String(v));
+  return `<table>\n  <thead>\n    <tr>${keys.map((k) => `<th>${esc(k)}</th>`).join('')}</tr>\n  </thead>\n  <tbody>\n${rows.map((r: any) => `    <tr>${keys.map((k) => `<td>${cell(r[k])}</td>`).join('')}</tr>`).join('\n')}\n  </tbody>\n</table>`;
+});
+const textToBinary: Fn = wrap((t) => Array.from(new TextEncoder().encode(t)).map((b) => b.toString(2).padStart(8, '0')).join(' '));
+const binaryToText: Fn = wrap((t) => { const b = t.replace(/[^01]/g, ''); if (!b || b.length % 8) throw new Error('Binary must be groups of 8 digits (0 and 1).'); return new TextDecoder().decode(Uint8Array.from(b.match(/.{8}/g) as string[], (x) => parseInt(x, 2))); });
+const textToHex: Fn = wrap((t, o) => Array.from(new TextEncoder().encode(t)).map((b) => { const h = b.toString(16).padStart(2, '0'); return o.upper ? h.toUpperCase() : h; }).join(' '));
+const hexToText: Fn = wrap((t) => { const h = t.replace(/0x/gi, '').replace(/[\s,:-]/g, ''); if (!h || /[^0-9a-f]/i.test(h) || h.length % 2) throw new Error('Hex must be pairs of 0-9 and a-f.'); return new TextDecoder().decode(Uint8Array.from(h.match(/.{2}/g) as string[], (x) => parseInt(x, 16))); });
+
+export const DEV_FNS: Record<string, Fn> = { 'html-to-markdown': htmlToMd, 'csv-to-yaml': csvToYaml, 'csv-to-xml': csvToXml, 'json-to-html-table': jsonToHtmlTable, 'text-to-binary': textToBinary, 'binary-to-text': binaryToText, 'text-to-hex': textToHex, 'hex-to-text': hexToText, 'regex-tester': regexTest, 'sql-formatter': sqlFormat, 'env-to-json': envToJson, 'json-to-env': jsonToEnv, 'ini-to-json': iniToJson, 'url-parser': urlParse, 'json-escape': jsonEscape, 'json-to-typescript': jsonToTs, 'csv-to-html-table': csvToHtml, 'csv-to-markdown': csvToMd, 'html-table-to-csv': htmlTableToCsv, 'query-to-json': queryToJson, 'json-to-query': jsonToQuery, 'xml-formatter': xmlFormat, 'css-formatter': cssFormat, 'json-sort-keys': jsonSort, 'html-to-text': htmlToText, 'text-to-html': textToHtml, 'html-entities': htmlEntities, 'json-to-csv': jsonToCsv, 'json-to-yaml': jsonToYaml, 'yaml-to-json': yamlToJson, 'json-to-xml': jsonToXml, 'xml-to-json': xmlToJson, 'text-to-json': textToJson, 'markdown-to-html': markdownToHtml, 'html-formatter': htmlFormat };
