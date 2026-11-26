@@ -2,17 +2,17 @@ import { SlidersHorizontal } from 'lucide-react';
 import { useT } from '../lib/i18n';
 import { Confetti } from '../components/Confetti';
 import { PageArt } from '../components/PageArt';
-import { addRecent, takePending, guessType } from '../lib/handoff';
+import { addRecent, takePending, guessType, setPending } from '../lib/handoff';
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { CompressInfo } from '../components/CompressInfo';
 import { ResizeInfo } from '../components/ResizeInfo';
 import { Gauge } from 'lucide-react';
 import { isHeavy as isAdv } from '../lib/heavy';
 import { PlanHint, PaidNotice, upgradePlan, unlockPlan } from '../components/PlanBadge';
 import { ArrowLeft, ArrowUp, ArrowDown, Download, Loader2, X, UploadCloud, ShieldCheck } from 'lucide-react';
-import { getTool } from '../tools/registry';
+import { getTool, TOOLS } from '../tools/registry';
 import { fmtSize } from '../lib/util';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -32,7 +32,7 @@ const cleanName = (v: string) => v.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').rep
 const field = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-400';
 
 const FileToolPage: React.FC = () => {
-  const { t: tr, lang } = useT(); const { id } = useParams(); const tool = getTool(id); const { disabled, refresh, plan: myPlan, plans, heavy, usage: myUsage } = useAuth(); const [upgrade, setUpgrade] = useState(false); const [stage, setStage] = useState<'upload' | 'board' | 'final'>('upload'); const [tab, setTab] = useState<'before' | 'after'>('before'); const [saved, setSaved] = useState<'' | 'ok' | 'login' | 'busy'>(''); const loc = useLocation(); const { user } = useAuth(); const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [adDone, setAdDone] = useState(false);
+  const nav = useNavigate(); const { t: tr, lang } = useT(); const { id } = useParams(); const tool = getTool(id); const { disabled, refresh, plan: myPlan, plans, heavy, usage: myUsage } = useAuth(); const [upgrade, setUpgrade] = useState(false); const [stage, setStage] = useState<'upload' | 'board' | 'final'>('upload'); const [tab, setTab] = useState<'before' | 'after'>('before'); const [saved, setSaved] = useState<'' | 'ok' | 'login' | 'busy'>(''); const loc = useLocation(); const { user } = useAuth(); const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [adDone, setAdDone] = useState(false);
   const [files, setFiles] = useState<File[]>([]); const [outs, setOuts] = useState<Out[]>([]);
   const [dlName, setDlName] = useState(''); const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [prog, setProg] = useState('');
   const [opts, setOpts] = useState<Record<string, any>>({}); const [sel, setSel] = useState<Set<number>>(new Set()); const mode = tool ? usePreviewMode(tool) : 'first';
@@ -145,6 +145,7 @@ const FileToolPage: React.FC = () => {
           : <><button onClick={async () => save(await (await import('../tools/pdfTools')).zipOuts(outs), (cleanName(dlName) || 'magic-convertor') + '.zip')} className="flow-next w-full py-4 rounded-2xl text-lg font-bold inline-flex items-center justify-center gap-2"><Download size={22} /> {tr('Download all as ZIP')}</button>
             <ul className="mt-3 space-y-1.5 text-sm text-start">{outs.map((o, i) => <li key={i} className="flex items-center gap-2"><span className="flex-1 truncate">{o.name}</span><span dir="ltr" className="opacity-70">{fmtSize(o.blob.size)}</span><button aria-label={`${tr('Download')} ${o.name}`} onClick={() => save(o.blob, o.name)} className="p-2 rounded-lg flow-ghost"><Download size={15} /></button></li>)}</ul></>}
         </>}
+        {outs.length === 1 && (() => { const f = new File([outs[0].blob], finalName(outs[0].name), { type: outs[0].blob.type }); const ty = guessType(f); const nx = ty ? TOOLS.filter((x) => x.id !== tool.id && !x.kind && x.accept.includes(ty) && !(x.minFiles && x.minFiles > 1)) : []; return nx.length ? <label className="flex items-center gap-2 mt-4 text-sm text-start"><span className="opacity-70 shrink-0">{tr('Continue with')}</span><select className={field} value="" onChange={(e) => { if (!e.target.value) return; setPending([f]); nav(`/tools/${e.target.value}`); }}><option value="">{tr('Choose a tool')}</option>{nx.map((x) => <option key={x.id} value={x.id}>{tr(x.title)}</option>)}</select></label> : null; })()}
         <div className="grid sm:grid-cols-3 gap-3 mt-4">
           <Link to="/" className="flow-ghost py-3 rounded-xl text-sm font-semibold inline-flex items-center justify-center gap-2"><Home size={16} /> {tr('Back to Home')}</Link>
           <button onClick={() => { setStage('board'); setTab('after'); }} className="flow-ghost py-3 rounded-xl text-sm font-semibold inline-flex items-center justify-center gap-2"><Pencil size={16} /> {tr('Edit again')}</button>

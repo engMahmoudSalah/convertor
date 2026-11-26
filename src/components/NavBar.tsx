@@ -71,23 +71,23 @@ export const NavBar: React.FC = () => {
   return (
     <nav data-scrolled={scrolled || isOpen ? '1' : '0'} className="mc-nav fixed w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-        <Link to="/" aria-label="Magic Convertor home" className={`nav-logo flex items-center min-w-0 ${loc.pathname === '/' ? (scrolled ? 'mode-icon' : 'mode-word') : 'mode-both'}`}>
+        <Link to="/" aria-label="Magic Convertor home" className={`nav-logo flex items-center shrink-0 ${loc.pathname === '/' ? (scrolled ? 'mode-icon' : 'mode-word') : 'mode-both'}`}>
           <span className="nav-wand shrink-0"><Wand className="h-10 w-10" /></span>
           <span className="nav-word font-display text-lg min-[400px]:text-xl sm:text-2xl font-semibold whitespace-nowrap">Magic Convertor</span>
         </Link>
-        <div className="hidden md:flex items-center gap-1" role="navigation">
+        <div className="hidden lg:flex whitespace-nowrap items-center gap-1" role="navigation">
           {menuItems.map((i) => <NavLink key={i.path} to={i.path} className={link}>{t(i.name)}</NavLink>)}
           <MoreMenu />
           {items.filter((i) => i.path !== '/pdf' && !menuItems.some((m) => m.path === i.path)).map((i) => <NavLink key={i.path} to={i.path} className={link}>{t(i.name)}</NavLink>)}
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={() => setFind(true)} aria-label={t('Find a tool')} title={t('Find a tool')} className="h-9 px-2.5 inline-flex items-center gap-2 rounded-lg border border-white/20 text-gray-300 hover:text-white"><Search size={16} /><kbd dir="ltr" className="hidden lg:inline text-[11px] opacity-60">Ctrl K</kbd></button>
+          <button type="button" onClick={() => setFind(true)} aria-label={t('Find a tool')} title={t('Find a tool')} className="h-9 px-2.5 inline-flex items-center gap-2 rounded-lg border border-white/20 text-gray-300 hover:text-white"><Search size={16} /><kbd dir="ltr" className="hidden xl:inline whitespace-nowrap text-[11px] opacity-60">Ctrl K</kbd></button>
           <SettingsMenu />
-          <Link to={user ? '/account' : '/login'} className="hidden sm:flex items-center gap-2 px-3.5 h-9 rounded-lg text-sm font-semibold btn-ink-sm"><User size={15} />{t(user ? 'Account' : 'Sign in')}</Link>
-          <button className="md:hidden w-9 h-9 grid place-items-center rounded-lg border border-white/20 text-gray-300" onClick={() => setIsOpen(!isOpen)} aria-label={t('Menu')} aria-expanded={isOpen}>{isOpen ? <X size={18} /> : <Menu size={18} />}</button>
+          <Link to={user ? '/account' : '/login'} className="hidden sm:flex whitespace-nowrap items-center gap-2 px-3.5 h-9 rounded-lg text-sm font-semibold btn-ink-sm"><User size={15} />{t(user ? 'Account' : 'Sign in')}</Link>
+          <button className="lg:hidden w-9 h-9 grid place-items-center rounded-lg border border-white/20 text-gray-300" onClick={() => setIsOpen(!isOpen)} aria-label={t('Menu')} aria-expanded={isOpen}>{isOpen ? <X size={18} /> : <Menu size={18} />}</button>
         </div>
       </div>
-      <div className={`md:hidden border-t border-white/10 ${isOpen ? 'block' : 'hidden'}`}>
+      <div className={`lg:hidden border-t border-white/10 ${isOpen ? 'block' : 'hidden'}`}>
         <div className="px-3 py-3 space-y-1">
           {[...menuItems, ...moreItems, ...items.filter((i) => !menuItems.some((m) => m.path === i.path)), user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((i) => <NavLink key={i.path} to={i.path} className={({ isActive }) => `block ${link({ isActive })} text-base`}>{t(i.name)}</NavLink>)}
         </div>
