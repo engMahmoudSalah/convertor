@@ -282,11 +282,11 @@ const COPY: Record<string, Copy> = {
     faq: { en: [["Are strings safe?", "Text inside quotes is left exactly as it is."], ["Which SQL does it support?", "Common SELECT, INSERT, UPDATE and DELETE. Very complex queries may need a full formatter."]], ar: [["هل النصوص آمنة؟", "النص داخل علامات الاقتباس يبقى كما هو."], ["أي SQL مدعوم؟", "SELECT وINSERT وUPDATE وDELETE الشائعة. والاستعلامات المعقدة جداً قد تحتاج أداة كاملة."]] },
   },
   "env-to-json": {
-    steps: { en: ["Paste your .env text.", "Read the JSON.", "Copy it."], ar: ["الصق نص .env.", "اقرأ JSON.", "انسخه."] },
+    steps: { en: ["Paste your .env text.", "Read the JSON.", "Copy it."], ar: ["الصق نص env.", "اقرأ JSON.", "انسخه."] },
     faq: { en: [["Are comments ignored?", "Yes, lines starting with # are skipped, and so are trailing comments on unquoted values."], ["Should I paste real secrets?", "Better not. Use sample values."]], ar: [["هل تُتجاهل التعليقات؟", "نعم، تُتخطى الأسطر التي تبدأ بـ # وكذلك التعليقات بعد القيم غير المقتبسة."], ["هل ألصق أسراراً حقيقية؟", "الأفضل لا. استعمل قيماً تجريبية."]] },
   },
   "json-to-env": {
-    steps: { en: ["Paste a JSON object.", "Read the .env lines.", "Copy or download them."], ar: ["الصق كائن JSON.", "اقرأ أسطر .env.", "انسخها أو نزّلها."] },
+    steps: { en: ["Paste a JSON object.", "Read the .env lines.", "Copy or download them."], ar: ["الصق كائن JSON.", "اقرأ أسطر env.", "انسخها أو نزّلها."] },
     faq: { en: [["How are nested keys named?", "They are joined with underscores and uppercased, so db.host becomes DB_HOST."], ["What about values with spaces?", "They are wrapped in quotes."]], ar: [["كيف تُسمّى المفاتيح المتداخلة؟", "تُجمع بشرطة سفلية وتُكتب بأحرف كبيرة، فيصبح db.host هو DB_HOST."], ["وماذا عن القيم ذات المسافات؟", "توضع بين علامات اقتباس."]] },
   },
   "ini-to-json": {

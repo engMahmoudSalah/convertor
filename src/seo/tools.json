@@ -695,8 +695,8 @@
   "desc": "Turn KEY=value lines of an .env file into JSON",
   "cat": "dev",
   "ar": {
-   "title": ".env إلى JSON",
-   "desc": "حوّل أسطر KEY=value في ملف .env إلى JSON"
+   "title": "ملف env إلى JSON",
+   "desc": "حوّل أسطر KEY=value في ملف env إلى JSON"
   }
  },
  {
@@ -705,7 +705,7 @@
   "desc": "Turn a JSON object into KEY=value lines",
   "cat": "dev",
   "ar": {
-   "title": "JSON إلى .env",
+   "title": "JSON إلى ملف env",
    "desc": "حوّل كائن JSON إلى أسطر KEY=value"
   }
  },
