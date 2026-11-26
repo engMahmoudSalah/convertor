@@ -239,7 +239,7 @@ export const TYPES: Record<string, { title: string; desc: string; cats: string[]
   design: { title: 'Design and color', desc: 'Contrast checks, gradients, shades and CSS helpers', cats: ['design'] },
   privacy: { title: 'Security and privacy', desc: 'Passwords, encryption, hashes and file protection that stay on your device', cats: ['privacy'], ids: ['protect-pdf', 'unlock-pdf', 'redact-pdf'] },
   seo: { title: 'SEO and web', desc: 'Meta tags, sitemaps, UTM links and content checks', cats: ['seo'] },
-  documents: { title: 'Document tools', desc: 'Word and text files to and from PDF', cats: ['doc'], ids: ['pdf-to-text', 'pdf-to-excel', 'pdf-to-powerpoint', 'excel-to-pdf', 'powerpoint-to-pdf', 'pdf-to-markdown', 'ocr-pdf', 'scan-to-pdf'] },
+  documents: { title: 'Document tools', desc: 'Word and text files to and from PDF', cats: ['doc'], ids: ['html-to-pdf', 'pdf-to-text', 'pdf-to-excel', 'pdf-to-powerpoint', 'excel-to-pdf', 'powerpoint-to-pdf', 'pdf-to-markdown', 'ocr-pdf', 'scan-to-pdf'] },
 };
 export const toolsOfType = (k: string) => TOOLS.filter((t) => TYPES[k].cats.includes(t.category) || TYPES[k].ids?.includes(t.id));
 export const CATS: Record<string, string> = { organize: 'Organize PDF', optimize: 'Optimize PDF', 'to-pdf': 'Convert to PDF', 'from-pdf': 'Convert from PDF', edit: 'Edit PDF', image: 'Images', doc: 'Documents', security: 'PDF Security', text: 'Text and writing', dev: 'Developer and data', calc: 'Calculators and math', time: 'Date and time', design: 'Design and color', privacy: 'Security and privacy', seo: 'SEO and web' };
