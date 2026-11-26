@@ -182,7 +182,7 @@ const UNITS: Record<string, { names: Record<string, string[]>; f: Record<string,
   Volume: { names: { ml: ['ml', 'milliliter', 'milliliters'], l: ['l', 'liter', 'liters', 'litre', 'litres'], tsp: ['tsp', 'teaspoon', 'teaspoons'], tbsp: ['tbsp', 'tablespoon', 'tablespoons'], cup: ['cup', 'cups'], gal: ['gal', 'gallon', 'gallons'] }, f: { ml: 0.001, l: 1, tsp: 0.00492892159375, tbsp: 0.01478676478125, cup: 0.2365882365, gal: 3.785411784 } },
   Data: { names: { b: ['b', 'byte', 'bytes'], kb: ['kb', 'kilobyte', 'kilobytes'], mb: ['mb', 'megabyte', 'megabytes'], gb: ['gb', 'gigabyte', 'gigabytes'], tb: ['tb', 'terabyte', 'terabytes'] }, f: { b: 1, kb: 1024, mb: 1048576, gb: 1073741824, tb: 1099511627776 } },
 };
-const fmtNum = (n: number) => (Math.abs(n) >= 1e9 || (Math.abs(n) < 1e-4 && n !== 0)) ? n.toExponential(4) : String(Number(n.toPrecision(8)));
+const fmtNum = (n: number) => (Math.abs(n) >= 1e13 || (Math.abs(n) < 1e-4 && n !== 0)) ? n.toExponential(4) : String(Number(n.toPrecision(8)));
 const unitConv: Fn = (t) => t.split('\n').filter((l) => l.trim()).map((l) => {
   const m = l.trim().toLowerCase().match(/^(-?[\d.,]+)\s*(?:°\s*)?([a-z"']+)$/);
   if (!m) throw new Error(`Cannot read "${l.trim()}". Write a number and a unit, like 5 km or 72 f.`);
