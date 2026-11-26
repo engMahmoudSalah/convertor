@@ -444,3 +444,9 @@ input[type=checkbox], input[type=radio] { accent-color: var(--ac, #b4391f); }
 @keyframes qf-in { from { opacity: 0 } }
 @keyframes qf-pop { from { opacity: 0; transform: translateY(-6px) scale(.98) } }
 @media (prefers-reduced-motion: reduce) { .qf-back, .qf-box { animation: none; } }
+
+/* account polish */
+.acc-avatar { width: 4rem; height: 4rem; border-radius: 1.25rem; display: grid; place-items: center; font-family: var(--font-display, inherit); font-size: 1.75rem; font-weight: 700; background: var(--ac); color: #fff; box-shadow: 3px 3px 0 var(--ac2); }
+html[data-id=forest] .acc-avatar { border-radius: 999px; background: #c6f432; color: #0a2a23; box-shadow: none; }
+.acc-verify { background: color-mix(in srgb, #d9a21b 18%, transparent); border: 1px solid color-mix(in srgb, #d9a21b 55%, transparent); }
+.acc-danger { border: 1px solid color-mix(in srgb, #c2452a 55%, transparent) !important; }
