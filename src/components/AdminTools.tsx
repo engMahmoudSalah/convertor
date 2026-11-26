@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, Gauge, Search } from 'lucide-react';
-import { TOOLS, CATS } from '../tools/registry';
+import { TOOLS, CATS, TYPES, toolsOfType } from '../tools/registry';
 import { api } from '../lib/api';
 import { useT } from '../lib/i18n';
 
@@ -15,7 +15,7 @@ const Switch: React.FC<{ on: boolean; label: string; onClick: () => void; busy?:
 
 export const AdminTools: React.FC<{ disabled: string[]; heavy: string[]; reload: () => Promise<void>; toast: (m: string) => void }> = ({ disabled, heavy, reload, toast }) => {
   const { t } = useT();
-  const [q, setQ] = useState(''); const [f, setF] = useState<Filter>('all'); const [busy, setBusy] = useState(''); const [cat, setCat] = useState<string>(Object.keys(CATS)[0]);
+  const [q, setQ] = useState(''); const [f, setF] = useState<Filter>('all'); const [busy, setBusy] = useState(''); const [cat, setCat] = useState<string>(Object.keys(TYPES)[0]);
   const off = useMemo(() => new Set(disabled), [disabled]); const adv = useMemo(() => new Set(heavy), [heavy]);
   const total = TOOLS.length; const nOff = TOOLS.filter((x) => off.has(x.id)).length; const nAdv = TOOLS.filter((x) => adv.has(x.id)).length;
   const needle = q.trim().toLowerCase();
@@ -23,10 +23,14 @@ export const AdminTools: React.FC<{ disabled: string[]; heavy: string[]; reload:
     if (f === 'on' && off.has(x.id)) return false; if (f === 'off' && !off.has(x.id)) return false; if (f === 'adv' && !adv.has(x.id)) return false;
     if (!needle) return true; return (x.title + ' ' + t(x.title) + ' ' + x.id).toLowerCase().includes(needle);
   };
-  const groups = Object.keys(CATS).map((c) => ({ id: c, name: CATS[c], all: TOOLS.filter((x) => x.category === c) })).filter((g) => g.all.length).map((g) => ({ ...g, shown: g.all.filter(match) })).filter((g) => g.shown.length);
+  // Sections mirror the home page: same order, same tools, same order inside each section (see TYPES and toolsOfType).
+  const sections = [...Object.keys(TYPES).map((k) => ({ id: k, name: TYPES[k].title, all: toolsOfType(k) })), ...(() => { const seen = new Set(Object.keys(TYPES).flatMap((k) => toolsOfType(k).map((x) => x.id))); const rest = TOOLS.filter((x) => !seen.has(x.id)); return rest.length ? [{ id: 'other', name: 'Other tools', all: rest }] : []; })()].filter((g) => g.all.length);
+  const sub = (all: typeof TOOLS) => [...new Set(all.map((x) => x.category))].map((c) => ({ id: c, name: CATS[c], all: all.filter((x) => x.category === c) }));
   const searching = !!needle || f !== 'all';
-  const tabs = Object.keys(CATS).map((c) => { const all = TOOLS.filter((x) => x.category === c); return { id: c, name: CATS[c], all, hits: all.filter(match).length, on: all.filter((x) => !off.has(x.id)).length }; }).filter((g) => g.all.length);
-  const view = searching ? groups : groups.filter((g) => g.id === cat);
+  const groups = (searching: boolean) => searching ? sections.map((g) => ({ ...g, shown: g.all.filter(match) })).filter((g) => g.shown.length)
+    : (() => { const cur = sections.find((g) => g.id === cat) ?? sections[0]; const parts = sub(cur.all); return parts.length > 1 ? parts.map((g) => ({ ...g, shown: g.all })) : [{ ...cur, shown: cur.all }]; })();
+    const tabs = sections.map((g) => ({ id: g.id, name: g.name, all: g.all, hits: g.all.filter(match).length, on: g.all.filter((x) => !off.has(x.id)).length }));
+  const view = groups(searching);
   const shownCount = view.reduce((n, g) => n + g.shown.length, 0);
   const setMany = async (ids: string[], enabled: boolean, key: string) => {
     setBusy(key); const r = ids.length === 1 ? await api('/admin/flag', { tool: ids[0], enabled }) : await api('/admin/flags', { tools: ids, enabled });
