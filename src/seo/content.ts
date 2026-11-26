@@ -273,6 +273,30 @@ const COPY: Record<string, Copy> = {
     steps: { en: ["Paste your JSON.", "Read the sorted JSON.", "Copy it."], ar: ["الصق JSON.", "اقرأ JSON المرتب.", "انسخه."] },
     faq: { en: [["Are arrays reordered?", "No. Only object keys are sorted, at every level."], ["Why sort keys?", "It makes diffs and config files easier to compare."]], ar: [["هل تُعاد ترتيب المصفوفات؟", "لا. تُرتَّب مفاتيح الكائنات فقط في كل المستويات."], ["لماذا ترتيب المفاتيح؟", "يسهّل مقارنة الاختلافات وملفات الإعداد."]] },
   },
+  "regex-tester": {
+    steps: { en: ["Paste the text to search.", "Type the pattern and flags.", "Read each match, its position and groups."], ar: ["الصق النص المراد البحث فيه.", "اكتب النمط والخيارات.", "اقرأ كل تطابق وموضعه ومجموعاته."] },
+    faq: { en: [["Which regex flavor is it?", "The JavaScript one, run in your browser."], ["Why do I always get all matches?", "The g flag is always added so every match is listed, up to 200."]], ar: [["أي نوع من Regex هذا؟", "نوع JavaScript، ويعمل داخل متصفحك."], ["لماذا أحصل دائماً على كل التطابقات؟", "يُضاف الخيار g دائماً لعرض كل التطابقات حتى 200."]] },
+  },
+  "sql-formatter": {
+    steps: { en: ["Paste your SQL.", "Pick format or minify.", "Copy the result."], ar: ["الصق SQL.", "اختر ترتيباً أو تصغيراً.", "انسخ النتيجة."] },
+    faq: { en: [["Are strings safe?", "Text inside quotes is left exactly as it is."], ["Which SQL does it support?", "Common SELECT, INSERT, UPDATE and DELETE. Very complex queries may need a full formatter."]], ar: [["هل النصوص آمنة؟", "النص داخل علامات الاقتباس يبقى كما هو."], ["أي SQL مدعوم؟", "SELECT وINSERT وUPDATE وDELETE الشائعة. والاستعلامات المعقدة جداً قد تحتاج أداة كاملة."]] },
+  },
+  "env-to-json": {
+    steps: { en: ["Paste your .env text.", "Read the JSON.", "Copy it."], ar: ["الصق نص .env.", "اقرأ JSON.", "انسخه."] },
+    faq: { en: [["Are comments ignored?", "Yes, lines starting with # are skipped, and so are trailing comments on unquoted values."], ["Should I paste real secrets?", "Better not. Use sample values."]], ar: [["هل تُتجاهل التعليقات؟", "نعم، تُتخطى الأسطر التي تبدأ بـ # وكذلك التعليقات بعد القيم غير المقتبسة."], ["هل ألصق أسراراً حقيقية؟", "الأفضل لا. استعمل قيماً تجريبية."]] },
+  },
+  "json-to-env": {
+    steps: { en: ["Paste a JSON object.", "Read the .env lines.", "Copy or download them."], ar: ["الصق كائن JSON.", "اقرأ أسطر .env.", "انسخها أو نزّلها."] },
+    faq: { en: [["How are nested keys named?", "They are joined with underscores and uppercased, so db.host becomes DB_HOST."], ["What about values with spaces?", "They are wrapped in quotes."]], ar: [["كيف تُسمّى المفاتيح المتداخلة؟", "تُجمع بشرطة سفلية وتُكتب بأحرف كبيرة، فيصبح db.host هو DB_HOST."], ["وماذا عن القيم ذات المسافات؟", "توضع بين علامات اقتباس."]] },
+  },
+  "ini-to-json": {
+    steps: { en: ["Paste your INI text.", "Read the JSON.", "Copy it."], ar: ["الصق نص INI.", "اقرأ JSON.", "انسخه."] },
+    faq: { en: [["How are sections handled?", "Each [section] becomes an object."], ["Are numbers and booleans detected?", "Yes. Quoted values stay as text."]], ar: [["كيف تُعالج الأقسام؟", "كل [section] يصبح كائناً."], ["هل تُكتشف الأرقام والقيم المنطقية؟", "نعم. والقيم المقتبسة تبقى نصاً."]] },
+  },
+  "url-parser": {
+    steps: { en: ["Paste a full URL.", "Read each part.", "Copy what you need."], ar: ["الصق رابطاً كاملاً.", "اقرأ كل جزء.", "انسخ ما تحتاجه."] },
+    faq: { en: [["Does it fetch the URL?", "No. It only splits the text. Nothing is opened."], ["What if the URL has no scheme?", "Add https:// in front. A scheme is needed to split it."]], ar: [["هل يفتح الرابط؟", "لا. يقسّم النص فقط ولا يفتح شيئاً."], ["وماذا لو لم يحوِ الرابط بروتوكولاً؟", "أضف https:// في أوله. يلزم بروتوكول للتقسيم."]] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 

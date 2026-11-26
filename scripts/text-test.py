@@ -54,6 +54,14 @@ CASES = [
  ('css-formatter', 'a{color:red;margin:0 auto}', {'Action': 'minify'}, 'a{color:red;margin:0 auto}'),
  ('css-formatter', 'a{color:red;margin:0}', {}, '  color:red;'),
  ('json-sort-keys', '{"b":1,"a":{"d":1,"c":2}}', {}, '"a": {\n    "c": 2'),
+ ('regex-tester', 'Order 12 on 2024-05-01, order 7', {'Pattern': '(\\d{4})-(\\d\\d)', 'Flags (g, i, m, s, u)': 'g'}, 'group 1: "2024"'),
+ ('regex-tester', 'abc', {'Pattern': '(', 'Flags (g, i, m, s, u)': 'g'}, 'Invalid pattern'),
+ ('sql-formatter', 'select id,name from users where age>18 and active=1 order by name', {}, 'FROM users\n'),
+ ('sql-formatter', 'select  a ,  b \n from t', {'Action': 'minify'}, 'SELECT a,b FROM t'),
+ ('env-to-json', 'PORT=3000\nNAME="My App"\n# c\nDEBUG=true', {}, '"NAME": "My App"'),
+ ('json-to-env', '{"port":3000,"db":{"host":"localhost","pass":"a b"}}', {}, 'DB_PASS="a b"'),
+ ('ini-to-json', 'name = app\n[server]\nport = 8080\ndebug = true', {}, '"port": 8080'),
+ ('url-parser', 'https://user@example.com:8080/a/b?x=1&y=two#top', {}, 'y = two'),
  ('number-base', '255', {}, 'Hexadecimal  ff'),
  ('number-base', '0b1010', {}, 'Decimal      10'),
  ('number-base', 'ff', {'Input is': '16'}, 'Binary       11111111'),
@@ -79,7 +87,7 @@ with sync_playwright() as pw:
         p.goto(f'{B}/tools/{tid}'); p.fill('#tt-in', text)
         for k, v in opts.items():
             if isinstance(v, bool): chk(p, k, v)
-            elif k in ('Find', 'Replace with'): p.locator('label').filter(has=p.locator('span', has_text=k)).first.locator('input').fill(v)
+            elif k in ('Find', 'Replace with', 'Pattern', 'Flags (g, i, m, s, u)'): p.locator('label').filter(has=p.locator('span', has_text=k)).first.locator('input').fill(v)
             else: sel(p, k, v)
         p.wait_for_timeout(450)
         got = p.locator('section[aria-live] pre').inner_text() + ' ' + (p.locator('section[aria-live] [role=alert]').inner_text() if p.locator('section[aria-live] [role=alert]').count() else '')

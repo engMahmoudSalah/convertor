@@ -282,4 +282,51 @@ const cssFormat: Fn = wrap((t, o) => {
 const sortKeys = (v: any): any => (Array.isArray(v) ? v.map(sortKeys) : v && typeof v === 'object' ? Object.keys(v).sort((a, b) => a.localeCompare(b)).reduce((r: any, k) => { r[k] = sortKeys(v[k]); return r; }, {}) : v);
 const jsonSort: Fn = wrap((t) => JSON.stringify(sortKeys(parseJson(t)), null, 2));
 
-export const DEV_FNS: Record<string, Fn> = { 'json-escape': jsonEscape, 'json-to-typescript': jsonToTs, 'csv-to-html-table': csvToHtml, 'csv-to-markdown': csvToMd, 'html-table-to-csv': htmlTableToCsv, 'query-to-json': queryToJson, 'json-to-query': jsonToQuery, 'xml-formatter': xmlFormat, 'css-formatter': cssFormat, 'json-sort-keys': jsonSort, 'html-to-text': htmlToText, 'text-to-html': textToHtml, 'html-entities': htmlEntities, 'json-to-csv': jsonToCsv, 'json-to-yaml': jsonToYaml, 'yaml-to-json': yamlToJson, 'json-to-xml': jsonToXml, 'xml-to-json': xmlToJson, 'text-to-json': textToJson, 'markdown-to-html': markdownToHtml, 'html-formatter': htmlFormat };
+// ---------- batch 3 ----------
+const regexTest: Fn = wrap((t, o) => {
+  const pat = String(o.pattern ?? ''); if (!pat) return 'Type a pattern in the Pattern box.';
+  let fl = String(o.flags ?? 'g').replace(/[^dgimsuy]/g, ''); fl = [...new Set(fl.split(''))].join(''); if (!fl.includes('g')) fl += 'g';
+  let re: RegExp; try { re = new RegExp(pat, fl); } catch (e: any) { return 'Invalid pattern: ' + String(e.message).slice(0, 120); }
+  const out: string[] = []; let m: RegExpExecArray | null, n = 0;
+  while ((m = re.exec(t)) && n < 200) {
+    n++; out.push(`#${n} at ${m.index}: ${JSON.stringify(m[0])}`);
+    for (let i = 1; i < m.length; i++) out.push(`    group ${i}: ${m[i] === undefined ? '(none)' : JSON.stringify(m[i])}`);
+    if (m.groups) for (const k of Object.keys(m.groups)) out.push(`    ${k}: ${JSON.stringify(m.groups[k])}`);
+    if (m[0] === '') re.lastIndex++;
+  }
+  return n ? `${n}${n >= 200 ? '+' : ''} match${n === 1 ? '' : 'es'}\n\n` + out.join('\n') : 'No matches.';
+});
+const SQLK = ['select', 'from', 'where', 'group by', 'order by', 'having', 'limit', 'offset', 'left join', 'right join', 'inner join', 'full join', 'cross join', 'join', 'union all', 'union', 'insert into', 'values', 'update', 'set', 'delete from', 'on', 'and', 'or', 'as', 'in', 'not', 'null', 'is', 'like', 'between', 'distinct', 'asc', 'desc', 'case', 'when', 'then', 'else', 'end', 'create table', 'alter table', 'drop table'];
+const sqlFormat: Fn = wrap((t, o) => {
+  const parts = t.split(/('(?:[^']|'')*'|"[^"]*"|`[^`]*`)/); const kw = new RegExp(`\\b(${[...SQLK].sort((a, b) => b.length - a.length).map((k) => k.replace(' ', '\\s+')).join('|')})\\b`, 'gi');
+  let s = parts.map((x, i) => (i % 2 ? x : x.replace(/\s+/g, ' ').replace(kw, (m) => m.replace(/\s+/g, ' ').toUpperCase()))).join('').trim();
+  if (o.mode === 'minify') return s.replace(/\s*([,()])\s*/g, '$1').replace(/\s+/g, ' ');
+  const brk = /\b(SELECT|FROM|WHERE|GROUP BY|ORDER BY|HAVING|LIMIT|OFFSET|LEFT JOIN|RIGHT JOIN|INNER JOIN|FULL JOIN|CROSS JOIN|JOIN|UNION ALL|UNION|INSERT INTO|VALUES|UPDATE|SET|DELETE FROM)\b/g;
+  const segs = s.split(/('(?:[^']|'')*'|"[^"]*"|`[^`]*`)/);
+  s = segs.map((x, i) => (i % 2 ? x : x.replace(brk, '\n$1').replace(/\s+(AND|OR)\b/g, '\n  $1').replace(/,\s*/g, ',\n  '))).join('');
+  return s.split('\n').map((l) => l.replace(/\s+$/, '')).filter((l) => l.trim()).join('\n');
+});
+const envToJson: Fn = wrap((t) => {
+  const o: Record<string, string> = {};
+  for (const raw of t.replace(/\r/g, '').split('\n')) { const l = raw.trim(); if (!l || l.startsWith('#')) continue; const m = /^(?:export\s+)?([A-Za-z_][\w.]*)\s*=\s*(.*)$/.exec(l); if (!m) throw new Error(`Not a KEY=value line: ${l.slice(0, 50)}`); let v = m[2].trim(); if (/^(".*"|'.*')$/.test(v)) v = v.slice(1, -1); else v = v.replace(/\s+#.*$/, ''); o[m[1]] = v; }
+  return JSON.stringify(o, null, 2);
+});
+const jsonToEnv: Fn = wrap((t) => {
+  const d = parseJson(t); if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Use a JSON object like {"port":3000}.');
+  const f: Record<string, any> = {}; const walk = (v: any, pre: string) => { if (v && typeof v === 'object' && !Array.isArray(v)) for (const k of Object.keys(v)) walk(v[k], pre ? `${pre}_${k}` : k); else f[pre] = Array.isArray(v) ? JSON.stringify(v) : v; };
+  walk(d, '');
+  return Object.keys(f).map((k) => { const key = k.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase(); const v = f[k] === null ? '' : String(f[k]); return `${key}=${/[\s#"'$]/.test(v) ? JSON.stringify(v) : v}`; }).join('\n');
+});
+const iniToJson: Fn = wrap((t) => {
+  const root: any = {}; let cur = root;
+  for (const raw of t.replace(/\r/g, '').split('\n')) { const l = raw.trim(); if (!l || l[0] === ';' || l[0] === '#') continue; const sec = /^\[([^\]]+)\]$/.exec(l); if (sec) { cur = root[sec[1]] = root[sec[1]] || {}; continue; } const m = /^([^=:]+?)\s*[=:]\s*(.*)$/.exec(l); if (!m) throw new Error(`Cannot read line: ${l.slice(0, 50)}`); let v: any = m[2].replace(/\s+[;#].*$/, '').trim(); if (/^(".*"|'.*')$/.test(v)) v = v.slice(1, -1); else if (/^(true|false)$/i.test(v)) v = v.toLowerCase() === 'true'; else if (/^-?\d+(\.\d+)?$/.test(v)) v = Number(v); cur[m[1]] = v; }
+  return JSON.stringify(root, null, 2);
+});
+const urlParse: Fn = wrap((t) => {
+  let u: URL; try { u = new URL(t.trim()); } catch { throw new Error('Not a full URL. Start with https:// or another scheme.'); }
+  const rows = [['Protocol', u.protocol], ['Username', u.username], ['Host', u.host], ['Hostname', u.hostname], ['Port', u.port], ['Path', u.pathname], ['Query', u.search], ['Hash', u.hash], ['Origin', u.origin]].filter((r) => r[1]);
+  const q: string[] = []; u.searchParams.forEach((v, k) => q.push(`  ${k} = ${v}`));
+  return rows.map((r) => `${r[0].padEnd(9)} ${r[1]}`).join('\n') + (q.length ? '\n\nQuery parameters\n' + q.join('\n') : '');
+});
+
+export const DEV_FNS: Record<string, Fn> = { 'regex-tester': regexTest, 'sql-formatter': sqlFormat, 'env-to-json': envToJson, 'json-to-env': jsonToEnv, 'ini-to-json': iniToJson, 'url-parser': urlParse, 'json-escape': jsonEscape, 'json-to-typescript': jsonToTs, 'csv-to-html-table': csvToHtml, 'csv-to-markdown': csvToMd, 'html-table-to-csv': htmlTableToCsv, 'query-to-json': queryToJson, 'json-to-query': jsonToQuery, 'xml-formatter': xmlFormat, 'css-formatter': cssFormat, 'json-sort-keys': jsonSort, 'html-to-text': htmlToText, 'text-to-html': textToHtml, 'html-entities': htmlEntities, 'json-to-csv': jsonToCsv, 'json-to-yaml': jsonToYaml, 'yaml-to-json': yamlToJson, 'json-to-xml': jsonToXml, 'xml-to-json': xmlToJson, 'text-to-json': textToJson, 'markdown-to-html': markdownToHtml, 'html-formatter': htmlFormat };

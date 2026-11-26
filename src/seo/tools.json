@@ -670,6 +670,66 @@
   }
  },
  {
+  "id": "regex-tester",
+  "title": "Regex tester",
+  "desc": "Test a regular expression and see every match and group",
+  "cat": "dev",
+  "ar": {
+   "title": "مختبر Regex",
+   "desc": "جرّب تعبيراً نمطياً وشاهد كل تطابق ومجموعة"
+  }
+ },
+ {
+  "id": "sql-formatter",
+  "title": "SQL formatter and minifier",
+  "desc": "Put each SQL clause on its own line, or shrink the query",
+  "cat": "dev",
+  "ar": {
+   "title": "منسّق SQL ومضغّطه",
+   "desc": "ضع كل جزء من SQL في سطر مستقل أو صغّر الاستعلام"
+  }
+ },
+ {
+  "id": "env-to-json",
+  "title": ".env to JSON",
+  "desc": "Turn KEY=value lines of an .env file into JSON",
+  "cat": "dev",
+  "ar": {
+   "title": ".env إلى JSON",
+   "desc": "حوّل أسطر KEY=value في ملف .env إلى JSON"
+  }
+ },
+ {
+  "id": "json-to-env",
+  "title": "JSON to .env",
+  "desc": "Turn a JSON object into KEY=value lines",
+  "cat": "dev",
+  "ar": {
+   "title": "JSON إلى .env",
+   "desc": "حوّل كائن JSON إلى أسطر KEY=value"
+  }
+ },
+ {
+  "id": "ini-to-json",
+  "title": "INI to JSON",
+  "desc": "Turn an INI or config file into JSON, with sections",
+  "cat": "dev",
+  "ar": {
+   "title": "INI إلى JSON",
+   "desc": "حوّل ملف INI أو إعدادات إلى JSON مع الأقسام"
+  }
+ },
+ {
+  "id": "url-parser",
+  "title": "URL parser",
+  "desc": "Split a URL into protocol, host, path, query and hash",
+  "cat": "dev",
+  "ar": {
+   "title": "محلّل الروابط",
+   "desc": "قسّم الرابط إلى بروتوكول ومضيف ومسار واستعلام وهاش"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",
