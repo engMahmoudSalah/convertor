@@ -400,6 +400,16 @@
   }
  },
  {
+  "id": "extract-images",
+  "title": "Extract images from PDF",
+  "desc": "Pull the original JPG pictures out of a PDF",
+  "cat": "from-pdf",
+  "ar": {
+   "title": "استخراج الصور من PDF",
+   "desc": "استخرج صور JPG الأصلية من ملف PDF"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

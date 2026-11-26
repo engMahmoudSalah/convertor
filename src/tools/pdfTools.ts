@@ -228,3 +228,23 @@ export async function pageSize(files: File[], o: any): Promise<Out[]> {
   });
   return [{ name: `${baseName(files[0].name)}-${o.size}.pdf`, blob: await toBlob(out), note: `Every page fitted to ${String(o.size).toUpperCase()}` }];
 }
+
+export async function extractImages(files: File[], _o: any, c: Ctx): Promise<Out[]> {
+  const { PDFName, PDFRawStream } = await import('pdf-lib');
+  const doc = await loadPdf(files[0]); const outs: Out[] = []; let skipped = 0, n = 0;
+  const entries = doc.context.enumerateIndirectObjects();
+  for (const [, obj] of entries) {
+    if (!(obj instanceof PDFRawStream)) continue;
+    if (obj.dict.get(PDFName.of('Subtype')) !== PDFName.of('Image')) continue;
+    const f = obj.dict.get(PDFName.of('Filter')); const fs = String(f);
+    if (fs.includes('DCTDecode') && !fs.includes('[')) { n++; outs.push({ name: `${baseName(files[0].name)}-image-${n}.jpg`, blob: new Blob([obj.contents], { type: 'image/jpeg' }) }); }
+    else skipped++;
+    c.progress(n + skipped, entries.length, 'Scanning');
+  }
+  if (!outs.length) throw new Error(skipped ? 'This PDF stores its pictures in a format this tool cannot copy out unchanged. Use "PDF to image" to get the pages instead.' : 'No pictures were found in this PDF.');
+  if (outs.length > 1) {
+    const zip = zipSync(Object.fromEntries(await Promise.all(outs.map(async (o) => [o.name, new Uint8Array(await o.blob.arrayBuffer())] as const))));
+    return [{ name: `${baseName(files[0].name)}-images.zip`, blob: new Blob([zip], { type: 'application/zip' }), note: `${outs.length} JPG pictures${skipped ? `, ${skipped} in other formats skipped` : ''}` }];
+  }
+  return [{ ...outs[0], note: skipped ? `${skipped} picture(s) in other formats skipped` : undefined }];
+}
