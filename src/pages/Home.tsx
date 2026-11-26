@@ -2,7 +2,7 @@ import { AdvancedMark, AdvancedLegend } from '../components/AdvancedMark';
 import React, { useMemo, useState } from 'react';
 import { Wand } from '../components/Wand';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, Zap, Languages, ArrowRight, Search, FileText, Image as Img, FileType, Type, Braces, UploadCloud, Sparkles, History, Calculator, CalendarDays, Palette, ShieldCheck, Globe } from 'lucide-react';
+import { Lock, Zap, Languages, ArrowRight, Search, FileText, Image as Img, FileType, Type, Braces, UploadCloud, Sparkles, History, Workflow, Calculator, CalendarDays, Palette, ShieldCheck, Globe } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { PageAd } from '../components/Ads';
 import { TOOLS, TYPES, toolsOfType } from '../tools/registry';
@@ -50,6 +50,7 @@ export const Home: React.FC = () => {
     </section>
     {dropped.length > 0 && <section className="mb-10"><h2 className="font-semibold mb-3 flex items-center gap-2"><Sparkles size={16} className="text-violet-300" /> {tr('What do you want to do?')}</h2>
       {suggestions.length ? <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">{suggestions.map((t) => <ToolCard key={t.id} t={t} onClick={() => setPending(dropped)} />)}</div> : <p className="text-gray-400 text-sm">{tr('No tool takes this file type yet.')}</p>}</section>}
+    {!q && <Link to="/recipes" className="flow-panel p-4 mb-6 flex items-center gap-4 hover:translate-y-[-1px] transition"><div className="tool-tile p-3 shrink-0"><Workflow size={22} /></div><div className="min-w-0 flex-1"><p className="font-semibold">{tr('Recipes')}</p><p className="text-sm opacity-70">{tr('Chain text tools: the result of each step feeds the next. Runs in your browser with default options.')}</p></div><ArrowRight size={18} className="rtl:rotate-180 shrink-0" /></Link>}
     {!q && recent.length > 0 && <section className="mb-6"><h2 className="font-semibold mb-3 flex items-center gap-2"><History size={16} className="text-violet-300" /> {tr('Recently used')}</h2><div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{recent.map((t) => <ToolCard key={t.id} t={t} />)}</div></section>}
     <div id="all-tools" className="all-tools-head scroll-mt-24 mt-10 mb-6"><h2 className="font-display text-3xl font-bold">{tr('All tools')}</h2><p className="text-sm opacity-70 mt-1">{tr('Search, or pick a category below.')}</p></div>
     <div className="max-w-xl mx-auto mb-8 relative"><Search className="absolute start-3 top-3 text-gray-500" size={18} />
