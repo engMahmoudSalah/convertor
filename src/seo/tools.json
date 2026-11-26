@@ -460,6 +460,116 @@
   }
  },
  {
+  "id": "html-to-text",
+  "title": "HTML to text",
+  "desc": "Strip tags and keep readable text, lists and links",
+  "cat": "dev",
+  "ar": {
+   "title": "HTML إلى نص",
+   "desc": "احذف الوسوم واحتفظ بالنص المقروء والقوائم والروابط"
+  }
+ },
+ {
+  "id": "text-to-html",
+  "title": "Text to HTML",
+  "desc": "Turn plain text into safe HTML paragraphs",
+  "cat": "dev",
+  "ar": {
+   "title": "نص إلى HTML",
+   "desc": "حوّل النص العادي إلى فقرات HTML آمنة"
+  }
+ },
+ {
+  "id": "html-entities",
+  "title": "HTML entities encode and decode",
+  "desc": "Escape special characters or turn entities back into text",
+  "cat": "dev",
+  "ar": {
+   "title": "ترميز HTML entities",
+   "desc": "هرّب الرموز الخاصة أو أعدها نصاً"
+  }
+ },
+ {
+  "id": "json-to-csv",
+  "title": "JSON to CSV",
+  "desc": "Turn a JSON array of objects into CSV with one row each",
+  "cat": "dev",
+  "ar": {
+   "title": "JSON إلى CSV",
+   "desc": "حوّل مصفوفة JSON إلى CSV بصف لكل عنصر"
+  }
+ },
+ {
+  "id": "json-to-yaml",
+  "title": "JSON to YAML",
+  "desc": "Convert JSON into clean, indented YAML",
+  "cat": "dev",
+  "ar": {
+   "title": "JSON إلى YAML",
+   "desc": "حوّل JSON إلى YAML نظيف ومرتب"
+  }
+ },
+ {
+  "id": "yaml-to-json",
+  "title": "YAML to JSON",
+  "desc": "Convert common YAML (maps, lists, scalars) into JSON",
+  "cat": "dev",
+  "ar": {
+   "title": "YAML إلى JSON",
+   "desc": "حوّل YAML الشائع (كائنات وقوائم وقيم) إلى JSON"
+  }
+ },
+ {
+  "id": "json-to-xml",
+  "title": "JSON to XML",
+  "desc": "Convert JSON into indented XML with a root tag you choose",
+  "cat": "dev",
+  "ar": {
+   "title": "JSON إلى XML",
+   "desc": "حوّل JSON إلى XML مرتب بوسم جذر تختاره"
+  }
+ },
+ {
+  "id": "xml-to-json",
+  "title": "XML to JSON",
+  "desc": "Convert XML into JSON, keeping attributes and repeated tags",
+  "cat": "dev",
+  "ar": {
+   "title": "XML إلى JSON",
+   "desc": "حوّل XML إلى JSON مع الخصائص والوسوم المتكررة"
+  }
+ },
+ {
+  "id": "text-to-json",
+  "title": "Text to JSON",
+  "desc": "Turn lines or key: value pairs into JSON",
+  "cat": "dev",
+  "ar": {
+   "title": "نص إلى JSON",
+   "desc": "حوّل الأسطر أو أزواج مفتاح: قيمة إلى JSON"
+  }
+ },
+ {
+  "id": "markdown-to-html",
+  "title": "Markdown to HTML",
+  "desc": "Turn Markdown into HTML: headings, lists, links, code and quotes",
+  "cat": "dev",
+  "ar": {
+   "title": "Markdown إلى HTML",
+   "desc": "حوّل Markdown إلى HTML: عناوين وقوائم وروابط وأكواد واقتباسات"
+  }
+ },
+ {
+  "id": "html-formatter",
+  "title": "HTML formatter and minifier",
+  "desc": "Indent messy HTML or shrink it for production",
+  "cat": "dev",
+  "ar": {
+   "title": "منسّق HTML ومضغّطه",
+   "desc": "رتّب HTML الفوضوي أو صغّره للإنتاج"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

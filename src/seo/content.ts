@@ -189,6 +189,50 @@ const COPY: Record<string, Copy> = {
     steps: { en: ["Paste the token.", "Read the header and payload.", "Check the dates and expiry."], ar: ["الصق الرمز.", "اقرأ الترويسة والمحتوى.", "راجع التواريخ وانتهاء الصلاحية."] },
     faq: { en: [["Is my token sent anywhere?", "No. It is decoded in your browser."], ["Does it check the signature?", "No. It only reads the contents. Never paste a live production token into any site."]], ar: [["هل يُرسل الرمز إلى أي مكان؟", "لا. يُفك داخل متصفحك."], ["هل يتحقق من التوقيع؟", "لا. يقرأ المحتوى فقط. لا تلصق رمزاً حياً من الإنتاج في أي موقع."]] },
   },
+  "html-to-text": {
+    steps: { en: ["Paste your HTML.", "Choose what to keep: links, headings, image descriptions.", "Copy or download the plain text."], ar: ["الصق كود HTML.", "اختر ما تحتفظ به: الروابط والعناوين ووصف الصور.", "انسخ النص العادي أو نزّله."] },
+    faq: { en: [["Are scripts and styles removed?", "Yes. Script, style and head content is dropped before the text is read."], ["Is my HTML uploaded?", "No. It is read in your browser."]], ar: [["هل تُحذف السكربتات والأنماط؟", "نعم. يُحذف محتوى script وstyle وhead قبل قراءة النص."], ["هل يُرفع الكود؟", "لا. يُقرأ داخل متصفحك."]] },
+  },
+  "text-to-html": {
+    steps: { en: ["Paste your text.", "Blank lines become paragraphs and single line breaks become <br>.", "Copy the HTML."], ar: ["الصق نصك.", "الأسطر الفارغة تصبح فقرات والأسطر المفردة تصبح <br>.", "انسخ كود HTML."] },
+    faq: { en: [["Are special characters escaped?", "Yes. <, >, & and quotes are escaped, so the text shows as written."], ["Can I keep line breaks?", "Yes. A single line break becomes a <br> tag."]], ar: [["هل تُهرَّب الرموز الخاصة؟", "نعم. تُهرَّب <, > و& وعلامات الاقتباس فيظهر النص كما كُتب."], ["هل تبقى فواصل الأسطر؟", "نعم. الفاصل المفرد يصبح وسم <br>."]] },
+  },
+  "html-entities": {
+    steps: { en: ["Paste text or entities.", "Pick encode or decode.", "Copy the result."], ar: ["الصق النص أو الرموز.", "اختر ترميزاً أو فكّاً.", "انسخ النتيجة."] },
+    faq: { en: [["What gets encoded?", "The characters & < > \" and '. You can also encode non-ASCII letters as numeric entities."], ["Does decode handle numeric entities?", "Yes. Named and numeric entities such as &amp; and &#x41; are both decoded."]], ar: [["ما الذي يُرمَّز؟", "الرموز & < > \" و'. ويمكنك أيضاً ترميز الحروف غير ASCII كأرقام."], ["هل يفك الأرقام؟", "نعم. يفك الأسماء والأرقام مثل &amp; و&#x41;."]] },
+  },
+  "json-to-csv": {
+    steps: { en: ["Paste a JSON array of objects.", "Pick the separator.", "Copy or download the CSV."], ar: ["الصق مصفوفة JSON من الكائنات.", "اختر الفاصل.", "انسخ ملف CSV أو نزّله."] },
+    faq: { en: [["What about nested objects?", "They are flattened with dots, so address.city becomes its own column."], ["What if rows have different keys?", "The columns are the union of all keys. Missing values stay empty."]], ar: [["ماذا عن الكائنات المتداخلة؟", "تُسطَّح بنقاط، فيصبح address.city عموداً مستقلاً."], ["ماذا لو اختلفت المفاتيح؟", "الأعمدة هي اتحاد كل المفاتيح، والقيم الناقصة تبقى فارغة."]] },
+  },
+  "json-to-yaml": {
+    steps: { en: ["Paste your JSON.", "Read the YAML on the right.", "Copy or download it."], ar: ["الصق JSON.", "اقرأ YAML على اليمين.", "انسخه أو نزّله."] },
+    faq: { en: [["Are strings quoted?", "Only when needed, for example when they look like numbers, booleans or contain special characters."], ["Does it keep key order?", "Yes."]], ar: [["هل تُوضع النصوص بين علامات اقتباس؟", "فقط عند الحاجة، مثل النص الذي يشبه رقماً أو قيمة منطقية أو يحوي رموزاً خاصة."], ["هل يبقى ترتيب المفاتيح؟", "نعم."]] },
+  },
+  "yaml-to-json": {
+    steps: { en: ["Paste your YAML.", "Read the JSON on the right.", "Copy or download it."], ar: ["الصق YAML.", "اقرأ JSON على اليمين.", "انسخه أو نزّله."] },
+    faq: { en: [["Which YAML is supported?", "Maps, lists, nested blocks, quoted strings, numbers, booleans, null and inline lists. Multi-line block scalars are not supported yet."], ["Are comments kept?", "No. Comments are dropped."]], ar: [["أي YAML مدعوم؟", "الكائنات والقوائم والكتل المتداخلة والنصوص المقتبسة والأرقام والقيم المنطقية وnull والقوائم المضمّنة. النصوص متعددة الأسطر غير مدعومة بعد."], ["هل تبقى التعليقات؟", "لا. تُحذف التعليقات."]] },
+  },
+  "json-to-xml": {
+    steps: { en: ["Paste your JSON.", "Set the root tag name.", "Copy or download the XML."], ar: ["الصق JSON.", "اكتب اسم الوسم الجذر.", "انسخ XML أو نزّله."] },
+    faq: { en: [["How are arrays written?", "Each item becomes a repeated tag with the key name. A top-level array uses item tags."], ["Are tag names cleaned?", "Yes. Characters that XML does not allow become underscores."]], ar: [["كيف تُكتب المصفوفات؟", "كل عنصر يصبح وسماً مكرراً باسم المفتاح. والمصفوفة العليا تستعمل وسوم item."], ["هل تُنظَّف أسماء الوسوم؟", "نعم. الرموز غير المسموحة في XML تصبح شرطة سفلية."]] },
+  },
+  "xml-to-json": {
+    steps: { en: ["Paste your XML.", "Read the JSON on the right.", "Copy or download it."], ar: ["الصق XML.", "اقرأ JSON على اليمين.", "انسخه أو نزّله."] },
+    faq: { en: [["Where do attributes go?", "They become keys that start with @."], ["What about repeated tags?", "They become an array."]], ar: [["أين تذهب الخصائص؟", "تصبح مفاتيح تبدأ بـ @."], ["وماذا عن الوسوم المتكررة؟", "تصبح مصفوفة."]] },
+  },
+  "text-to-json": {
+    steps: { en: ["Paste lines of text.", "Choose object or array.", "Copy or download the JSON."], ar: ["الصق أسطر النص.", "اختر كائناً أو مصفوفة.", "انسخ JSON أو نزّله."] },
+    faq: { en: [["Which separators work for pairs?", "A colon or an equals sign, such as name: Ann or name=Ann."], ["Can numbers stay as text?", "Yes. Turn off the detect option."]], ar: [["أي فواصل تعمل مع الأزواج؟", "النقطتان أو علامة المساواة مثل name: Ann أو name=Ann."], ["هل تبقى الأرقام نصاً؟", "نعم. أوقف خيار الاكتشاف."]] },
+  },
+  "markdown-to-html": {
+    steps: { en: ["Paste your Markdown.", "Read the HTML on the right.", "Copy or download it."], ar: ["الصق Markdown.", "اقرأ HTML على اليمين.", "انسخه أو نزّله."] },
+    faq: { en: [["Is the output safe?", "Text is escaped and javascript: links are removed."], ["Which parts of Markdown work?", "Headings, bold, italic, code, fenced code, links, images, lists, quotes and rules. Tables are not supported yet."]], ar: [["هل الناتج آمن؟", "يُهرَّب النص وتُحذف روابط javascript:."], ["ما المدعوم من Markdown؟", "العناوين والخط العريض والمائل والأكواد والروابط والصور والقوائم والاقتباسات والخطوط. الجداول غير مدعومة بعد."]] },
+  },
+  "html-formatter": {
+    steps: { en: ["Paste your HTML.", "Pick format or minify.", "Copy or download the result."], ar: ["الصق HTML.", "اختر ترتيباً أو تصغيراً.", "انسخ النتيجة أو نزّلها."] },
+    faq: { en: [["Does it change my markup?", "No. It only changes whitespace and removes comments when minifying."], ["Does it handle inline scripts?", "They are kept as they are. For full code beautifying use a dedicated formatter."]], ar: [["هل يغيّر الكود؟", "لا. يغيّر المسافات فقط ويحذف التعليقات عند التصغير."], ["وماذا عن السكربتات؟", "تبقى كما هي. لتنسيق كامل استعمل أداة تنسيق متخصصة."]] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 
