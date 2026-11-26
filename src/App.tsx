@@ -1,3 +1,4 @@
+import Recipes from './pages/Recipes';
 import { Forgot, Reset, Verify } from './pages/AuthExtra';
 import { useEffect } from 'react';
 import { LangProvider, AR_PREFIX } from './lib/i18n';
@@ -49,6 +50,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/by-mahmoud" element={<ByMahmoud />} />
+          <Route path="/recipes" element={<Recipes />} />
           <Route path="/:type" element={<TypePage />} />
           <Route path="/tools/:id" element={<ToolPage />} />
         </Routes></div>

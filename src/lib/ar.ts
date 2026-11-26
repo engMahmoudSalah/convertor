@@ -109,6 +109,7 @@ export const AR: Record<string, string> = {
   'Use this result in': 'استخدم النتيجة في', 'Choose a tool': 'اختر أداة', 'Input came from': 'المدخلات جاءت من',
   'Continue with': 'أكمل بـ',
   'Recent results': 'نتائج حديثة',
+  'Recipes': 'وصفات', 'Chain text tools: the result of each step feeds the next. Runs in your browser with default options.': 'اربط أدوات النص: نتيجة كل خطوة تدخل في التي بعدها. تعمل في متصفحك بالإعدادات الافتراضية.', 'Starting text': 'النص الابتدائي', 'Steps': 'الخطوات', 'Step': 'خطوة', 'Remove step': 'احذف الخطوة', 'Add step': 'أضف خطوة', 'Saved recipes': 'الوصفات المحفوظة', 'Recipe name': 'اسم الوصفة', 'Type some starting text to run the recipe.': 'اكتب نصاً ابتدائياً لتشغيل الوصفة.', 'JSON to YAML, then Base64': 'JSON إلى YAML ثم Base64', 'Clean lines, then hash': 'تنظيف الأسطر ثم هاش',
   'Resize image': 'تغيير حجم الصورة', 'By pixels or percent, keeps the ratio': 'بالبكسل أو بالنسبة المئوية مع الحفاظ على التناسب',
   'History': 'السجل', 'Newest first': 'الأحدث أولاً', 'Oldest first': 'الأقدم أولاً', 'No matches.': 'لا توجد نتائج.', 'Close': 'إغلاق', 'Some files were skipped: wrong type for this tool.': 'تم تخطي بعض الملفات: النوع غير مناسب لهذه الأداة.', 'Find a tool': 'ابحث عن أداة', 'File name (optional)': 'اسم الملف (اختياري)', 'Compress image': 'ضغط الصورة', 'Smaller JPG or WebP at the quality you pick': 'JPG أو WebP أصغر بالجودة التي تختارها',
   'Text to PDF': 'نص إلى PDF', 'Plain text files into paginated PDFs': 'حوّل ملفات النص إلى ملفات PDF مقسمة إلى صفحات',

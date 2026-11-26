@@ -22,6 +22,7 @@ const moreItems = [
   { name: 'Design and color', path: '/design' },
   { name: 'Security and privacy', path: '/privacy' },
   { name: 'SEO and web', path: '/seo' },
+  { name: 'Recipes', path: '/recipes' },
 ];
 const pricingItem = { name: 'Pricing', path: '/pricing' };
 
