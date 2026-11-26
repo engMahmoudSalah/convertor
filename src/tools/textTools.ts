@@ -121,9 +121,8 @@ const findReplace: Fn = (t, o) => {
   let re: RegExp;
   try { re = o.regex ? new RegExp(o.find, 'g' + (o.ignoreCase ? 'i' : '') + 'm') : new RegExp(String(o.find).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g' + (o.ignoreCase ? 'i' : '')); }
   catch (e: any) { throw new Error('Not a valid pattern: ' + String(e?.message ?? e)); }
-  const n = (t.match(re) || []).length;
   const out = t.replace(re, o.regex ? String(o.replace ?? '') : () => String(o.replace ?? ''));
-  return `${out}\n\n--\n${n} replacement${n === 1 ? '' : 's'}`;
+  return out;
 };
 
 const slug: Fn = (t, o) => {
