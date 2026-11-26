@@ -53,6 +53,22 @@ const COPY: Record<string, Copy> = {
     steps: { en: ['Add your PDF.', 'Choose JPG, PNG or WebP and the resolution in DPI (72 to 300).', 'Run it and download the images.'], ar: ['أضف ملف PDF.', 'اختر JPG أو PNG أو WebP والدقة بوحدة DPI (من 72 إلى 300).', 'نفّذ ونزّل الصور.'] },
     faq: { en: [['Which formats can I get?', 'JPG, PNG and WebP. You also choose the resolution, from 72 to 300 DPI.'], ['Do I get one image per page?', 'Yes, each page becomes its own image.'], ['Are my PDFs uploaded?', 'No. Pages are drawn in your browser.']], ar: [['ما الصيغ المتاحة؟', 'JPG وPNG وWebP، وتختار أيضاً الدقة من 72 إلى 300 DPI.'], ['هل أحصل على صورة لكل صفحة؟', 'نعم، كل صفحة تصبح صورة مستقلة.'], ['هل ملفاتي بتتحمّل على سيرفر؟', 'لا. الصفحات تُرسم داخل متصفحك.']] },
   },
+  'word-to-pdf': {
+    steps: { en: ['Add your DOCX file.', 'Run the conversion in your browser.', 'Download the PDF and check the layout.'], ar: ['أضف ملف DOCX.', 'نفّذ التحويل داخل متصفحك.', 'نزّل ملف PDF وراجع التنسيق.'] },
+    faq: { en: [['Will fonts and layout match Word exactly?', 'Not always. Complex layouts, special fonts and tables can look a little different, so check the PDF before you send it.'], ['Are my documents uploaded?', 'No. The conversion runs in your browser.']], ar: [['هل الخطوط والتنسيق يطابقان Word تماماً؟', 'ليس دائماً. التخطيطات المعقدة والخطوط الخاصة والجداول قد تختلف قليلاً، فراجع الملف قبل إرساله.'], ['هل مستنداتي بتتحمّل على سيرفر؟', 'لا. التحويل يتم داخل متصفحك.']] },
+  },
+  'protect-pdf': {
+    steps: { en: ['Add your PDF.', 'Type the password you want and keep it somewhere safe.', 'Run it and download the protected PDF.'], ar: ['أضف ملف PDF.', 'اكتب كلمة السر التي تريدها واحتفظ بها في مكان آمن.', 'نفّذ ونزّل الملف المحمي.'] },
+    faq: { en: [['What if I forget the password?', 'We cannot recover it. Keep a copy of the password, and keep the original file too.'], ['Is the password sent anywhere?', 'No. The file is protected in your browser.']], ar: [['لو نسيت كلمة السر؟', 'لا نستطيع استرجاعها. احتفظ بنسخة من كلمة السر ومن الملف الأصلي.'], ['هل كلمة السر بتتبعت لأي مكان؟', 'لا. الحماية تتم داخل متصفحك.']] },
+  },
+  'unlock-pdf': {
+    steps: { en: ['Add a PDF that you own and know the password for.', 'Enter the password.', 'Run it and download a copy without the password.'], ar: ['أضف ملف PDF تملكه وتعرف كلمة سره.', 'أدخل كلمة السر.', 'نفّذ ونزّل نسخة بدون كلمة سر.'] },
+    faq: { en: [['Can this crack a password I do not know?', 'No. You need the correct password. The tool only removes it from your own copy.'], ['Are my files uploaded?', 'No. It runs in your browser.']], ar: [['هل تكسر كلمة سر لا أعرفها؟', 'لا. تحتاج كلمة السر الصحيحة، والأداة تزيلها من نسختك فقط.'], ['هل ملفاتي بتتحمّل على سيرفر؟', 'لا. تعمل داخل متصفحك.']] },
+  },
+  'convert-image': {
+    steps: { en: ['Add one or more images.', 'Pick the format you want, such as JPG, PNG or WebP.', 'Run it and download the converted files.'], ar: ['أضف صورة أو أكثر.', 'اختر الصيغة المطلوبة مثل JPG أو PNG أو WebP.', 'نفّذ ونزّل الملفات المحوّلة.'] },
+    faq: { en: [['Which format should I pick?', 'JPG for photos, PNG for graphics that need sharp edges or transparency, WebP for small files on the web.'], ['Are my images uploaded?', 'No. Conversion runs in your browser.']], ar: [['أي صيغة أختار؟', 'JPG للصور، وPNG للرسومات التي تحتاج حواف حادة أو شفافية، وWebP للملفات الصغيرة على الويب.'], ['هل صوري بتتحمّل على سيرفر؟', 'لا. التحويل يتم داخل متصفحك.']] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 
