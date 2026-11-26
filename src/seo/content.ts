@@ -181,6 +181,10 @@ const COPY: Record<string, Copy> = {
     steps: { en: ["Add a PDF.", "Type the header and footer text. You can use {n}, {total}, {date} and {file}.", "Pick alignment and size, then download."], ar: ["أضف ملف PDF.", "اكتب نص الرأس والتذييل. يمكنك استخدام {n} و{total} و{date} و{file}.", "اختر المحاذاة والحجم ثم نزّل."] },
     faq: { en: [["What do the {n} and {total} codes do?", "They become the page number and the page count on each page."], ["Can I use only a footer?", "Yes. Leave the header empty."]], ar: [["ماذا تفعل الرموز {n} و{total}؟", "تتحول إلى رقم الصفحة وعدد الصفحات في كل صفحة."], ["هل أستخدم تذييلاً فقط؟", "نعم. اترك الرأس فارغاً."]] },
   },
+  "unit-converter": {
+    steps: { en: ["Type values with units, one per line, like 5 km or 72 f.", "Read the same value in the other units of its family.", "Copy the result."], ar: ["اكتب قيماً مع وحداتها، قيمة في كل سطر، مثل 5 km أو 72 f.", "اقرأ القيمة نفسها بالوحدات الأخرى من نفس النوع.", "انسخ النتيجة."] },
+    faq: { en: [["Which units are supported?", "Length (mm, cm, m, km, in, ft, yd, mi), weight (mg, g, kg, t, oz, lb), volume (ml, l, tsp, tbsp, cup, gal), temperature (C, F, K) and data (B, KB, MB, GB, TB)."], ["How are data sizes counted?", "In steps of 1024, so 1 GB is 1024 MB. Cups and gallons are US measures."]], ar: [["ما الوحدات المدعومة؟", "الطول (mm وcm وm وkm وin وft وyd وmi) والوزن (mg وg وkg وt وoz وlb) والحجم (ml وl وtsp وtbsp وcup وgal) والحرارة (C وF وK) والبيانات (B وKB وMB وGB وTB)."], ["كيف تُحسب أحجام البيانات؟", "بخطوات 1024، فالـ GB الواحد يساوي 1024 MB. الأكواب والغالونات بالقياس الأمريكي."]] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 
