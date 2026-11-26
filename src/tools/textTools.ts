@@ -176,4 +176,28 @@ const numberBase: Fn = (t, o) => t.split('\n').filter((l) => l.trim()).map((l) =
   return `${l.trim()}\nBinary       ${v.toString(2)}\nOctal        ${v.toString(8)}\nDecimal      ${v.toString(10)}\nHexadecimal  ${v.toString(16)}`;
 }).join('\n\n');
 
-export const TEXT_FNS: Record<string, Fn> = { 'color-converter': colorConv, 'timestamp-converter': timestamp, 'number-base': numberBase, 'find-replace': findReplace, 'text-slug': slug, 'qr-code': qr, 'case-converter': caseConv, 'word-counter': counter, 'text-diff': diff, 'lorem-ipsum': lorem, 'clean-lines': cleanLines, 'json-formatter': json, 'base64-tool': base64, 'url-encode': url, 'csv-to-json': csvJson, 'hash-generator': hash };
+const UNITS: Record<string, { names: Record<string, string[]>; f: Record<string, number> }> = {
+  Length: { names: { mm: ['mm', 'millimeter', 'millimeters'], cm: ['cm', 'centimeter', 'centimeters'], m: ['m', 'meter', 'meters', 'metre', 'metres'], km: ['km', 'kilometer', 'kilometers'], in: ['in', 'inch', 'inches', '"'], ft: ['ft', 'foot', 'feet', "'"], yd: ['yd', 'yard', 'yards'], mi: ['mi', 'mile', 'miles'] }, f: { mm: 0.001, cm: 0.01, m: 1, km: 1000, in: 0.0254, ft: 0.3048, yd: 0.9144, mi: 1609.344 } },
+  Weight: { names: { mg: ['mg', 'milligram', 'milligrams'], g: ['g', 'gram', 'grams'], kg: ['kg', 'kilogram', 'kilograms', 'kilo', 'kilos'], t: ['t', 'tonne', 'tonnes'], oz: ['oz', 'ounce', 'ounces'], lb: ['lb', 'lbs', 'pound', 'pounds'] }, f: { mg: 1e-6, g: 0.001, kg: 1, t: 1000, oz: 0.028349523125, lb: 0.45359237 } },
+  Volume: { names: { ml: ['ml', 'milliliter', 'milliliters'], l: ['l', 'liter', 'liters', 'litre', 'litres'], tsp: ['tsp', 'teaspoon', 'teaspoons'], tbsp: ['tbsp', 'tablespoon', 'tablespoons'], cup: ['cup', 'cups'], gal: ['gal', 'gallon', 'gallons'] }, f: { ml: 0.001, l: 1, tsp: 0.00492892159375, tbsp: 0.01478676478125, cup: 0.2365882365, gal: 3.785411784 } },
+  Data: { names: { b: ['b', 'byte', 'bytes'], kb: ['kb', 'kilobyte', 'kilobytes'], mb: ['mb', 'megabyte', 'megabytes'], gb: ['gb', 'gigabyte', 'gigabytes'], tb: ['tb', 'terabyte', 'terabytes'] }, f: { b: 1, kb: 1024, mb: 1048576, gb: 1073741824, tb: 1099511627776 } },
+};
+const fmtNum = (n: number) => (Math.abs(n) >= 1e9 || (Math.abs(n) < 1e-4 && n !== 0)) ? n.toExponential(4) : String(Number(n.toPrecision(8)));
+const unitConv: Fn = (t) => t.split('\n').filter((l) => l.trim()).map((l) => {
+  const m = l.trim().toLowerCase().match(/^(-?[\d.,]+)\s*(?:°\s*)?([a-z"']+)$/);
+  if (!m) throw new Error(`Cannot read "${l.trim()}". Write a number and a unit, like 5 km or 72 f.`);
+  const v = Number(m[1].replace(/,/g, '')); const u = m[2];
+  if (isNaN(v)) throw new Error(`"${m[1]}" is not a number.`);
+  if (['c', 'f', 'k', 'celsius', 'fahrenheit', 'kelvin'].includes(u)) {
+    const k = u[0] === 'c' ? 'c' : u[0] === 'f' ? 'f' : 'k';
+    const c = k === 'c' ? v : k === 'f' ? (v - 32) * 5 / 9 : v - 273.15;
+    return `${l.trim()}\nCelsius     ${fmtNum(c)}\nFahrenheit  ${fmtNum(c * 9 / 5 + 32)}\nKelvin      ${fmtNum(c + 273.15)}`;
+  }
+  for (const [cat, d] of Object.entries(UNITS)) {
+    const key = Object.keys(d.names).find((k) => d.names[k].includes(u));
+    if (key) { const base = v * d.f[key]; return `${l.trim()}  (${cat.toLowerCase()})\n` + Object.keys(d.f).filter((k) => k !== key).map((k) => `${k.padEnd(6)} ${fmtNum(base / d.f[k])}`).join('\n'); }
+  }
+  throw new Error(`Unknown unit "${m[2]}".`);
+}).join('\n\n');
+
+export const TEXT_FNS: Record<string, Fn> = { 'unit-converter': unitConv, 'color-converter': colorConv, 'timestamp-converter': timestamp, 'number-base': numberBase, 'find-replace': findReplace, 'text-slug': slug, 'qr-code': qr, 'case-converter': caseConv, 'word-counter': counter, 'text-diff': diff, 'lorem-ipsum': lorem, 'clean-lines': cleanLines, 'json-formatter': json, 'base64-tool': base64, 'url-encode': url, 'csv-to-json': csvJson, 'hash-generator': hash };

@@ -95,6 +95,7 @@ export const AR: Record<string, string> = {
  ' with a free account': ' مع حساب مجاني',
 'Popular': 'الأكثر طلباً',
 'Plans are paid for 30 days at a time and do not renew automatically. See': 'تُدفع الخطط لمدة 30 يوماً في كل مرة ولا تتجدد تلقائياً. راجع', ', ': '، ', 'and': 'و',
+'Unit converter': 'محوّل الوحدات', 'Length, weight, volume, temperature and data size in one box': 'الطول والوزن والحجم والحرارة وحجم البيانات في مكان واحد', 'Values with units, one per line': 'قيم مع وحداتها، قيمة في كل سطر',
   'Resize image': 'تغيير حجم الصورة', 'By pixels or percent, keeps the ratio': 'بالبكسل أو بالنسبة المئوية مع الحفاظ على التناسب',
   'History': 'السجل', 'Newest first': 'الأحدث أولاً', 'Oldest first': 'الأقدم أولاً', 'No matches.': 'لا توجد نتائج.', 'Close': 'إغلاق', 'Some files were skipped: wrong type for this tool.': 'تم تخطي بعض الملفات: النوع غير مناسب لهذه الأداة.', 'Find a tool': 'ابحث عن أداة', 'File name (optional)': 'اسم الملف (اختياري)', 'Compress image': 'ضغط الصورة', 'Smaller JPG or WebP at the quality you pick': 'JPG أو WebP أصغر بالجودة التي تختارها',
   'Text to PDF': 'نص إلى PDF', 'Plain text files into paginated PDFs': 'حوّل ملفات النص إلى ملفات PDF مقسمة إلى صفحات',

@@ -440,6 +440,16 @@
   }
  },
  {
+  "id": "unit-converter",
+  "title": "Unit converter",
+  "desc": "Length, weight, volume, temperature and data size in one box",
+  "cat": "text",
+  "ar": {
+   "title": "محوّل الوحدات",
+   "desc": "الطول والوزن والحجم والحرارة وحجم البيانات في مكان واحد"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",
