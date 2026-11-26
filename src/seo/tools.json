@@ -360,6 +360,26 @@
   }
  },
  {
+  "id": "flatten-pdf",
+  "title": "Flatten PDF",
+  "desc": "Turn every page into a picture so forms and notes cannot be edited",
+  "cat": "security",
+  "ar": {
+   "title": "تسطيح PDF",
+   "desc": "حوّل كل صفحة إلى صورة حتى لا يمكن تعديل الحقول والملاحظات"
+  }
+ },
+ {
+  "id": "page-size",
+  "title": "Change page size",
+  "desc": "Fit every page onto A4, A3, A5, Letter or Legal",
+  "cat": "organize",
+  "ar": {
+   "title": "تغيير مقاس الصفحة",
+   "desc": "اضبط كل الصفحات على A4 أو A3 أو A5 أو Letter أو Legal"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

@@ -205,3 +205,26 @@ export async function headerFooter(files: File[], o: any): Promise<Out[]> {
   } catch { throw new Error('Header and footer support Latin letters and numbers only. Remove other characters.'); }
   return [{ name: `${baseName(files[0].name)}-headfoot.pdf`, blob: await toBlob(d) }];
 }
+
+export async function flattenPdf(files: File[], o: any, c: Ctx): Promise<Out[]> {
+  const q = { draft: [1.2, 0.6], standard: [1.8, 0.8], sharp: [2.6, 0.9] }[o.quality as 'draft'] ?? [1.8, 0.8];
+  const src = await openPdf(files[0]); const out = await PDFDocument.create();
+  for (let i = 1; i <= src.numPages; i++) {
+    c.progress(i - 1, src.numPages, `Page ${i}/${src.numPages}`);
+    const cv = await renderPage(src, i, q[0]); const img = o.format === 'png' ? await out.embedPng(await bytes(await canvasBlob(cv, 'image/png'))) : await out.embedJpg(await bytes(await canvasBlob(cv, 'image/jpeg', q[1])));
+    const vp = (await src.getPage(i)).getViewport({ scale: 1 }); out.addPage([vp.width, vp.height]).drawImage(img, { x: 0, y: 0, width: vp.width, height: vp.height });
+  }
+  return [{ name: `${baseName(files[0].name)}-flattened.pdf`, blob: await toBlob(out), note: 'Form fields, annotations and text are now part of the page picture' }];
+}
+
+export async function pageSize(files: File[], o: any): Promise<Out[]> {
+  const sizes: Record<string, [number, number]> = { a4: [595.28, 841.89], a3: [841.89, 1190.55], a5: [419.53, 595.28], letter: [612, 792], legal: [612, 1008] };
+  const src = await loadPdf(files[0]); const out = await PDFDocument.create(); const margin = Math.max(0, Math.min(100, Number(o.margin) || 0));
+  const pages = await out.embedPdf(src, src.getPageIndices());
+  pages.forEach((e) => {
+    let [w, h] = sizes[o.size] ?? sizes.a4; const landscape = o.orient === 'landscape' || (o.orient === 'auto' && e.width > e.height); if (landscape) [w, h] = [h, w];
+    const s = Math.min((w - 2 * margin) / e.width, (h - 2 * margin) / e.height); const dw = e.width * s, dh = e.height * s;
+    out.addPage([w, h]).drawPage(e, { x: (w - dw) / 2, y: (h - dh) / 2, width: dw, height: dh });
+  });
+  return [{ name: `${baseName(files[0].name)}-${o.size}.pdf`, blob: await toBlob(out), note: `Every page fitted to ${String(o.size).toUpperCase()}` }];
+}

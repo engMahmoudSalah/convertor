@@ -68,6 +68,8 @@ with sync_playwright() as pw:
      ('crop-image',[F('ocr.png')],{'Shape':'1:1'},lambda o:(lambda im:im.size[0]==im.size[1])(__import__('PIL.Image',fromlist=['x']).open(o[0]))),
      ('crop-image',[F('grad.png')],{'Shape':'custom','Trim top %':'25','Trim left %':'10'},lambda o:__import__('PIL.Image',fromlist=['x']).open(o[0]).size==(58,48)),
      ('watermark-image',[F('grad.png')],{'Watermark text':'TEST','Text size':'30'},lambda o:__import__('PIL.ImageChops',fromlist=['x']).difference(__import__('PIL.Image',fromlist=['x']).open(o[0]).convert('RGB'),__import__('PIL.Image',fromlist=['x']).open(F('grad.png')).convert('RGB')).getbbox() is not None),
+     ('page-size',[F('three.pdf')],{'Paper size':'Letter','Direction':'Portrait'},lambda o:(lambda r:abs(float(r.pages[0].mediabox.width)-612)<1 and abs(float(r.pages[0].mediabox.height)-792)<1 and len(r.pages)==3)(__import__('pypdf').PdfReader(o[0]))),
+     ('flatten-pdf',[F('form.pdf')],{},lambda o:(lambda r:not (r.get_fields() or {}) and len(r.pages)==1)(__import__('pypdf').PdfReader(o[0])) and 'pdfimages' and __import__('subprocess').run(['pdfimages','-list',o[0]],capture_output=True,text=True).stdout.count('image')>=1),
      ('text-to-pdf',[F('note.txt')],{},lambda o:'Line two' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
      ('word-to-pdf',[F('sample.docx')],{},lambda o:'Quarterly Report' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
      ('word-to-text',[F('sample.docx')],{},lambda o:'Second paragraph' in open(o[0]).read()),
