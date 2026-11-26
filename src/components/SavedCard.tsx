@@ -31,7 +31,7 @@ export const SavedCard: React.FC<{ x: any; onGone: () => void }> = ({ x, onGone 
       <div className="sv-box rounded-xl p-3"><p className="text-xs uppercase tracking-wider opacity-60 mb-1.5">{t('Output')}</p>
         <p className="flex gap-2 justify-between"><span className="truncate">{x.out_name || '-'}</span><span dir="ltr" className="opacity-70 shrink-0">{fmtSize(outB)}</span></p>
         <p className="mt-1.5 flex items-center gap-2 flex-wrap" dir="ltr"><span>{fmtSize(inB)}</span><ArrowRight size={13} /><b>{fmtSize(outB)}</b>{Math.abs(d) >= 1 && <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${d > 0 ? 'sz-good bg-emerald-500/20 text-emerald-300' : 'sz-warn bg-amber-500/20 text-amber-300'}`}>{d > 0 ? `-${d}%` : `+${-d}%`}</span>}</p>
-        <p className="text-xs opacity-70 mt-1.5">{t(x.has_file ? 'Result stored in your profile' : 'Settings saved, result file not stored (over 3 MB)')}</p></div></div>
+        <p className="text-xs opacity-70 mt-1.5">{t(x.has_file ? 'Result stored in your profile' : 'Settings saved. No result file is kept: results over 3 MB, and saves made before signing in, keep settings only.')}</p></div></div>
     {chips.length > 0 && <div className="mt-3"><p className="text-xs uppercase tracking-wider opacity-60 mb-1.5 inline-flex items-center gap-1"><SlidersHorizontal size={12} /> {t('Options used')}</p><div className="flex flex-wrap gap-1.5">{chips.map(([k, v]) => <span key={k} className="sv-chip px-2.5 py-1 rounded-full text-xs"><span className="opacity-70">{k}:</span> <b>{v}</b></span>)}</div></div>}
     {miss && <p className="mt-3 text-sm text-red-300">{miss}</p>}
     <div className="flex flex-wrap gap-2 mt-4">

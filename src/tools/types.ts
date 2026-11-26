@@ -13,6 +13,6 @@ export interface Tool {
   id: string; title: string; desc: string; category: Category; icon: LucideIcon;
   accept: string[]; multiple: boolean; options?: Opt[]; minFiles?: number;
   /** Text tools have no files: a text box in, text out. */
-  kind?: 'text'; input?: { label: string; placeholder?: string; second?: string; none?: boolean; ext?: string; diff?: boolean };
+  kind?: 'text'; input?: { label: string; placeholder?: string; second?: string; none?: boolean; ext?: string; diff?: boolean; svg?: boolean };
   run: (files: File[], o: Record<string, any>, c: Ctx) => Promise<Out[]>;
 }

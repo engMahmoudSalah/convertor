@@ -330,6 +330,16 @@
   }
  },
  {
+  "id": "qr-code",
+  "title": "QR code generator",
+  "desc": "Make a QR code for a link or text, download SVG or PNG",
+  "cat": "dev",
+  "ar": {
+   "title": "مولّد رمز QR",
+   "desc": "اصنع رمز QR لرابط أو نص وحمّله SVG أو PNG"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

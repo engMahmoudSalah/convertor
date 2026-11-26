@@ -1,3 +1,4 @@
+import { qrSvg } from '../lib/qr';
 // Text and developer tools: pure functions, run on every keystroke in the browser.
 type Fn = (text: string, o: any, second?: string) => string | Promise<string>;
 
@@ -114,4 +115,5 @@ const hash: Fn = async (t, o) => {
   return o.upper ? hex.toUpperCase() : hex;
 };
 
-export const TEXT_FNS: Record<string, Fn> = { 'case-converter': caseConv, 'word-counter': counter, 'text-diff': diff, 'lorem-ipsum': lorem, 'clean-lines': cleanLines, 'json-formatter': json, 'base64-tool': base64, 'url-encode': url, 'csv-to-json': csvJson, 'hash-generator': hash };
+const qr: Fn = (t, o) => (t.trim() ? qrSvg(t, { ecl: o.ecl, margin: Number(o.margin), fg: o.fg, bg: o.bg }) : '');
+export const TEXT_FNS: Record<string, Fn> = { 'qr-code': qr, 'case-converter': caseConv, 'word-counter': counter, 'text-diff': diff, 'lorem-ipsum': lorem, 'clean-lines': cleanLines, 'json-formatter': json, 'base64-tool': base64, 'url-encode': url, 'csv-to-json': csvJson, 'hash-generator': hash };

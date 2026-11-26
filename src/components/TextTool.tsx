@@ -16,7 +16,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
   const { t: tr, lang } = useT(); const Icon = tool.icon; const inp = tool.input!; const ar = lang === 'ar';
   const [text, setText] = useState(''); const [second, setSecond] = useState('');
   const [opts, setOpts] = useState<Record<string, any>>(() => Object.fromEntries((tool.options ?? []).map((o) => [o.key, o.default])));
-  const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [gate, setGate] = useState(false);
+  const { plan } = useAuth(); const adSteps = plan ? plan.ads : 2; const [gate, setGate] = useState(false); const [kindPng, setKindPng] = useState(false);
   const [out, setOut] = useState(''); const [err, setErr] = useState(''); const [copied, setCopied] = useState(false);
   useEffect(() => { setText(''); setSecond(''); setOut(''); setErr(''); setOpts(Object.fromEntries((tool.options ?? []).map((o) => [o.key, o.default]))); }, [tool.id]);
   useEffect(() => {
@@ -28,6 +28,11 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
   }, [tool.id, text, second, opts]);
   const copy = async () => { try { await navigator.clipboard.writeText(out); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ } };
   const download = () => { setGate(false); const ext = inp.ext ?? 'txt'; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([out], { type: 'text/plain;charset=utf-8' })); a.download = `${tool.id}.${ext}`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); };
+  const downloadPng = () => {
+    const px = Math.max(128, Math.min(2048, Number(opts.size) || 512)); const img = new Image();
+    img.onload = () => { const cv = document.createElement('canvas'); cv.width = cv.height = px; const g = cv.getContext('2d')!; g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, px, px); cv.toBlob((b) => { if (!b) return; const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `${tool.id}.png`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); }, 'image/png'); };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(out);
+  };
   const lines = inp.diff ? out.split('\n') : [];
   return (
     <div className="pt-24 pb-16 max-w-7xl mx-auto px-4">
@@ -49,6 +54,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
             <div className="grid sm:grid-cols-2 gap-4">{tool.options.map((o) => (
               <label key={o.key} className="text-sm text-gray-300 block">{o.type !== 'check' && <span className="block mb-1">{tr(o.label)}</span>}
                 {o.type === 'select' ? <select className={field} value={opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.value })}>{o.options.map((x) => <option className="bg-gray-900" key={x.v} value={x.v}>{tr(x.l)}</option>)}</select>
+                  : o.type === 'color' ? <input type="color" className="h-10 w-20 bg-transparent" value={opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.value })} />
                   : o.type === 'check' ? <span className="flex gap-2 items-center"><input type="checkbox" className="accent-violet-500 w-4 h-4" checked={!!opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.checked })} />{tr(o.label)}</span>
                   : <input dir="ltr" type={o.type === 'number' ? 'number' : 'text'} className={field} min={(o as any).min} max={(o as any).max} value={opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: o.type === 'number' ? e.target.value : e.target.value })} />}
               </label>))}</div></div>}
@@ -56,10 +62,12 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
         <section className="flow-panel p-4 lg:sticky lg:top-24" aria-live="polite">
           <div className="flex items-center justify-between gap-2 mb-3"><h2 className="text-xs uppercase tracking-widest opacity-70">{tr('Result')}</h2>
             <div className="flex gap-2"><button type="button" onClick={copy} disabled={!out} className="flow-ghost px-3 py-1.5 rounded-lg text-sm font-semibold inline-flex items-center gap-1.5 disabled:opacity-40">{copied ? <Check size={15} /> : <Copy size={15} />} {copied ? tr('Copied') : tr('Copy')}</button>
-              <button type="button" onClick={() => (adSteps > 0 ? setGate(true) : download())} disabled={!out} className="flow-next px-3 py-1.5 rounded-lg text-sm font-semibold inline-flex items-center gap-1.5 disabled:opacity-40"><Download size={15} /> {tr('Download')}</button></div></div>
-          {gate && <div className="mb-4 rounded-xl border border-white/10 p-4"><AdGate steps={adSteps} onDone={download} onBack={() => setGate(false)} /></div>}
+              <button type="button" onClick={() => { setKindPng(false); if (adSteps > 0) setGate(true); else download(); }} disabled={!out} className="flow-next px-3 py-1.5 rounded-lg text-sm font-semibold inline-flex items-center gap-1.5 disabled:opacity-40"><Download size={15} /> {tr('Download')}</button></div></div>
+          {gate && <div className="mb-4 rounded-xl border border-white/10 p-4"><AdGate steps={adSteps} onDone={() => { setGate(false); kindPng ? downloadPng() : download(); }} onBack={() => setGate(false)} /></div>}
           {err && <p role="alert" className="text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm mb-3">{tr(err)}</p>}
-          {inp.diff
+          {inp.svg && out && <div className="grid place-items-center mb-4"><div className="rounded-xl p-3 bg-white border border-black/10"><img alt={tr('QR code preview')} width={240} height={240} className="block" style={{ imageRendering: 'pixelated' }} src={'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(out)} /></div>
+            <button type="button" onClick={() => { setKindPng(true); if (adSteps > 0) setGate(true); else downloadPng(); }} className="flow-ghost mt-3 px-3 py-1.5 rounded-lg text-sm font-semibold inline-flex items-center gap-1.5"><Download size={15} /> PNG</button></div>}
+          {inp.svg ? null : inp.diff
             ? <pre dir="auto" className="text-sm font-mono whitespace-pre-wrap break-words min-h-[240px] max-h-[70vh] overflow-auto">{lines.map((l, i) => <span key={i} className={`block px-1 ${l.startsWith('+ ') ? 'bg-emerald-500/15 text-emerald-300' : l.startsWith('- ') ? 'bg-red-500/15 text-red-300' : i === 0 ? 'font-bold' : 'opacity-70'}`}>{l || ' '}</span>)}</pre>
             : <pre dir="auto" className="text-sm font-mono whitespace-pre-wrap break-words min-h-[240px] max-h-[70vh] overflow-auto">{out || (err ? '' : <span className="opacity-50">{inp.none ? '' : tr('Your result appears here as you type.')}</span>)}</pre>}
           {out && <p dir="ltr" className="text-xs opacity-60 mt-2 text-start">{fmtSize(new Blob([out]).size)}</p>}
