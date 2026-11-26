@@ -52,21 +52,21 @@
  {
   "id": "rotate-pdf",
   "title": "Rotate PDF",
-  "desc": "Rotate all or some pages",
+  "desc": "Rotate all pages or only the ones you pick, in 90 degree steps",
   "cat": "edit",
   "ar": {
    "title": "تدوير PDF",
-   "desc": "دوّر كل الصفحات أو بعضها"
+   "desc": "دوّر كل الصفحات أو اللي تختارها بس، بخطوات 90 درجة"
   }
  },
  {
   "id": "page-numbers",
   "title": "Add page numbers",
-  "desc": "Stamp numbers on every page",
+  "desc": "Add page numbers to every page of a PDF, with position and start number",
   "cat": "edit",
   "ar": {
    "title": "إضافة أرقام الصفحات",
-   "desc": "اطبع الأرقام على كل صفحة"
+   "desc": "ضيف أرقام صفحات على كل صفحات الـ PDF، مع تحديد المكان ورقم البداية"
   }
  },
  {
@@ -1012,11 +1012,11 @@
  {
   "id": "uuid-generator",
   "title": "UUID generator",
-  "desc": "Random version 4 UUIDs",
+  "desc": "Generate random version 4 UUIDs in bulk, ready to copy",
   "cat": "privacy",
   "ar": {
    "title": "مولّد UUID",
-   "desc": "معرّفات UUID عشوائية من الإصدار 4"
+   "desc": "ولّد UUID عشوائي من النوع 4 بالكمية، جاهز للنسخ"
   }
  },
  {
@@ -1112,21 +1112,21 @@
  {
   "id": "word-to-text",
   "title": "Word to text",
-  "desc": "Extract plain text from DOCX",
+  "desc": "Extract the plain text from a Word DOCX file, right in your browser",
   "cat": "doc",
   "ar": {
    "title": "Word إلى نص",
-   "desc": "استخرج النص من DOCX"
+   "desc": "استخرج النص العادي من ملف Word بصيغة DOCX جوه المتصفح"
   }
  },
  {
   "id": "word-to-html",
   "title": "Word to HTML",
-  "desc": "Clean HTML from a DOCX",
+  "desc": "Turn a Word DOCX file into clean HTML you can paste anywhere",
   "cat": "doc",
   "ar": {
    "title": "Word إلى HTML",
-   "desc": "HTML نظيف من ملف DOCX"
+   "desc": "حوّل ملف Word بصيغة DOCX لـ HTML نضيف تقدر تلصقه في أي مكان"
   }
  },
  {
@@ -1272,11 +1272,11 @@
  {
   "id": "crop-pdf",
   "title": "Crop PDF",
-  "desc": "Trim page margins",
+  "desc": "Trim the margins of your PDF pages to remove white space",
   "cat": "edit",
   "ar": {
    "title": "اقتصاص PDF",
-   "desc": "قصّ هوامش الصفحات"
+   "desc": "قص هوامش صفحات الـ PDF عشان تشيل المساحات البيضا"
   }
  },
  {
@@ -1302,11 +1302,11 @@
  {
   "id": "pdf-to-powerpoint",
   "title": "PDF to PowerPoint",
-  "desc": "Every page as a slide",
+  "desc": "Turn every page of a PDF into a slide in a PowerPoint file",
   "cat": "from-pdf",
   "ar": {
    "title": "PDF إلى PowerPoint",
-   "desc": "كل صفحة كشريحة"
+   "desc": "حوّل كل صفحة في الـ PDF لسلايد في ملف PowerPoint"
   }
  },
  {
@@ -1322,11 +1322,11 @@
  {
   "id": "powerpoint-to-pdf",
   "title": "PowerPoint to PDF",
-  "desc": "PPTX slides into PDF pages",
+  "desc": "Turn the slides of a PowerPoint PPTX file into PDF pages",
   "cat": "to-pdf",
   "ar": {
    "title": "PowerPoint إلى PDF",
-   "desc": "شرائح PPTX إلى صفحات PDF"
+   "desc": "حوّل سلايدات ملف PowerPoint بصيغة PPTX لصفحات PDF"
   }
  }
 ]

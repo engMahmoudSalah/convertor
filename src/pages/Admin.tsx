@@ -1,3 +1,4 @@
+import { AdminAdsSeo } from '../components/AdminAdsSeo';
 import { AdminUsage } from '../components/AdminUsage';
 import { AdminPayments } from '../components/AdminPayments';
 import { PageHeader, CountUp, EmptyArt } from '../components/PageArt';
@@ -54,13 +55,7 @@ export const Admin: React.FC = () => {
     {tab === 'Payments' && <AdminPayments sysPayments={!!sys?.payments} plans={plans} />}
     {tab === 'Tools' && <AdminTools disabled={disabled} heavy={heavy ?? []} reload={async () => { await load(); await refresh(); }} toast={setToast} />}
     {tab === 'Usage' && <><AdminUsage />{ov && <p className="text-sm mt-4 opacity-80">{t('Saved operations')}: {ov.saved} · <bdi dir="ltr">{fmtB(ov.savedBytes)}</bdi></p>}</>}
-    {tab === 'Ads and SEO' && sys && <div className="grid md:grid-cols-2 gap-4"><div className={card}><p className="font-bold mb-2">{t('Ads')}</p>
-      <p className="text-sm">{dot(sys.ads.publisher)}{t('AdSense publisher ID')}: {sys.ads.publisher ? t('set') : t('not set')}</p><p className="text-sm">{dot(sys.ads.live)}{t('Real ads')}: {sys.ads.live ? t('on') : t('off (placeholder shown)')}</p>
-      <p className="text-xs opacity-70 mt-2">{t('Ad steps per plan')}: {plans.map((p) => `${p.name} ${p.ads}`).join(' · ')}</p></div>
-      <div className={card}><p className="font-bold mb-2">SEO</p><p className="text-sm">{dot(true)}sitemap.xml, robots.txt, ads.txt</p><p className="text-sm">{dot(true)}{TOOLS.length} {t('tool pages')} x 2 {t('languages')} + hreflang</p><p className="text-sm">{dot(true)}JSON-LD: SoftwareApplication, FAQ, HowTo, Breadcrumb</p>
-        <p className="text-xs mt-2 flex flex-wrap gap-3"><a className="underline" href="/sitemap.xml" target="_blank" rel="noreferrer">sitemap.xml</a><a className="underline" href="/robots.txt" target="_blank" rel="noreferrer">robots.txt</a><a className="underline" href="/ads.txt" target="_blank" rel="noreferrer">ads.txt</a></p></div>
-      <div className={card + ' md:col-span-2'}><p className="font-bold mb-2">{t('Integrations')}</p><p className="text-sm">{dot(sys.google)}Google sign-in: {sys.google ? t('on') : t('waiting for keys')}</p><p className="text-sm">{dot(sys.mail)}{t('Email (verification and reset)')}: {sys.mail ? t('on') : t('waiting for key')}</p><p className="text-sm">{dot(sys.payments)}{t('Payments')}: {sys.payments ? t('on') : t('waiting for keys')}</p>
-        <p className="text-xs opacity-70 mt-2">{sys.tables.map((x: any) => `${x.n}: ${x.c}`).join(' · ')} · schema {sys.schema}</p></div></div>}
+    {tab === 'Ads and SEO' && sys && <AdminAdsSeo sys={sys} plans={plans} />}
     {tab === 'Abuse' && abuse && <><div className="flex flex-wrap gap-3 mb-4">{abuse.byKind.length ? abuse.byKind.map((k: any) => <div key={k.k} className={card}><p className="text-xs opacity-70">{({ li: t('Login attempts'), su: t('Signups'), fg: t('Password reset'), fgm: t('Password reset'), rs: t('Reset link'), pw: t('Password change'), del: t('Account delete'), vf: t('Verify link'), rv: t('Resend verify'), gs: t('Google start') } as any)[k.k] ?? k.k} (7d)</p><p className="text-xl font-bold">{k.n}</p></div>) : <EmptyArt text={t('No abuse events')} />}</div>
       <ul className="text-xs space-y-1">{abuse.events.map((a: any) => <li key={a.id}>{new Date(a.ts).toLocaleString()} · {a.action} · {a.target} {a.detail}</li>)}</ul></>}
     {tab === 'Audit' && <><input aria-label={t('Filter the audit log')} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm mb-3 w-72" placeholder={t('Filter the audit log')} value={aq} onChange={(e) => setAq(e.target.value)} /><ul dir="ltr" className="text-xs space-y-1 text-start">{audit.map((a) => <li key={a.id}>{new Date(a.ts).toLocaleString()} · {a.actor} · {a.action} · {a.target} {a.detail}</li>)}</ul></>}
