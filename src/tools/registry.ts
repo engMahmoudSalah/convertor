@@ -1,7 +1,7 @@
 import { Combine, Scissors, FileX, FilePlus2, RotateCw, ListOrdered, Stamp, Minimize2, Images, FileImage, FileText, ArrowUpDown, Tags, Repeat, Maximize, ImageDown } from 'lucide-react';
 import type { Tool } from './types';
 import { Lock, Unlock, Wrench, Crop, PenLine, EyeOff, GitCompare, FileCode2, Sheet, Presentation, FileSpreadsheet } from 'lucide-react';
-import { AlignLeft, CaseSensitive, Hash, Diff, Pilcrow, ListFilter, Braces, Binary, Link2, Table2, Fingerprint, FlipHorizontal2, SlidersHorizontal, Frame } from 'lucide-react';
+import { FileImage as FileImg2, Palette, Globe, AlignLeft, CaseSensitive, Hash, Diff, Pilcrow, ListFilter, Braces, Binary, Link2, Table2, Fingerprint, FlipHorizontal2, SlidersHorizontal, Frame } from 'lucide-react';
 import { FileType, FileCode, FileOutput, FileType2 } from 'lucide-react';
 
 const loaders: Record<string, () => Promise<any>> = { P: () => import('./pdfTools'), I: () => import('./imageTools'), D: () => import('./docTools'), O: () => import('./ocrTools'), M: () => import('./moreTools'), E: () => import('./editTools'), F: () => import('./webForms') };
@@ -69,6 +69,11 @@ export const TOOLS: Tool[] = [
     options: [{ key: 'delimiter', label: 'Separator', type: 'select', default: ',', options: [{ v: ',', l: 'Comma' }, { v: ';', l: 'Semicolon' }, { v: 'tab', l: 'Tab' }] }, { key: 'header', label: 'First row is the header', type: 'check', default: true }, { key: 'numbers', label: 'Turn numbers into numbers', type: 'check', default: true }] },
   { id: 'hash-generator', title: 'Hash generator', desc: 'SHA-1, SHA-256, SHA-384 and SHA-512 of any text', category: 'dev', icon: Fingerprint, accept: [], multiple: false, kind: 'text', input: { label: 'Your text', placeholder: 'Type or paste text here' }, run: NOOP,
     options: [{ key: 'algo', label: 'Algorithm', type: 'select', default: 'SHA-256', options: [{ v: 'SHA-1', l: 'SHA-1' }, { v: 'SHA-256', l: 'SHA-256' }, { v: 'SHA-384', l: 'SHA-384' }, { v: 'SHA-512', l: 'SHA-512' }] }, { key: 'upper', label: 'Capital letters', type: 'check', default: false }] },
+  { id: 'svg-to-png', title: 'SVG to PNG', desc: 'Turn a vector SVG into a sharp PNG at any scale', category: 'image', icon: FileImg2, accept: ['image/svg+xml'], multiple: true, run: L('I', 'svgToPng'),
+    options: [{ key: 'scale', label: 'Scale (x)', type: 'number', default: 2, min: 1, max: 8 }, { key: 'bg', label: 'Background', type: 'select', default: 'transparent', options: [{ v: 'transparent', l: 'Transparent' }, { v: 'white', l: 'White' }] }] },
+  { id: 'favicon-generator', title: 'Favicon generator', desc: 'One image into favicon.ico, PNG sizes and an app icon', category: 'image', icon: Globe, accept: IMG, multiple: false, run: L('I', 'faviconPack') },
+  { id: 'color-palette', title: 'Color palette from image', desc: 'Find the main colours of a photo with HEX and RGB codes', category: 'image', icon: Palette, accept: IMG, multiple: true, run: L('I', 'colorPalette'),
+    options: [{ key: 'count', label: 'Number of colours', type: 'number', default: 6, min: 2, max: 12 }] },
   { id: 'resize-image', title: 'Resize image', desc: 'By pixels or percent, keeps the ratio', category: 'image', icon: Maximize, accept: IMG, multiple: true, run: L('I', 'resizeImages'),
     options: [{ key: 'mode', label: 'Mode', type: 'select', default: 'percent', options: [{ v: 'percent', l: 'Percent' }, { v: 'pixels', l: 'Pixels' }] }, { key: 'percent', label: 'Percent', type: 'number', default: 50, min: 1, max: 400 },
       { key: 'width', label: 'Width px', type: 'number', default: 0, min: 0 }, { key: 'height', label: 'Height px', type: 'number', default: 0, min: 0 }, { key: 'keep', label: 'Keep aspect ratio', type: 'check', default: true }] },

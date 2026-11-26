@@ -280,6 +280,36 @@
   }
  },
  {
+  "id": "svg-to-png",
+  "title": "SVG to PNG",
+  "desc": "Turn a vector SVG into a sharp PNG at any scale",
+  "cat": "image",
+  "ar": {
+   "title": "SVG إلى PNG",
+   "desc": "حوّل ملف SVG إلى PNG حاد بأي مقاس"
+  }
+ },
+ {
+  "id": "favicon-generator",
+  "title": "Favicon generator",
+  "desc": "One image into favicon.ico, PNG sizes and an app icon",
+  "cat": "image",
+  "ar": {
+   "title": "مولّد أيقونة الموقع",
+   "desc": "صورة واحدة إلى favicon.ico ومقاسات PNG وأيقونة تطبيق"
+  }
+ },
+ {
+  "id": "color-palette",
+  "title": "Color palette from image",
+  "desc": "Find the main colours of a photo with HEX and RGB codes",
+  "cat": "image",
+  "ar": {
+   "title": "ألوان الصورة",
+   "desc": "اعرف الألوان الأساسية في صورة مع أكواد HEX وRGB"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

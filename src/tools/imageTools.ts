@@ -176,3 +176,53 @@ function boxBlur(g: CanvasRenderingContext2D, w: number, h: number, rad: number)
   for (let i = 0; i < 2; i++) { pass(a, b, true); pass(b, a, false); }
   g.putImageData(im, 0, 0);
 }
+
+export async function svgToPng(files: File[], o: any, c: Ctx): Promise<Out[]> {
+  const outs: Out[] = [];
+  for (let i = 0; i < files.length; i++) {
+    c.progress(i, files.length);
+    const img = await loadImage(files[i]); const k = Math.max(1, Math.min(8, Number(o.scale) || 2));
+    const w = Math.round((img.naturalWidth || 512) * k), h = Math.round((img.naturalHeight || 512) * k);
+    if (w * h > 64_000_000) throw new Error('That size is too big for the browser. Use a smaller scale.');
+    outs.push({ name: `${baseName(files[i].name)}@${k}x.png`, blob: await encode(drawImage(img, w, h, o.bg === 'white' ? '#fff' : undefined), 'png', 1), note: `${w}x${h} PNG${o.bg === 'white' ? '' : ', transparent'}` });
+  }
+  return outs;
+}
+
+const u16 = (n: number) => [n & 255, (n >> 8) & 255]; const u32 = (n: number) => [n & 255, (n >> 8) & 255, (n >> 16) & 255, (n >>> 24) & 255];
+export async function faviconPack(files: File[], _o: any, c: Ctx): Promise<Out[]> {
+  const img = await loadImage(files[0]); const outs: Out[] = []; const sizes = [16, 32, 48, 180, 192, 512];
+  const side = Math.min(img.naturalWidth, img.naturalHeight); const sx = (img.naturalWidth - side) / 2, sy = (img.naturalHeight - side) / 2;
+  const png: Record<number, Uint8Array> = {};
+  for (let i = 0; i < sizes.length; i++) {
+    c.progress(i, sizes.length); const s = sizes[i]; const cv = document.createElement('canvas'); cv.width = cv.height = s;
+    const g = cv.getContext('2d')!; g.imageSmoothingQuality = 'high'; g.drawImage(img, sx, sy, side, side, 0, 0, s, s);
+    const b = await encode(cv, 'png', 1); png[s] = new Uint8Array(await b.arrayBuffer());
+    outs.push({ name: s === 180 ? 'apple-touch-icon.png' : s >= 192 ? `android-chrome-${s}.png` : `favicon-${s}x${s}.png`, blob: b, note: `${s}x${s}` });
+  }
+  const ico = [16, 32, 48]; const head = [0, 0, 1, 0, ...u16(ico.length)]; let off = 6 + 16 * ico.length; const dir: number[] = []; const body: Uint8Array[] = [];
+  for (const s of ico) { const d = png[s]; dir.push(s, s, 0, 0, ...u16(1), ...u16(32), ...u32(d.length), ...u32(off)); off += d.length; body.push(d); }
+  outs.unshift({ name: 'favicon.ico', blob: new Blob([new Uint8Array([...head, ...dir]), ...body as BlobPart[]], { type: 'image/x-icon' }), note: '16, 32 and 48 px inside' });
+  outs.push({ name: 'head-snippet.html', blob: new Blob([`<link rel="icon" href="/favicon.ico" sizes="48x48">\n<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">\n<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">\n<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n`], { type: 'text/html' }), note: 'Paste into your <head>' });
+  return outs;
+}
+
+export async function colorPalette(files: File[], o: any, c: Ctx): Promise<Out[]> {
+  const outs: Out[] = []; const n = Math.max(2, Math.min(12, Math.round(Number(o.count) || 6)));
+  for (let i = 0; i < files.length; i++) {
+    c.progress(i, files.length);
+    const img = await loadImage(files[i]); const sc = Math.min(1, 96 / Math.max(img.naturalWidth, img.naturalHeight));
+    const cv = drawImage(img, Math.max(1, Math.round(img.naturalWidth * sc)), Math.max(1, Math.round(img.naturalHeight * sc)));
+    const d = cv.getContext('2d')!.getImageData(0, 0, cv.width, cv.height).data; const bins = new Map<number, { r: number; g: number; b: number; n: number }>();
+    for (let p = 0; p < d.length; p += 4) { if (d[p + 3] < 128) continue; const key = ((d[p] >> 4) << 8) | ((d[p + 1] >> 4) << 4) | (d[p + 2] >> 4); const e = bins.get(key) ?? { r: 0, g: 0, b: 0, n: 0 }; e.r += d[p]; e.g += d[p + 1]; e.b += d[p + 2]; e.n++; bins.set(key, e); }
+    const all = [...bins.values()].sort((a, b) => b.n - a.n).map((e) => [Math.round(e.r / e.n), Math.round(e.g / e.n), Math.round(e.b / e.n), e.n] as number[]);
+    const pick: number[][] = []; for (const col of all) { if (pick.every((q) => Math.hypot(q[0] - col[0], q[1] - col[1], q[2] - col[2]) > 48)) pick.push(col); if (pick.length === n) break; }
+    if (!pick.length) throw new Error('No visible colours found in this image.');
+    const hex = (q: number[]) => '#' + q.slice(0, 3).map((x) => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+    const W = 160 * pick.length, sw = document.createElement('canvas'); sw.width = W; sw.height = 220; const g = sw.getContext('2d')!;
+    pick.forEach((q, k) => { g.fillStyle = hex(q); g.fillRect(k * 160, 0, 160, 220); const lum = 0.299 * q[0] + 0.587 * q[1] + 0.114 * q[2]; g.fillStyle = lum > 150 ? '#111' : '#fff'; g.font = 'bold 22px monospace'; g.textAlign = 'center'; g.fillText(hex(q), k * 160 + 80, 190); });
+    outs.push({ name: `${baseName(files[i].name)}-palette.png`, blob: await encode(sw, 'png', 1), note: pick.map(hex).join('  ') });
+    outs.push({ name: `${baseName(files[i].name)}-palette.txt`, blob: new Blob([pick.map((q) => `${hex(q)}  rgb(${q[0]}, ${q[1]}, ${q[2]})`).join('\n') + '\n'], { type: 'text/plain' }), note: 'HEX and RGB values' });
+  }
+  return outs;
+}
