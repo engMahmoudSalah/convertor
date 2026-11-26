@@ -418,7 +418,7 @@ async function route(req: Request, env: any): Promise<Response> {
       // /api/config is public and read on every page load: serve it from the edge cache for 60s so it costs no Durable Object reads.
       const cacheable = url.pathname === '/api/config' && req.method === 'GET'; const ck = new Request(url.origin + '/api/config', { method: 'GET' });
       if (cacheable) { const hit = await caches.default.match(ck); if (hit) return hit; }
-      try { const r = await stub.fetch(req); if (cacheable && r.ok) { const c = new Response(r.clone().body, r); c.headers.set('cache-control', 'public, max-age=60'); await caches.default.put(ck, c.clone()); return c; } return r; } catch (e) {
+      try { const r = await stub.fetch(req); if (req.method === 'POST' && r.ok && /^\/api\/admin\/(flag|plan|user)$/.test(url.pathname)) { try { await caches.default.delete(ck); } catch { /* ignore */ } } if (cacheable && r.ok) { const c = new Response(r.clone().body, r); c.headers.set('cache-control', 'public, max-age=60'); await caches.default.put(ck, c.clone()); return c; } return r; } catch (e) {
         const msg = e instanceof Error ? e.message : '';
         console.error('do_error', msg);
         // Storage quota or outage: keep client-side tools usable instead of blocking everything.
