@@ -381,6 +381,12 @@ export class AppDB extends DurableObject<any> {
         }
         const row = this.rows("SELECT v FROM settings WHERE k='usd_egp'")[0]; return json({ rate: row ? Number(row.v) : 50, set: !!row });
       }
+      if (path === '/admin/flags' && method === 'POST') {
+        const list = Array.isArray(body.tools) ? body.tools.map(String) : [];
+        if (!list.length || list.length > 300 || !list.every((x: string) => /^[a-z0-9-]{1,60}$/.test(x))) return json({ error: 'Bad tool list' }, 400);
+        for (const tl of new Set<string>(list)) this.sql.exec('INSERT INTO flags VALUES(?,?) ON CONFLICT(tool) DO UPDATE SET enabled=?', tl, body.enabled ? 1 : 0, body.enabled ? 1 : 0);
+        this.audit(u.email, body.enabled ? 'enable_tools' : 'disable_tools', `${new Set(list).size} tools`, list.slice(0, 8).join(',')); return json({ ok: true, count: new Set(list).size });
+      }
       if (path === '/admin/flag' && method === 'POST') {
         if (!/^[a-z0-9-]{1,60}$/.test(String(body.tool ?? ''))) return json({ error: 'Bad tool id' }, 400);
         this.sql.exec('INSERT INTO flags VALUES(?,?) ON CONFLICT(tool) DO UPDATE SET enabled=?', String(body.tool), body.enabled ? 1 : 0, body.enabled ? 1 : 0);
@@ -440,7 +446,7 @@ async function route(req: Request, env: any): Promise<Response> {
       // /api/config is public and read on every page load: serve it from the edge cache for 60s so it costs no Durable Object reads.
       const cacheable = url.pathname === '/api/config' && req.method === 'GET'; const ck = new Request(url.origin + '/api/config', { method: 'GET' });
       if (cacheable) { const hit = await caches.default.match(ck); if (hit) return hit; }
-      try { const r = await stub.fetch(req); if (req.method === 'POST' && r.ok && /^\/api\/admin\/(flag|plan|user)$/.test(url.pathname)) { try { await caches.default.delete(ck); } catch { /* ignore */ } } if (cacheable && r.ok) { const c = new Response(r.clone().body, r); c.headers.set('cache-control', 'public, max-age=60'); await caches.default.put(ck, c.clone()); return c; } return r; } catch (e) {
+      try { const r = await stub.fetch(req); if (req.method === 'POST' && r.ok && /^\/api\/admin\/(flags?|plan|user|rate)$/.test(url.pathname)) { try { await caches.default.delete(ck); } catch { /* ignore */ } } if (cacheable && r.ok) { const c = new Response(r.clone().body, r); c.headers.set('cache-control', 'public, max-age=60'); await caches.default.put(ck, c.clone()); return c; } return r; } catch (e) {
         const msg = e instanceof Error ? e.message : '';
         console.error('do_error', msg);
         // Storage quota or outage: keep client-side tools usable instead of blocking everything.

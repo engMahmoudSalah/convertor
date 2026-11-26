@@ -185,7 +185,7 @@ export const AR: Record<string, string> = {
   'suspended': 'موقوف',
   'Restore': 'استعادة',
   'Suspend': 'إيقاف',
-  'Save': 'حفظ', 'Saving...': 'جارٍ الحفظ...', 'Not saved': 'لم يُحفظ', 'Exchange rate: EGP per 1 USD': 'سعر الصرف: جنيه لكل 1 دولار', 'Save rate': 'حفظ السعر', 'Exchange rate saved': 'تم حفظ سعر الصرف', 'Editing USD updates EGP, and EGP updates USD, at this rate.': 'تعديل الدولار يغيّر الجنيه، وتعديل الجنيه يغيّر الدولار، بهذا السعر.', "Default rate, please set today's rate.": 'السعر افتراضي، حدّد سعر اليوم.',
+  'Save': 'حفظ', 'Switch tools off or on for everyone. Changes apply within seconds.': 'إيقاف أو تشغيل الأدوات للجميع. التغيير يسري خلال ثوانٍ.', 'Live': 'شغّالة', 'Switched off': 'موقوفة', 'Advanced (daily limit)': 'متقدمة (بحد يومي)', 'Search tools': 'ابحث في الأدوات', 'Filter': 'تصفية', 'All': 'الكل', 'Advanced': 'متقدمة', 'advanced': 'متقدمة', 'Switch everything back on': 'شغّل كل الأدوات من جديد', 'No tools match.': 'لا توجد أدوات مطابقة.', 'live': 'شغّالة', 'Switch all off': 'إيقاف الكل', 'Switch all on': 'تشغيل الكل', 'Open': 'افتح',  'Saving...': 'جارٍ الحفظ...', 'Not saved': 'لم يُحفظ', 'Exchange rate: EGP per 1 USD': 'سعر الصرف: جنيه لكل 1 دولار', 'Save rate': 'حفظ السعر', 'Exchange rate saved': 'تم حفظ سعر الصرف', 'Editing USD updates EGP, and EGP updates USD, at this rate.': 'تعديل الدولار يغيّر الجنيه، وتعديل الجنيه يغيّر الدولار، بهذا السعر.', "Default rate, please set today's rate.": 'السعر افتراضي، حدّد سعر اليوم.',
   'Date': 'التاريخ',
   'Amount': 'المبلغ',
   'Status': 'الحالة',
