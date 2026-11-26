@@ -126,7 +126,7 @@ with sync_playwright() as pw:
     api(adm, '/admin/rate', {'rate': 50})
     pg.get_by_role('tab', name='Audit', exact=True).click(); pg.get_by_label('Filter the audit log').fill('flag' if False else 'tool'); pg.wait_for_timeout(800); check('UI audit filter', pg.locator('section li').count() >= 2)
     pg.get_by_role('tab', name='Backup', exact=True).click()
-    with pg.expect_download() as d2: pg.get_by_role('link', name='Download backup (JSON)').click()
+    with pg.expect_download() as d2: pg.get_by_role('button', name='Download backup (JSON)').click()
     check('UI backup download', 'backup' in d2.value.suggested_filename)
     check('no JS errors in admin UI', not errs, errs)
     # non-admin UI shows setup form, not data

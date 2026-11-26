@@ -451,8 +451,11 @@ export class AppDB extends DurableObject<any> {
         this.audit(u.email, body.enabled ? 'enable_tool' : 'disable_tool', String(body.tool)); return json({ ok: true });
       }
       if (path === '/admin/export' && method === 'GET') {
-        this.audit(u.email, 'admin_export', '', '');
-        const data = { exported_at: new Date().toISOString(), users: this.rows('SELECT id,email,name,plan,plan_until,role,banned,email_verified,created_at,last_login FROM users'), plans: this.rows('SELECT * FROM plans'), flags: this.rows('SELECT * FROM flags'), orders: this.rows('SELECT * FROM orders'), saved: this.rows('SELECT id,user_id,tool,name,summary,out_name,out_size,has_file,ts FROM saved'), history: this.rows('SELECT * FROM history ORDER BY id DESC LIMIT 5000'), audit: this.rows('SELECT * FROM audit ORDER BY id DESC LIMIT 5000') };
+        if (!this.limit(`exp:${u.id}`, 20, 3600e3)) return json({ error: 'Too many exports, try again later' }, 429);
+        const Q: Record<string, string> = { users: 'SELECT id,email,name,plan,plan_until,role,banned,email_verified,created_at,last_login FROM users', plans: 'SELECT * FROM plans', flags: 'SELECT * FROM flags', orders: 'SELECT * FROM orders', saved: 'SELECT id,user_id,tool,name,summary,out_name,out_size,has_file,ts FROM saved', history: 'SELECT * FROM history ORDER BY id DESC LIMIT 5000', audit: 'SELECT * FROM audit ORDER BY id DESC LIMIT 5000' };
+        const only = (url.searchParams.get('only') ?? '').split(',').filter((k) => k in Q); const keys = only.length ? only : Object.keys(Q);
+        this.audit(u.email, 'admin_export', keys.join(','), '');
+        const data: Record<string, any> = { exported_at: new Date().toISOString(), parts: keys }; for (const k of keys) data[k] = this.rows(Q[k]);
         return new Response(JSON.stringify(data, null, 2), { headers: { 'content-type': 'application/json', 'content-disposition': `attachment; filename="magic-convertor-backup-${day()}.json"`, 'cache-control': 'no-store' } });
       }
       if (path === '/admin/overview' && method === 'GET') {

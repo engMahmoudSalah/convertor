@@ -1,3 +1,4 @@
+import { AdminBackup } from '../components/AdminBackup';
 import { AdminAudit } from '../components/AdminAudit';
 import { AdminAdsSeo } from '../components/AdminAdsSeo';
 import { AdminUsage } from '../components/AdminUsage';
@@ -59,7 +60,7 @@ export const Admin: React.FC = () => {
     {tab === 'Ads and SEO' && sys && <AdminAdsSeo sys={sys} plans={plans} />}
     {tab === 'Abuse' && <AdminAudit mode="abuse" />}
     {tab === 'Audit' && <AdminAudit mode="audit" />}
-    {tab === 'Backup' && <><p className="text-sm opacity-80 mb-3">{t('Download all users (no password data), plans, flags, orders, saved-operation records, history and audit log as one JSON file. Saved file contents are not included.')}</p><a href="/api/admin/export" download className="flow-ghost inline-block px-4 py-2 rounded-xl font-semibold">{t('Download backup (JSON)')}</a></>}
+    {tab === 'Backup' && <AdminBackup counts={{ ...Object.fromEntries((sys?.tables ?? []).map((x: any) => [x.n, x.c])), plans: plans.length, flags: (st?.flags ?? []).length }} />}
     </section></div>
   </div>);
 };
