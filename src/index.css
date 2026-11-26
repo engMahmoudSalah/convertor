@@ -450,3 +450,4 @@ input[type=checkbox], input[type=radio] { accent-color: var(--ac, #b4391f); }
 html[data-id=forest] .acc-avatar { border-radius: 999px; background: #c6f432; color: #0a2a23; box-shadow: none; }
 .acc-verify { background: color-mix(in srgb, #d9a21b 18%, transparent); border: 1px solid color-mix(in srgb, #d9a21b 55%, transparent); }
 .acc-danger { border: 1px solid color-mix(in srgb, #c2452a 55%, transparent) !important; }
+input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}
