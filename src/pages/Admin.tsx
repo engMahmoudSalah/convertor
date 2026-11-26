@@ -1,3 +1,4 @@
+import { AdminOverview } from '../components/AdminOverview';
 import { AdminBackup } from '../components/AdminBackup';
 import { AdminAudit } from '../components/AdminAudit';
 import { AdminAdsSeo } from '../components/AdminAdsSeo';
@@ -46,12 +47,7 @@ export const Admin: React.FC = () => {
     <PageHeader kind="admin" title={t('Admin dashboard')} sub={t('Users, plans, payments, usage, abuse and audit trail')} />
     {toast && <p role="alert" className="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 p-3 text-sm flex justify-between gap-3"><span>{toast}</span><button className="underline" onClick={() => setToast('')}>{t('Close')}</button></p>}
     <div className="grid lg:grid-cols-[12rem_1fr] gap-6 items-start"><div role="tablist" aria-orientation="vertical" aria-label={t('Admin sections')} className="flex lg:flex-col gap-1 overflow-x-auto lg:sticky lg:top-24 pb-1">{TABS.map((x) => <button key={x} role="tab" aria-selected={tab === x} onClick={() => setTab(x)} className={`whitespace-nowrap text-start px-4 py-2.5 rounded-xl text-sm font-semibold ${tab === x ? 'flow-next' : 'flow-ghost'}`}>{t(x)}</button>)}</div><section className="min-w-0">
-    {tab === 'Overview' && st && ov && <><div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      {[['Users', st.users], ['Paid users', st.pro], ['Signups (7d)', st.signups7], ['Jobs (24h)', st.jobs24], ['Jobs (7d)', st.jobs7], ['Suspended', st.banned], ['Abuse events (24h)', ov.abuse24], ['MRR (list price)', `$${st.mrrUsd}`]].map(([l, v]) => <div key={l as string} className={card}><p className="text-xs opacity-70">{t(l as string)}</p><p className="text-2xl font-bold"><CountUp value={v} /></p></div>)}</div>
-      <div className="grid md:grid-cols-3 gap-4 mb-6"><Bars title={t('Signups per day')} data={ov.signupsPerDay} /><Bars title={t('Jobs per day')} data={ov.jobsPerDay} /><Bars title={t('Data processed per day')} data={ov.bytesPerDay} fmt={fmtB} /></div>
-      <div className="grid md:grid-cols-2 gap-4"><div className={card}><p className="text-xs opacity-70 mb-2">{t('Users by plan')}</p>{ov.plans.map((p: any) => <div key={p.id} className="flex items-center gap-2 text-sm mb-1"><span className="w-20">{p.id}</span><span className="flex-1 h-2 rounded bg-black/10"><span className="block h-2 rounded" style={{ width: `${Math.round((p.n / Math.max(1, ov.total)) * 100)}%`, background: 'var(--ac)' }} /></span><b>{p.n}</b></div>)}
-        <p className="text-xs opacity-70 mt-3">{t('Email verified')}: {ov.verified}/{ov.total} · Google: {ov.google}</p></div>
-        <div className={card}><p className="text-xs opacity-70 mb-2">{t('Top tools (30d)')}</p>{ov.topTools30.length ? ov.topTools30.map((x: any) => <p key={x.tool} className="text-sm flex justify-between"><span>{x.tool}</span><b>{x.n}</b></p>) : <EmptyArt text={t('No jobs yet')} />}</div></div></>}
+    {tab === 'Overview' && st && ov && <AdminOverview st={st} ov={ov} sys={sys} plans={plans} go={(x) => setTab(x as (typeof TABS)[number])} charts={<><Bars title={t('Signups per day')} data={ov.signupsPerDay} /><Bars title={t('Jobs per day')} data={ov.jobsPerDay} /><Bars title={t('Data processed per day')} data={ov.bytesPerDay} fmt={fmtB} /></>} />}
     {tab === 'Users' && <AdminUsers plans={plans} toast={setToast} />}
     {tab === 'Plans' && <AdminPlans plans={plans} usersByPlan={Object.fromEntries((ov?.plans ?? []).map((x: any) => [x.id, x.n]))} advancedCount={(heavy ?? []).length} toast={setToast} refresh={refresh} />}
     {tab === 'Payments' && <AdminPayments sysPayments={!!sys?.payments} plans={plans} />}
