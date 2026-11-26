@@ -11,7 +11,7 @@ export const TypePage: React.FC = () => {
   if (!t) return <div className="pt-28 text-center">Not found. <Link className="text-violet-300" to="/">Home</Link></div>;
   const list = toolsOfType(type);
   return (<div className="pt-28 pb-12 max-w-6xl mx-auto px-4">
-    <PageHeader kind={(type === 'text' || type === 'developer' ? 'documents' : type) as any} title={tr(t.title)} sub={<>{tr(t.desc)}. <span className="text-gray-500">{list.length} {tr('tools')}.</span></>} />
+    <PageHeader kind={(['pdf', 'images', 'documents'].includes(type) ? type : 'documents') as any} title={tr(t.title)} sub={<>{tr(t.desc)}. <span className="text-gray-500">{list.length} {tr('tools')}.</span></>} />
     {list.some((x) => isHeavy(x.id)) && <AdvancedLegend />}
     {[...new Set(list.map((x) => x.category))].map((c) => (<section key={c} className="mb-8"><h2 className="text-lg font-semibold text-gray-300 mb-3">{tr(CATS[c])}</h2>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">{list.filter((x) => x.category === c).map((x) => { const I = x.icon; return (

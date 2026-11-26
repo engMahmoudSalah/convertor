@@ -1,5 +1,6 @@
 import { qrSvg } from '../lib/qr';
 import { DEV_FNS } from './devConvert';
+import { MISC_FNS } from './miscTools';
 // Text and developer tools: pure functions, run on every keystroke in the browser.
 type Fn = (text: string, o: any, second?: string) => string | Promise<string>;
 
@@ -215,4 +216,4 @@ const jwtDecode: Fn = (t) => {
   } catch { return 'Could not decode this token. Check that it is a complete JWT.'; }
 };
 
-export const TEXT_FNS: Record<string, Fn> = { ...DEV_FNS, 'jwt-decoder': jwtDecode, 'unit-converter': unitConv, 'color-converter': colorConv, 'timestamp-converter': timestamp, 'number-base': numberBase, 'find-replace': findReplace, 'text-slug': slug, 'qr-code': qr, 'case-converter': caseConv, 'word-counter': counter, 'text-diff': diff, 'lorem-ipsum': lorem, 'clean-lines': cleanLines, 'json-formatter': json, 'base64-tool': base64, 'url-encode': url, 'csv-to-json': csvJson, 'hash-generator': hash };
+export const TEXT_FNS: Record<string, Fn> = { ...DEV_FNS, ...MISC_FNS, 'jwt-decoder': jwtDecode, 'unit-converter': unitConv, 'color-converter': colorConv, 'timestamp-converter': timestamp, 'number-base': numberBase, 'find-replace': findReplace, 'text-slug': slug, 'qr-code': qr, 'case-converter': caseConv, 'word-counter': counter, 'text-diff': diff, 'lorem-ipsum': lorem, 'clean-lines': cleanLines, 'json-formatter': json, 'base64-tool': base64, 'url-encode': url, 'csv-to-json': csvJson, 'hash-generator': hash };

@@ -8,7 +8,7 @@ export type Opt =
   | { key: string; label: string; type: 'file'; default: null };
 export interface Out { name: string; blob: Blob; note?: string }
 export interface Ctx { progress: (done: number, total: number, msg?: string) => void }
-export type Category = 'organize' | 'optimize' | 'to-pdf' | 'from-pdf' | 'edit' | 'image' | 'doc' | 'security' | 'text' | 'dev';
+export type Category = 'organize' | 'optimize' | 'to-pdf' | 'from-pdf' | 'edit' | 'image' | 'doc' | 'security' | 'text' | 'dev' | 'calc' | 'time' | 'design' | 'privacy' | 'seo';
 export interface Tool {
   id: string; title: string; desc: string; category: Category; icon: LucideIcon;
   accept: string[]; multiple: boolean; options?: Opt[]; minFiles?: number;

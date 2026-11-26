@@ -2,14 +2,14 @@ import { AdvancedMark, AdvancedLegend } from '../components/AdvancedMark';
 import React, { useMemo, useState } from 'react';
 import { Wand } from '../components/Wand';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, Zap, Languages, ArrowRight, Search, FileText, Image as Img, FileType, Type, Braces, UploadCloud, Sparkles, History } from 'lucide-react';
+import { Lock, Zap, Languages, ArrowRight, Search, FileText, Image as Img, FileType, Type, Braces, UploadCloud, Sparkles, History, Calculator, CalendarDays, Palette, ShieldCheck, Globe } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { PageAd } from '../components/Ads';
 import { TOOLS, TYPES, toolsOfType } from '../tools/registry';
 import { useT } from '../lib/i18n';
 import { HomeSections } from '../components/HomeSections';
 import { setPending, guessType, getRecent } from '../lib/handoff';
-const ICONS: Record<string, any> = { pdf: FileText, images: Img, documents: FileType, text: Type, developer: Braces };
+const ICONS: Record<string, any> = { pdf: FileText, images: Img, documents: FileType, text: Type, developer: Braces, calculators: Calculator, datetime: CalendarDays, design: Palette, privacy: ShieldCheck, seo: Globe };
 const card = 'p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-violet-400/60 hover:bg-white/10 transition block';
 const ToolCard: React.FC<{ t: (typeof TOOLS)[number]; onClick?: () => void }> = ({ t, onClick }) => { const I = t.icon; const { t: tr } = useT(); return <Link to={`/tools/${t.id}`} onClick={onClick} className={card + ' relative'}><AdvancedMark id={t.id} /><I className="text-violet-300 mb-2" size={22} /><h3 className="font-semibold text-sm">{tr(t.title)}</h3><p className="text-xs text-gray-400 mt-1">{tr(t.desc)}</p></Link>; };
 export const Home: React.FC = () => {

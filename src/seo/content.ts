@@ -2,7 +2,7 @@ import TOOLS from './tools.json';
 export type SeoTool = { id: string; title: string; desc: string; cat: string; ar: { title: string; desc: string } };
 export const SEO_TOOLS = TOOLS as SeoTool[];
 export const SITE = 'Magic Convertor';
-export const PAGES = ['', 'pdf', 'images', 'documents', 'text', 'developer', 'pricing', 'about', 'contact', 'legal/terms', 'legal/privacy', 'legal/refunds'];
+export const PAGES = ['', 'pdf', 'images', 'documents', 'text', 'developer', 'calculators', 'datetime', 'design', 'privacy', 'seo', 'pricing', 'about', 'contact', 'legal/terms', 'legal/privacy', 'legal/refunds'];
 export const toolById = (id: string) => SEO_TOOLS.find((t) => t.id === id);
 
 type L = 'en' | 'ar';
@@ -329,6 +329,110 @@ const COPY: Record<string, Copy> = {
     steps: { en: ["Paste hex bytes.", "Read the text.", "Copy it."], ar: ["الصق البايتات الست عشرية.", "اقرأ النص.", "انسخه."] },
     faq: { en: [["Which separators work?", "Spaces, commas, colons, dashes and 0x prefixes are all accepted."], ["Which encoding is read?", "UTF-8."]], ar: [["أي فواصل تعمل؟", "تُقبل المسافات والفواصل والنقطتان والشرطات والبادئة 0x."], ["أي ترميز يُقرأ؟", "UTF-8."]] },
   },
+  "percentage-calculator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Can I do many lines?", "Yes. Put two numbers on each line."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل أقدر أحسب أكثر من سطر؟", "نعم. اكتب رقمين في كل سطر."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "loan-calculator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Which formula is used?", "The standard fixed payment formula with monthly compounding. Bank fees are not included."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["ما المعادلة المستخدمة؟", "معادلة القسط الثابت القياسية بفائدة شهرية. لا تشمل رسوم البنك."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "compound-interest": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Are taxes and inflation counted?", "No. The result is before tax and inflation."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل تُحسب الضرائب والتضخم؟", "لا. النتيجة قبل الضرائب والتضخم."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "discount-calculator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["How are two discounts applied?", "One after the other, not added together."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["كيف يُطبَّق خصمان؟", "واحد بعد الآخر، وليس بجمعهما."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "bmi-calculator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Is this medical advice?", "No. BMI is a rough screen and ignores muscle and age."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل هذا نصيحة طبية؟", "لا. المؤشر تقدير تقريبي ولا يراعي العضلات والعمر."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "stats-calculator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Which separators work?", "Spaces, commas, semicolons and new lines."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["أي فواصل تعمل؟", "المسافات والفواصل والمنقوطة والأسطر."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "gcd-lcm": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["How many numbers can I enter?", "Two or more, as whole numbers above zero."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["كم رقماً أقدر أدخل؟", "رقمان أو أكثر، أعداد صحيحة أكبر من صفر."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "age-calculator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Is my date sent anywhere?", "No. Everything runs in your browser."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل يُرسل تاريخي لأي مكان؟", "لا. كل شيء يعمل في متصفحك."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "date-difference": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Are both end dates counted?", "The day count is the plain difference. The weekday count includes both ends."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل يُحسب اليومان الأول والأخير؟", "عدد الأيام هو الفرق المجرد. وعدد أيام العمل يشمل الطرفين."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "date-add": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["What about month ends?", "Jan 31 plus one month gives the last day of February."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["ماذا عن نهاية الشهر؟", "31 يناير زائد شهر يعطي آخر يوم في فبراير."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "workdays-between": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Are public holidays removed?", "No. Only weekends are removed."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل تُخصم الإجازات الرسمية؟", "لا. تُخصم عطلة نهاية الأسبوع فقط."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "countdown-days": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Which day is today?", "Your device date."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["أي يوم هو اليوم؟", "تاريخ جهازك."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "timezone-converter": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Which names work?", "IANA names such as Africa/Cairo or Europe/London."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["أي أسماء تعمل؟", "أسماء IANA مثل Africa/Cairo أو Europe/London."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "contrast-checker": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Which levels are checked?", "WCAG 2 AA and AAA for normal and large text, and 3:1 for UI parts."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["أي مستويات تُفحص؟", "WCAG 2 مستويا AA وAAA للنص العادي والكبير، و3:1 لعناصر الواجهة."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "gradient-generator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Is there a fallback color?", "Yes. The first color is added as a solid fallback."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل يوجد لون بديل؟", "نعم. يُضاف اللون الأول كلون ثابت بديل."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "color-shades": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["How are shades made?", "By mixing the color with white or black."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["كيف تُصنع الدرجات؟", "بمزج اللون مع الأبيض أو الأسود."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "px-rem-converter": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["What is the base size?", "Browsers use 16px by default."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["ما الحجم الأساسي؟", "المتصفحات تستخدم 16px افتراضياً."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "password-generator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Are passwords stored?", "No. They are made on your device and never sent."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل تُحفظ كلمات المرور؟", "لا. تُنشأ على جهازك ولا تُرسل."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "password-strength": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Is it exact?", "No. It is an estimate. Long, random passwords are best."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل هو دقيق؟", "لا. هو تقدير. أفضل كلمة مرور هي الطويلة العشوائية."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "text-encrypt": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Can you recover a lost password?", "No. We never see it, so a lost password cannot be recovered."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل تستعيدون كلمة مرور ضائعة؟", "لا. لا نراها أبداً، فلا يمكن استعادتها."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "uuid-generator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Are they unique?", "Collisions are practically impossible."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل هي فريدة؟", "التكرار شبه مستحيل."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "meta-tag-generator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Are lengths checked?", "Yes. A note warns when the title or description is long."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل يُفحص الطول؟", "نعم. تظهر ملاحظة إذا طال العنوان أو الوصف."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "robots-txt-generator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Does robots.txt hide pages?", "No. It asks crawlers not to visit. It is not security."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل يخفي robots.txt الصفحات؟", "لا. يطلب من الزواحف عدم الزيارة. وليس حماية."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "sitemap-generator": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Is there a size limit?", "One sitemap file holds up to 50,000 URLs."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل يوجد حد للحجم؟", "الملف الواحد يتسع لـ 50,000 رابط."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "utm-builder": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Which fields are needed?", "Source, medium and campaign are the usual three."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["ما الحقول المطلوبة؟", "المصدر والوسيلة والحملة هي الثلاثة المعتادة."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
+  "keyword-density": {
+    steps: { en: ["Enter your values.", "Read the result.", "Copy or download it."], ar: ["أدخل القيم.", "اقرأ النتيجة.", "انسخها أو نزّلها."] },
+    faq: { en: [["Does it support Arabic?", "Yes. It counts words in any language."], ["Is my data uploaded?", "No. It runs in your browser."]], ar: [["هل يدعم العربية؟", "نعم. يعد الكلمات بأي لغة."], ["هل تُرفع بياناتي؟", "لا. يعمل في متصفحك."]] },
+  },
 };
 export const keywordsFor = (t: SeoTool, l: L) => EXTRA[t.id]?.[l] ?? (l === 'ar' ? `${T(t, l)} مجاناً أونلاين` : `${t.title.toLowerCase()} online free`);
 
@@ -369,6 +473,11 @@ export const pageMeta = (path: string, l: L) => {
     documents: { en: [`Document Converters Online Free | ${SITE}`, 'Convert Word, Excel, PowerPoint, text and scans to and from PDF.', 'Document tools'], ar: [`محولات المستندات أونلاين مجاناً | ${SITE}`, 'حوّل Word وExcel وPowerPoint والنصوص والمسح الضوئي من وإلى PDF.', 'أدوات المستندات'] },
     text: { en: [`Text Tools Online Free | ${SITE}`, 'Change text case, count words, compare two texts and clean lists in your browser.', 'Text tools'], ar: [`أدوات النصوص أونلاين مجاناً | ${SITE}`, 'غيّر حالة الحروف وعُدّ الكلمات وقارن نصين ونظّف القوائم داخل متصفحك.', 'أدوات النصوص'] },
     developer: { en: [`Developer Tools Online Free | ${SITE}`, 'Format JSON, encode Base64 and URLs, convert CSV to JSON and make SHA hashes in your browser.', 'Developer tools'], ar: [`أدوات المطورين أونلاين مجاناً | ${SITE}`, 'نسّق JSON وشفّر Base64 والروابط وحوّل CSV إلى JSON وأنشئ بصمات SHA داخل متصفحك.', 'أدوات المطورين'] },
+    calculators: { en: [`Free Online Calculators | ${SITE}`, 'Percentage, loan, BMI, statistics and quick maths calculators that run in your browser.', 'Calculators'], ar: [`حاسبات أونلاين مجانية | ${SITE}`, 'حاسبات النسبة المئوية والقروض ومؤشر كتلة الجسم والإحصاء تعمل داخل متصفحك.', 'الحاسبات'] },
+    datetime: { en: [`Date and Time Tools | ${SITE}`, 'Age calculator, date difference, time zone converter and countdowns in your browser.', 'Date and time'], ar: [`أدوات التاريخ والوقت | ${SITE}`, 'حاسبة العمر وفرق التواريخ ومحول المناطق الزمنية والعد التنازلي داخل متصفحك.', 'التاريخ والوقت'] },
+    design: { en: [`Design and Color Tools | ${SITE}`, 'Contrast checker, gradient and shade generators and CSS helpers in your browser.', 'Design and color'], ar: [`أدوات التصميم والألوان | ${SITE}`, 'فاحص التباين ومولدات التدرج والظلال ومساعدات CSS داخل متصفحك.', 'التصميم والألوان'] },
+    privacy: { en: [`Security and Privacy Tools | ${SITE}`, 'Password generator, text encryption, file hashes and PDF protection that stay on your device.', 'Security and privacy'], ar: [`أدوات الأمان والخصوصية | ${SITE}`, 'مولد كلمات المرور وتشفير النص وبصمات الملفات وحماية PDF تبقى على جهازك.', 'الأمان والخصوصية'] },
+    seo: { en: [`SEO and Web Tools | ${SITE}`, 'Meta tag, robots.txt and sitemap generators, UTM builder and content checks in your browser.', 'SEO and web'], ar: [`أدوات SEO والويب | ${SITE}`, 'مولدات وسوم meta وrobots.txt وخرائط الموقع وبناء UTM وفحص المحتوى داخل متصفحك.', 'SEO والويب'] },
     pricing: { en: [`Pricing and Plans | ${SITE}`, 'Free, Pro and Business plans: daily limits, file size and ads per plan.', 'Pricing'], ar: [`الأسعار والخطط | ${SITE}`, 'خطط مجانية وPro وBusiness: الحدود اليومية وحجم الملف والإعلانات لكل خطة.', 'الأسعار'] },
     about: { en: [`About ${SITE}`, 'Who builds Magic Convertor, how it works and how it is funded.', 'About'], ar: [`عن ${SITE}`, 'من يبني Magic Convertor وكيف يعمل وكيف يُموَّل.', 'عن الموقع'] },
     contact: { en: [`Contact | ${SITE}`, 'How to reach the owner of Magic Convertor for support, privacy or business questions.', 'Contact'], ar: [`تواصل معنا | ${SITE}`, 'كيف تتواصل مع صاحب Magic Convertor للدعم أو الخصوصية أو الأعمال.', 'تواصل'] },

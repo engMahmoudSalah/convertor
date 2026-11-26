@@ -810,6 +810,266 @@
   }
  },
  {
+  "id": "percentage-calculator",
+  "title": "Percentage calculator",
+  "desc": "Percent of a number, what percent one is of another, and percent change",
+  "cat": "calc",
+  "ar": {
+   "title": "حاسبة النسبة المئوية",
+   "desc": "النسبة من رقم، وكم تمثل نسبة رقم من آخر، ونسبة التغير"
+  }
+ },
+ {
+  "id": "loan-calculator",
+  "title": "Loan calculator",
+  "desc": "Monthly payment, total paid and total interest for a loan",
+  "cat": "calc",
+  "ar": {
+   "title": "حاسبة القروض",
+   "desc": "القسط الشهري وإجمالي المدفوع والفوائد للقرض"
+  }
+ },
+ {
+  "id": "compound-interest",
+  "title": "Compound interest calculator",
+  "desc": "See how savings grow with interest and monthly deposits",
+  "cat": "calc",
+  "ar": {
+   "title": "حاسبة الفائدة المركبة",
+   "desc": "شاهد نمو المدخرات بالفائدة والإيداع الشهري"
+  }
+ },
+ {
+  "id": "discount-calculator",
+  "title": "Discount calculator",
+  "desc": "Final price after one or two discounts, and how much you save",
+  "cat": "calc",
+  "ar": {
+   "title": "حاسبة الخصم",
+   "desc": "السعر النهائي بعد خصم أو خصمين وكم توفر"
+  }
+ },
+ {
+  "id": "bmi-calculator",
+  "title": "BMI calculator",
+  "desc": "Body mass index with the WHO adult category",
+  "cat": "calc",
+  "ar": {
+   "title": "حاسبة كتلة الجسم BMI",
+   "desc": "مؤشر كتلة الجسم مع تصنيف منظمة الصحة للبالغين"
+  }
+ },
+ {
+  "id": "stats-calculator",
+  "title": "Statistics calculator",
+  "desc": "Mean, median, mode, range and standard deviation of a list",
+  "cat": "calc",
+  "ar": {
+   "title": "حاسبة الإحصاء",
+   "desc": "المتوسط والوسيط والمنوال والمدى والانحراف المعياري لقائمة"
+  }
+ },
+ {
+  "id": "gcd-lcm",
+  "title": "GCD, LCM and prime factors",
+  "desc": "Greatest common divisor, least common multiple and prime factorization",
+  "cat": "calc",
+  "ar": {
+   "title": "القاسم المشترك الأكبر والمضاعف المشترك الأصغر",
+   "desc": "القاسم المشترك الأكبر والمضاعف المشترك الأصغر وتحليل الأعداد الأولية"
+  }
+ },
+ {
+  "id": "age-calculator",
+  "title": "Age calculator",
+  "desc": "Exact age in years, months and days, plus the next birthday",
+  "cat": "time",
+  "ar": {
+   "title": "حاسبة العمر",
+   "desc": "العمر بالتمام بالسنوات والشهور والأيام وموعد عيد الميلاد القادم"
+  }
+ },
+ {
+  "id": "date-difference",
+  "title": "Date difference",
+  "desc": "Days, weeks, months and weekdays between two dates",
+  "cat": "time",
+  "ar": {
+   "title": "الفرق بين تاريخين",
+   "desc": "الأيام والأسابيع والشهور وأيام العمل بين تاريخين"
+  }
+ },
+ {
+  "id": "date-add",
+  "title": "Add or subtract dates",
+  "desc": "Add days, weeks, months or years to a date",
+  "cat": "time",
+  "ar": {
+   "title": "جمع وطرح التواريخ",
+   "desc": "أضف أياماً أو أسابيع أو شهوراً أو سنوات إلى تاريخ"
+  }
+ },
+ {
+  "id": "workdays-between",
+  "title": "Working days calculator",
+  "desc": "Count working days between two dates, with Friday-Saturday weekends supported",
+  "cat": "time",
+  "ar": {
+   "title": "حاسبة أيام العمل",
+   "desc": "احسب أيام العمل بين تاريخين مع دعم عطلة الجمعة والسبت"
+  }
+ },
+ {
+  "id": "countdown-days",
+  "title": "Days until a date",
+  "desc": "How many days, weeks and months until a date",
+  "cat": "time",
+  "ar": {
+   "title": "كم يوم حتى تاريخ",
+   "desc": "كم يوم وأسبوع وشهر حتى تاريخ معين"
+  }
+ },
+ {
+  "id": "timezone-converter",
+  "title": "Time zone converter",
+  "desc": "Convert a date and time between time zones, daylight saving included",
+  "cat": "time",
+  "ar": {
+   "title": "محول المناطق الزمنية",
+   "desc": "حوّل التاريخ والوقت بين المناطق الزمنية مع التوقيت الصيفي"
+  }
+ },
+ {
+  "id": "contrast-checker",
+  "title": "Color contrast checker",
+  "desc": "WCAG contrast ratio between text and background colors",
+  "cat": "design",
+  "ar": {
+   "title": "فاحص تباين الألوان",
+   "desc": "نسبة التباين WCAG بين لون النص والخلفية"
+  }
+ },
+ {
+  "id": "gradient-generator",
+  "title": "CSS gradient generator",
+  "desc": "Write a linear or radial CSS gradient from your colors",
+  "cat": "design",
+  "ar": {
+   "title": "مولّد تدرج CSS",
+   "desc": "اكتب تدرج CSS خطي أو دائري من ألوانك"
+  }
+ },
+ {
+  "id": "color-shades",
+  "title": "Color shades generator",
+  "desc": "Lighter and darker shades of one color",
+  "cat": "design",
+  "ar": {
+   "title": "مولّد درجات اللون",
+   "desc": "درجات أفتح وأغمق للون واحد"
+  }
+ },
+ {
+  "id": "px-rem-converter",
+  "title": "PX to REM converter",
+  "desc": "Convert pixels to rem and back for CSS",
+  "cat": "design",
+  "ar": {
+   "title": "محول PX إلى REM",
+   "desc": "حوّل البكسل إلى rem والعكس لـ CSS"
+  }
+ },
+ {
+  "id": "password-generator",
+  "title": "Password generator",
+  "desc": "Strong random passwords made in your browser",
+  "cat": "privacy",
+  "ar": {
+   "title": "مولّد كلمات المرور",
+   "desc": "كلمات مرور عشوائية قوية تُنشأ داخل متصفحك"
+  }
+ },
+ {
+  "id": "password-strength",
+  "title": "Password strength checker",
+  "desc": "Estimate how strong a password is, in your browser",
+  "cat": "privacy",
+  "ar": {
+   "title": "فاحص قوة كلمة المرور",
+   "desc": "قدّر قوة كلمة المرور داخل متصفحك"
+  }
+ },
+ {
+  "id": "text-encrypt",
+  "title": "Encrypt and decrypt text",
+  "desc": "Lock text with a password using AES-256-GCM, fully in your browser",
+  "cat": "privacy",
+  "ar": {
+   "title": "تشفير وفك تشفير النص",
+   "desc": "اقفل النص بكلمة مرور بـ AES-256-GCM داخل متصفحك"
+  }
+ },
+ {
+  "id": "uuid-generator",
+  "title": "UUID generator",
+  "desc": "Random version 4 UUIDs",
+  "cat": "privacy",
+  "ar": {
+   "title": "مولّد UUID",
+   "desc": "معرّفات UUID عشوائية من الإصدار 4"
+  }
+ },
+ {
+  "id": "meta-tag-generator",
+  "title": "Meta tag generator",
+  "desc": "Title, description, Open Graph and Twitter tags for a page",
+  "cat": "seo",
+  "ar": {
+   "title": "مولّد وسوم Meta",
+   "desc": "وسوم العنوان والوصف وOpen Graph وTwitter للصفحة"
+  }
+ },
+ {
+  "id": "robots-txt-generator",
+  "title": "robots.txt generator",
+  "desc": "Build a robots.txt file with allow, disallow and sitemap lines",
+  "cat": "seo",
+  "ar": {
+   "title": "مولّد robots.txt",
+   "desc": "أنشئ ملف robots.txt بأسطر السماح والمنع وخريطة الموقع"
+  }
+ },
+ {
+  "id": "sitemap-generator",
+  "title": "Sitemap XML generator",
+  "desc": "Turn a list of URLs into a sitemap.xml file",
+  "cat": "seo",
+  "ar": {
+   "title": "مولّد خريطة الموقع XML",
+   "desc": "حوّل قائمة روابط إلى ملف sitemap.xml"
+  }
+ },
+ {
+  "id": "utm-builder",
+  "title": "UTM link builder",
+  "desc": "Add campaign tracking parameters to a link",
+  "cat": "seo",
+  "ar": {
+   "title": "منشئ روابط UTM",
+   "desc": "أضف معاملات تتبع الحملات إلى رابط"
+  }
+ },
+ {
+  "id": "keyword-density",
+  "title": "Keyword density checker",
+  "desc": "Most used words in a text with counts and percentages",
+  "cat": "seo",
+  "ar": {
+   "title": "فاحص كثافة الكلمات",
+   "desc": "أكثر الكلمات استخداماً في نص مع العدد والنسبة"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",

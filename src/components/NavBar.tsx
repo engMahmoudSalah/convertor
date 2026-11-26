@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, X, Sun, Moon, User, SlidersHorizontal, Search } from 'lucide-react';
+import { Menu, X, Sun, Moon, User, SlidersHorizontal, Search, ChevronDown } from 'lucide-react';
 import { applyIdentity, currentIdentity } from '../lib/identity';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
@@ -15,9 +15,27 @@ const menuItems = [
   { name: 'Documents', path: '/documents' },
   { name: 'Text', path: '/text' },
   { name: 'Developer', path: '/developer' },
-  { name: 'Pricing', path: '/pricing' },
 ];
+const moreItems = [
+  { name: 'Calculators and math', path: '/calculators' },
+  { name: 'Date and time', path: '/datetime' },
+  { name: 'Design and color', path: '/design' },
+  { name: 'Security and privacy', path: '/privacy' },
+  { name: 'SEO and web', path: '/seo' },
+];
+const pricingItem = { name: 'Pricing', path: '/pricing' };
 
+
+const MoreMenu: React.FC = () => {
+  const { t } = useT(); const loc = useLocation(); const [open, setOpen] = React.useState(false); const box = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => setOpen(false), [loc.pathname]);
+  React.useEffect(() => { if (!open) return; const d = (e: MouseEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false); }; const k = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); }; document.addEventListener('mousedown', d); document.addEventListener('keydown', k); return () => { document.removeEventListener('mousedown', d); document.removeEventListener('keydown', k); }; }, [open]);
+  const active = moreItems.some((m) => loc.pathname.startsWith(m.path));
+  return (<div className="relative" ref={box}>
+    <button type="button" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen(!open)} className={`px-3.5 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-1 ${active ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>{t('More tools')}<ChevronDown size={14} className={open ? 'rotate-180 transition' : 'transition'} /></button>
+    {open && <div className="mc-menu flow-panel absolute start-0 top-full mt-2 w-60 p-2 z-50">{moreItems.map((m) => <NavLink key={m.path} to={m.path} className={({ isActive }) => `block px-3 py-2.5 rounded-xl text-sm font-medium ${isActive ? 'bg-black/10' : 'hover:bg-black/5'}`}>{t(m.name)}</NavLink>)}</div>}
+  </div>);
+};
 
 const SettingsMenu: React.FC = () => {
   const { light, toggle } = useTheme(); const { t, lang, setLang } = useT(); const [open, setOpen] = React.useState(false); const [idn, setIdn] = React.useState(currentIdentity());
@@ -48,7 +66,7 @@ export const NavBar: React.FC = () => {
   React.useEffect(() => { const k = (e: KeyboardEvent) => { const el = e.target as HTMLElement | null; const typing = !!el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable); if ((e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey)) { e.preventDefault(); setFind(true); } }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k); }, []);
   React.useEffect(() => { const f = () => setScrolled(window.scrollY > 8); f(); window.addEventListener('scroll', f, { passive: true }); return () => window.removeEventListener('scroll', f); }, []);
   React.useEffect(() => setIsOpen(false), [loc.pathname]);
-  const items = [...menuItems, ...(user?.role === 'admin' ? [{ name: 'Admin', path: '/admin' }] : user && !adminExists ? [{ name: 'Claim admin', path: '/admin' }] : [])];
+  const items = [...menuItems, pricingItem, ...(user?.role === 'admin' ? [{ name: 'Admin', path: '/admin' }] : user && !adminExists ? [{ name: 'Claim admin', path: '/admin' }] : [])];
   const link = ({ isActive }: { isActive: boolean }) => `px-3.5 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`;
   return (
     <nav data-scrolled={scrolled || isOpen ? '1' : '0'} className="mc-nav fixed w-full z-50">
@@ -58,7 +76,9 @@ export const NavBar: React.FC = () => {
           <span className="nav-word font-display text-lg min-[400px]:text-xl sm:text-2xl font-semibold whitespace-nowrap">Magic Convertor</span>
         </Link>
         <div className="hidden md:flex items-center gap-1" role="navigation">
-          {items.map((i) => <NavLink key={i.path} to={i.path} className={link}>{t(i.name)}</NavLink>)}
+          {menuItems.map((i) => <NavLink key={i.path} to={i.path} className={link}>{t(i.name)}</NavLink>)}
+          <MoreMenu />
+          {items.filter((i) => i.path !== '/pdf' && !menuItems.some((m) => m.path === i.path)).map((i) => <NavLink key={i.path} to={i.path} className={link}>{t(i.name)}</NavLink>)}
         </div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setFind(true)} aria-label={t('Find a tool')} title={t('Find a tool')} className="h-9 px-2.5 inline-flex items-center gap-2 rounded-lg border border-white/20 text-gray-300 hover:text-white"><Search size={16} /><kbd dir="ltr" className="hidden lg:inline text-[11px] opacity-60">Ctrl K</kbd></button>
@@ -69,7 +89,7 @@ export const NavBar: React.FC = () => {
       </div>
       <div className={`md:hidden border-t border-white/10 ${isOpen ? 'block' : 'hidden'}`}>
         <div className="px-3 py-3 space-y-1">
-          {[...items, user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((i) => <NavLink key={i.path} to={i.path} className={({ isActive }) => `block ${link({ isActive })} text-base`}>{t(i.name)}</NavLink>)}
+          {[...menuItems, ...moreItems, ...items.filter((i) => !menuItems.some((m) => m.path === i.path)), user ? { name: 'Account', path: '/account' } : { name: 'Sign in', path: '/login' }].map((i) => <NavLink key={i.path} to={i.path} className={({ isActive }) => `block ${link({ isActive })} text-base`}>{t(i.name)}</NavLink>)}
         </div>
       </div>
       <QuickFind open={find} onClose={() => setFind(false)} />
