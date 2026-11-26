@@ -433,3 +433,5 @@ html[data-id=forest]:not(.light) .mc-idn.on { border-color: #c6f432; background:
 .adv-tool-note{font-size:.8rem;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;margin:0 0 .5rem;opacity:.88}
 .adv-tool-note b{font-weight:600}
 html[data-id=forest]:not(.light) [class*="bg-violet-500/"] { color: inherit; }
+html:not([data-id=forest]) .seg button[aria-checked=true] { color: #fff; }
+input[type=range] { accent-color: var(--ac, #b4391f); }
