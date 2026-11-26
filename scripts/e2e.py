@@ -18,6 +18,7 @@ def tool(p, tid, files, opts=None, label=None):
     for k,v in (opts or {}).items():
         el = p.locator('label').filter(has=p.locator('span', has_text=k)).first.locator('select, input:not([type=range])')
         if el.evaluate('e=>e.tagName')=='SELECT': el.select_option(v)
+        elif isinstance(v,bool): el.set_checked(v)
         else: el.fill(str(v))
     p.locator('button.bg-gradient-to-r').first.click()
     p.wait_for_selector('.flow-bar button.flow-next:not([disabled]), p.text-red-300', timeout=25000)
@@ -56,6 +57,9 @@ with sync_playwright() as pw:
      ('convert-image',[F('grad.png')],{'Convert to':'bmp'},lambda o:open(o[0],'rb').read(2)==b'BM'),
      ('convert-image',[F('grad.png')],{'Convert to':'webp'},lambda o:open(o[0],'rb').read(4)==b'RIFF'),
      ('resize-image',[F('grad.png')],{'Mode':'percent','Percent':'50'},lambda o:o[0].endswith('32x32.png')),
+     ('rotate-image',[F('ocr.png')],{'Rotation':'90','Flip':'h'},lambda o:(lambda a,b:(a.size==(b.size[1],b.size[0])))(__import__('PIL.Image',fromlist=['x']).open(o[0]),__import__('PIL.Image',fromlist=['x']).open(F('ocr.png')))),
+     ('filter-image',[F('grad.png')],{'Black and white':True},lambda o:(lambda im:all(abs(im.getpixel((x,x))[0]-im.getpixel((x,x))[1])<3 for x in range(0,60,10)))(__import__('PIL.Image',fromlist=['x']).open(o[0]).convert('RGB'))),
+     ('round-image',[F('grad.png')],{'Corner roundness % (100 = circle)':'100'},lambda o:__import__('PIL.Image',fromlist=['x']).open(o[0]).convert('RGBA').getpixel((0,0))[3]==0),
      ('text-to-pdf',[F('note.txt')],{},lambda o:'Line two' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
      ('word-to-pdf',[F('sample.docx')],{},lambda o:'Quarterly Report' in __import__('pypdf').PdfReader(o[0]).pages[0].extract_text()),
      ('word-to-text',[F('sample.docx')],{},lambda o:'Second paragraph' in open(o[0]).read()),
@@ -86,7 +90,7 @@ with sync_playwright() as pw:
      ('scan-to-pdf',[F('logo.png'),F('grad.png')],{},lambda o:pages(o[0])==2),
      ('compress-image',[F('grad.png')],{},lambda o:len(o)==1),
     ]
-    for tid,files,opts,chk in cases:
+    for tid,files,opts,chk in [c for c in cases if os.environ.get("ONLY","") in c[0]]:
         try:
             o,e=tool(p,tid,files,opts); ok = (o is not None) and bool(chk(o))
             print(('PASS' if ok else 'FAIL'),tid,opts,e or '')

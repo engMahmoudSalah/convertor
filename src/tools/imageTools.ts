@@ -87,3 +87,53 @@ export async function backgroundImages(files: File[], o: any, c: Ctx): Promise<O
   }
   return outs;
 }
+
+const outFmt = (name: string) => { const e = name.split('.').pop()!.toLowerCase(); return e === 'jpeg' ? 'jpg' : MIME[e] ? e : 'png'; };
+
+export async function rotateImages(files: File[], o: any, c: Ctx): Promise<Out[]> {
+  const outs: Out[] = [];
+  for (let i = 0; i < files.length; i++) {
+    c.progress(i, files.length);
+    const img = await loadImage(files[i]); const w = img.naturalWidth, h = img.naturalHeight;
+    const a = Number(o.angle) || 0; const swap = a === 90 || a === 270;
+    const cv = document.createElement('canvas'); cv.width = swap ? h : w; cv.height = swap ? w : h;
+    const g = cv.getContext('2d')!; const fmt = outFmt(files[i].name);
+    if (fmt === 'jpg') { g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); }
+    g.translate(cv.width / 2, cv.height / 2); g.rotate(a * Math.PI / 180);
+    g.scale(o.flip === 'h' || o.flip === 'both' ? -1 : 1, o.flip === 'v' || o.flip === 'both' ? -1 : 1);
+    g.drawImage(img, -w / 2, -h / 2);
+    outs.push({ name: `${baseName(files[i].name)}-rotated.${fmt}`, blob: await encode(cv, fmt, 0.92), note: `${a}°${o.flip && o.flip !== 'none' ? ', flipped' : ''}` });
+  }
+  return outs;
+}
+
+export async function filterImages(files: File[], o: any, c: Ctx): Promise<Out[]> {
+  const outs: Out[] = [];
+  const f = `brightness(${o.brightness}%) contrast(${o.contrast}%) saturate(${o.saturation}%) blur(${o.blur}px) grayscale(${o.grayscale ? 100 : 0}%) sepia(${o.sepia ? 100 : 0}%)`;
+  for (let i = 0; i < files.length; i++) {
+    c.progress(i, files.length);
+    const img = await loadImage(files[i]); const w = img.naturalWidth, h = img.naturalHeight;
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const g = cv.getContext('2d')!; const fmt = outFmt(files[i].name);
+    if (fmt === 'jpg') { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); }
+    g.filter = f; g.drawImage(img, 0, 0, w, h);
+    outs.push({ name: `${baseName(files[i].name)}-filtered.${fmt}`, blob: await encode(cv, fmt, 0.92), note: `${w}x${h}` });
+  }
+  return outs;
+}
+
+export async function roundImages(files: File[], o: any, c: Ctx): Promise<Out[]> {
+  const outs: Out[] = [];
+  for (let i = 0; i < files.length; i++) {
+    c.progress(i, files.length);
+    const img = await loadImage(files[i]); const w = img.naturalWidth, h = img.naturalHeight;
+    const r = Math.min(w, h) / 2 * (Number(o.radius) / 100); const b = Math.round(Number(o.border) || 0);
+    const W = w + b * 2, H = h + b * 2; const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const g = cv.getContext('2d')!;
+    const path = (x: number, y: number, ww: number, hh: number, rr: number) => { g.beginPath(); g.roundRect(x, y, ww, hh, Math.max(0, rr)); };
+    if (b) { g.fillStyle = o.color || '#ffffff'; path(0, 0, W, H, r + b); g.fill(); }
+    g.save(); path(b, b, w, h, r); g.clip(); g.drawImage(img, b, b, w, h); g.restore();
+    outs.push({ name: `${baseName(files[i].name)}-rounded.png`, blob: await encode(cv, 'png', 1), note: 'PNG with transparent corners' });
+  }
+  return outs;
+}

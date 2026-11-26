@@ -150,6 +150,36 @@
   }
  },
  {
+  "id": "rotate-image",
+  "title": "Rotate and flip image",
+  "desc": "Turn by 90 degrees or mirror a photo",
+  "cat": "image",
+  "ar": {
+   "title": "تدوير الصورة وقلبها",
+   "desc": "دوّر الصورة 90 درجة أو اقلبها كالمرآة"
+  }
+ },
+ {
+  "id": "filter-image",
+  "title": "Photo filters",
+  "desc": "Brightness, contrast, saturation, blur, black and white, sepia",
+  "cat": "image",
+  "ar": {
+   "title": "فلاتر الصور",
+   "desc": "السطوع والتباين والإشباع والتمويه وأبيض وأسود وبني قديم"
+  }
+ },
+ {
+  "id": "round-image",
+  "title": "Round corners and border",
+  "desc": "Soft corners and an optional frame, saved as transparent PNG",
+  "cat": "image",
+  "ar": {
+   "title": "حواف دائرية وإطار",
+   "desc": "حواف ناعمة وإطار اختياري، تُحفظ PNG شفافة"
+  }
+ },
+ {
   "id": "resize-image",
   "title": "Resize image",
   "desc": "By pixels or percent, keeps the ratio",
