@@ -18,6 +18,6 @@ export const StatsVisual: React.FC<{ text: string; t: (s: string) => string }> =
       </div>
       <div className="flex justify-between text-[10px] opacity-70 mt-1"><span>{f(lo)}</span><span>{f(hi)}</span></div>
     </div>
-    <p className="text-xs mt-2 flex flex-wrap gap-x-4 gap-y-1"><span><i className="inline-block w-3 h-[3px] align-middle me-1" style={{ background: '#e0643f' }} />{t('Mean')} <span dir="ltr">{f(mean)}</span></span><span><i className="inline-block w-3 h-[3px] align-middle me-1" style={{ background: '#0c2b22' }} />{t('Median')} <span dir="ltr">{f(med)}</span></span></p>
+    <p className="text-xs mt-2 flex flex-wrap gap-x-4 gap-y-1"><span><i className="inline-block w-3 h-[3px] align-middle me-1" style={{ background: '#e0643f' }} />{t('Mean')} <span dir="ltr">{f(mean)}</span></span><span><i className="inline-block w-3 h-[3px] align-middle me-1" style={{ background: '#0c2b22', boxShadow: '0 0 0 1px #fff' }} />{t('Median')} <span dir="ltr">{f(med)}</span></span></p>
   </div>);
 };
