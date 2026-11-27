@@ -46,7 +46,7 @@ export const AdGate: React.FC<{ steps: number; onDone: () => void; onBack: () =>
     <div className="text-center space-y-4" role="region" aria-label={t('Your file is ready')}>
       <p className="font-semibold">{t('Your file is ready')}. {t('Step')} {i + 1} {t('of')} {steps}</p>
       <AdSlot slot={undefined} />
-      <p className="text-sm opacity-70" aria-live="polite">{left > 0 ? `${t('You can continue in')} ${left}s` : t('Thanks for supporting the free plan')}</p>
+      <p className="text-sm opacity-70" aria-live="polite">{left > 0 ? `${t('You can continue in')} ${left} ${t('sec')}` : t('Thanks for supporting the free plan')}</p>
       <div className="flex flex-wrap gap-2 justify-center">
         <button onClick={() => (last ? onDone() : setI(i + 1))} disabled={left > 0} className="flow-next px-6 py-3 rounded-xl font-bold disabled:opacity-50">{last ? t('Show my download') : t('Next')}</button>
         <button onClick={onBack} className="flow-ghost px-4 py-3 rounded-xl font-semibold">{t('Back')}</button>

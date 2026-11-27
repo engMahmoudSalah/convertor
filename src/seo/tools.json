@@ -485,7 +485,7 @@
   "desc": "Escape special characters or turn entities back into text",
   "cat": "dev",
   "ar": {
-   "title": "ترميز HTML entities",
+   "title": "ترميز وفك ترميز كيانات HTML",
    "desc": "هرّب الرموز الخاصة أو أعدها نصاً"
   }
  },
