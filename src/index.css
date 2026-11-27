@@ -460,3 +460,4 @@ input[type="color"] { border: 2px solid rgba(12, 43, 34, .55); border-radius: 12
 input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
 input[type="color"]::-webkit-color-swatch { border: 1px solid rgba(0,0,0,.25); border-radius: 8px; }
 .dark input[type="color"], html:not(.light) input[type="color"] { border-color: rgba(255,255,255,.5); }
+html:not(.light) .seg button[aria-checked=true] { box-shadow: inset 0 0 0 1.5px rgba(212,245,60,.75); }
