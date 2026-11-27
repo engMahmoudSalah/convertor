@@ -13,6 +13,7 @@ import { CalcChart, hasChart } from './CalcChart';
 import { SeoPreview, hasSeoPreview } from './SeoPreview';
 import { UtmHelper, hasUtm } from './UtmHelper';
 import { DiscountVisual, hasDiscountVisual } from './DiscountVisual';
+import { StrengthVisual, hasStrengthVisual } from './StrengthVisual';
 import { PercentVisual, hasPercentVisual } from './PercentVisual';
 import { StatsVisual, hasStatsVisual } from './StatsVisual';
 import { BmiGauge, hasBmiGauge } from './BmiGauge';
@@ -108,6 +109,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
           {parsed !== undefined && !inp.diff && <div className="flex gap-1 mb-3" role="tablist" aria-label={tr('Result view')}>{(['text', 'tree'] as const).map((v) => <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => setView(v)} className={`${view === v ? 'flow-next' : 'flow-ghost'} px-3 py-1 rounded-lg text-xs font-semibold`}>{v === 'text' ? tr('Text') : tr('Tree')}</button>)}</div>}
           {err && <p role="alert" className="text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm mb-3">{tr(err)}</p>}
           {hasDiscountVisual(tool.id) && out && !err && <div className="mb-4"><DiscountVisual opts={opts} t={tr} /></div>}
+          {hasStrengthVisual(tool.id) && out && !err && <div className="mb-4"><StrengthVisual text={text} t={tr} /></div>}
           {hasPercentVisual(tool.id) && out && !err && <div className="mb-4"><PercentVisual text={text} opts={opts} t={tr} /></div>}
           {hasStatsVisual(tool.id) && out && !err && <div className="mb-4"><StatsVisual text={text} t={tr} /></div>}
           {hasBmiGauge(tool.id) && out && !err && <div className="mb-4"><BmiGauge opts={opts} t={tr} /></div>}
