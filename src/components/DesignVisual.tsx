@@ -52,7 +52,11 @@ export const ShadesVisual: React.FC<{ out: string; t: (s: string) => string }> =
   const cols = out.split('\n').map((l) => { const m = /(.*?)\s+(#[0-9a-f]{6})\s*$/i.exec(l); return m && HEX.test(m[2]) ? { label: m[1].trim(), hex: m[2].toLowerCase() } : null; }).filter(Boolean) as { label: string; hex: string }[];
   if (!cols.length) return null;
   const copy = async (h: string) => { try { await navigator.clipboard.writeText(h); setDone(h); setTimeout(() => setDone(''), 1200); } catch { /* ignore */ } };
-  return (<div className="grid grid-cols-3 sm:grid-cols-5 gap-2" role="list">{cols.map((c) => (
+  const css = ':root {\n' + cols.map((c, i) => `  --shade-${i + 1}: ${c.hex};`).join('\n') + '\n}';
+  const copyAll = async () => { try { await navigator.clipboard.writeText(css); setDone('all'); setTimeout(() => setDone(''), 1400); } catch { /* ignore */ } };
+  return (<div className="space-y-3"><div aria-hidden="true" dir="ltr" className="flex h-8 rounded-full overflow-hidden" style={{ border: '1px solid rgba(128,128,128,.35)' }}>{cols.map((c) => <span key={'r' + c.hex + c.label} className="flex-1" style={{ background: c.hex }} />)}</div>
+    <button type="button" onClick={copyAll} className="flow-ghost px-3 py-1.5 rounded-lg text-sm font-semibold inline-flex items-center gap-1.5">{done === 'all' && <Check size={14} aria-hidden="true" />}{t('Copy all as CSS variables')}</button>
+    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2" role="list">{cols.map((c) => (
     <button key={c.hex + c.label} role="listitem" type="button" onClick={() => copy(c.hex)} aria-label={`${t('Copy')} ${c.hex}`} className="rounded-xl p-2 h-24 flex flex-col justify-end text-start border-2" style={{ background: c.hex, color: inkOn(c.hex), borderColor: 'rgba(128,128,128,.35)' }}>
-      <span dir="ltr" className="font-mono text-xs font-bold inline-flex items-center gap-1">{done === c.hex && <Check size={12} aria-hidden="true" />}{c.hex}</span></button>))}</div>);
+      <span dir="ltr" className="font-mono text-xs font-bold inline-flex items-center gap-1">{done === c.hex && <Check size={12} aria-hidden="true" />}{c.hex}</span></button>))}</div></div>);
 };
