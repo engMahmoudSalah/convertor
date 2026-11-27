@@ -20,7 +20,7 @@ import { fmtSize } from '../lib/util';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { Thumbs } from '../components/Thumbs';
-import { StampPreview, hasStampPreview, NupPreview, hasNupPreview, PdfImgPreview, hasPdfImgPreview } from '../components/StampPreview';
+import { StampPreview, hasStampPreview, NupPreview, hasNupPreview, PdfImgPreview, hasPdfImgPreview, SizePreview, hasSizePreview } from '../components/StampPreview';
 import { AdGate, PageAd } from '../components/Ads';
 import { ToolInfo } from '../components/ToolInfo';
 import { SplitPreview, CompressPreview, FileCards, PageGrid, BackgroundPreview, PageFrame, usePreviewMode, compressPages } from '../components/PreviewDock';
@@ -144,7 +144,8 @@ const FileToolPage: React.FC = () => {
           {mode === 'first' && hasStampPreview(tool.id) && <StampPreview id={tool.id} file={files[0]} opts={opts} t={tr} />}
           {mode === 'first' && hasNupPreview(tool.id) && <NupPreview file={files[0]} opts={opts} t={tr} />}
           {mode === 'first' && hasPdfImgPreview(tool.id) && <PdfImgPreview file={files[0]} opts={opts} t={tr} />}
-          {mode === 'first' && !hasStampPreview(tool.id) && !hasNupPreview(tool.id) && !hasPdfImgPreview(tool.id) && <Thumbs blobs={files.slice(0, 4)} />}
+          {mode === 'first' && hasSizePreview(tool.id) && <SizePreview file={files[0]} opts={opts} t={tr} />}
+          {mode === 'first' && !hasStampPreview(tool.id) && !hasNupPreview(tool.id) && !hasPdfImgPreview(tool.id) && !hasSizePreview(tool.id) && <Thumbs blobs={files.slice(0, 4)} />}
         </>}
       </aside></div>}
       {stage === 'board' && <div className="flow-bar mt-6 flex items-center justify-between gap-3"><button onClick={() => setStage('upload')} className="flow-ghost px-4 py-2.5 rounded-xl text-sm font-semibold inline-flex items-center gap-2"><ArrowLeft size={16} className="rtl:rotate-180" /> {tr('Back')}</button>{outs.length === 0 && !busy && <span className="text-xs opacity-70 hidden sm:inline">{tr('Apply the tool, then press Next. You can keep editing until then.')}</span>}<button disabled={!outs.length || busy} onClick={() => setStage('final')} className="flow-next px-6 py-2.5 rounded-xl font-semibold inline-flex items-center gap-2 disabled:opacity-40">{tr('Next')} <ArrowRight size={18} className="rtl:rotate-180" /></button></div>}

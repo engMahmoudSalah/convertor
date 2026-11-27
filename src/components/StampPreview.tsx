@@ -78,3 +78,30 @@ export const PdfImgPreview: React.FC<{ file?: File; opts: Record<string, any>; t
         <div><dt className="text-xs opacity-70">{t('This page')}</dt><dd dir="ltr"><b>{kb(r.size)}</b></dd></div>
         <div><dt className="text-xs opacity-70">{t('Estimate for all pages')}</dt><dd dir="ltr"><b>~{kb(r.size * r.n)}</b> · {r.n} {t('pages')}</dd></div></dl></div></div>);
 };
+
+export const hasSizePreview = (id: string) => id === 'page-size';
+/** Page 1 fitted onto the chosen sheet: same sizes, orientation, margin and centring as the PDF code. */
+export const SizePreview: React.FC<{ file?: File; opts: Record<string, any>; t: (s: string) => string }> = ({ file, opts, t }) => {
+  const cv = useRef<HTMLCanvasElement>(null); const K = 0.7;
+  const [pg, setPg] = useState<{ im: HTMLCanvasElement; n: number } | null>(null);
+  useEffect(() => {
+    setPg(null); if (!file || !(file.type === 'application/pdf' || /\.pdf$/i.test(file.name))) return; let dead = false;
+    (async () => { try { const { openPdf, renderPage } = await import('../lib/pdfjs'); const doc = await openPdf(file); const im = await renderPage(doc, 1, 1); if (!dead) setPg({ im, n: doc.numPages }); } catch { /* unreadable */ } })();
+    return () => { dead = true; };
+  }, [file]);
+  const sizes: Record<string, [number, number]> = { a4: [595.28, 841.89], a3: [841.89, 1190.55], a5: [419.53, 595.28], letter: [612, 792], legal: [612, 1008] };
+  const key = sizes[opts.size] ? String(opts.size) : 'a4'; const margin = Math.max(0, Math.min(100, Number(opts.margin) || 0));
+  let [W, H] = sizes[key]; const pw = pg ? pg.im.width : 1, ph = pg ? pg.im.height : 1; const orient = opts.orient ?? 'auto';
+  if (orient === 'landscape' || (orient === 'auto' && pw > ph)) [W, H] = [H, W];
+  const sc = Math.min((W - 2 * margin) / pw, (H - 2 * margin) / ph);
+  useEffect(() => {
+    const c = cv.current; if (!c || !pg) return; c.width = W * K; c.height = H * K; const g = c.getContext('2d'); if (!g) return;
+    g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); const dw = pw * sc, dh = ph * sc; const x = (W - dw) / 2, y = (H - dh) / 2;
+    g.drawImage(pg.im, x * K, y * K, dw * K, dh * K); g.strokeStyle = 'rgb(153,153,153)'; g.lineWidth = 0.5; g.strokeRect(x * K, y * K, dw * K, dh * K);
+    if (margin > 0) { g.setLineDash([4, 3]); g.strokeStyle = 'rgb(200,80,60)'; g.strokeRect(margin * K, margin * K, (W - 2 * margin) * K, (H - 2 * margin) * K); }
+  }, [pg, W, H, margin, sc, pw, ph]);
+  if (!pg) return null;
+  return (<div><p className="text-xs uppercase tracking-widest opacity-70 mb-2">{t('First page on the new size')}</p>
+    <canvas ref={cv} role="img" aria-label={t('First page on the new size')} className="block rounded-lg shadow-lg mx-auto max-w-full h-auto" style={{ background: '#fff', maxHeight: '28rem', width: 'auto' }} />
+    <p className="text-xs opacity-70 mt-2 text-center" dir="ltr">{key.toUpperCase()} · {Math.round(W)}×{Math.round(H)} pt · {Math.round(sc * 100)}%</p></div>);
+};
