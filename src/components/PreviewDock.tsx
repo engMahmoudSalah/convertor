@@ -38,7 +38,7 @@ export const FileCards: React.FC<{ files: File[]; setFiles: (f: File[]) => void;
   const totalPages = files.reduce((n, f) => n + (pg[f.name + f.size] ?? 0), 0);
   useEffect(() => { let dead = false; files.forEach((f) => { const k = f.name + f.size; if (th[k]) return; thumbsFor(f, f.name, 1, 0.3, (t) => !dead && setTh((p) => ({ ...p, [k]: t.url })), () => dead); }); return () => { dead = true; }; }, [files]);
   const dnd = useDnd(files.map((_, i) => i), (o) => setFiles(o.map((i) => files[i])));
-  return (<div>{files.length > 1 && <p className="text-xs opacity-70 mb-2">{files.length} files{totalPages > 0 ? ` · ${totalPages} pages in total` : ''} · {fmtSize(files.reduce((n, f) => n + f.size, 0))}</p>}<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">{files.map((f, i) => (
+  return (<div>{files.length > 1 && <p className="text-xs opacity-70 mb-2">{files.length} {tr('files')}{totalPages > 0 ? ` · ${totalPages} ${tr('pages in total')}` : ''} · <bdi dir="ltr">{fmtSize(files.reduce((n, f) => n + f.size, 0))}</bdi></p>}<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">{files.map((f, i) => (
     <div key={f.name + f.size + i} {...dnd(i)} className="relative group cursor-grab active:cursor-grabbing bg-white/5 border border-white/10 rounded-xl p-2 hover:border-violet-400/60">
       <span className="absolute top-1 left-1 text-[10px] bg-black/60 rounded px-1.5">{i + 1}</span><GripVertical size={14} className="absolute top-1.5 right-1.5 text-gray-400" />
       <div className="h-32 flex items-center justify-center bg-white/90 rounded-lg overflow-hidden">{th[f.name + f.size] ? <img src={th[f.name + f.size]} className="max-h-32 object-contain" draggable={false} /> : <span className="text-gray-500 text-xs">{f.name.split('.').pop()}</span>}</div>

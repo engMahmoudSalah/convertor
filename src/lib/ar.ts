@@ -185,7 +185,7 @@ export const AR: Record<string, string> = {
   'suspended': 'موقوف',
   'Restore': 'استعادة',
   'Suspend': 'إيقاف',
-  'Save': 'حفظ', 
+  'Save': 'حفظ', 'pages in total': 'صفحة إجمالاً', 
   'pages': 'صفحة',
 
   'Page 1 as an image': 'الصفحة 1 كصورة',
