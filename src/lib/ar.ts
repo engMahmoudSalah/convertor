@@ -186,6 +186,8 @@ export const AR: Record<string, string> = {
   'Restore': 'استعادة',
   'Suspend': 'إيقاف',
   'Save': 'حفظ', 
+  'Button': 'زر',
+
   'Very weak': 'ضعيفة جداً',
   'Weak': 'ضعيفة',
   'Fair': 'مقبولة',

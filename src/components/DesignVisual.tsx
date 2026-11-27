@@ -34,6 +34,11 @@ export const ContrastVisual: React.FC<{ opts: Opts; setOpts: (o: Opts) => void; 
 export const GradientVisual: React.FC<{ out: string; t: (s: string) => string }> = ({ out, t }) => {
   const m = /background:\s*((?:linear|radial)-gradient\([^;]+\));/.exec(out); if (!m) return null;
   return (<div className="space-y-2"><div role="img" aria-label={t('Gradient preview')} className="h-40 rounded-2xl border" style={{ background: m[1], borderColor: 'rgba(128,128,128,.4)' }} />
+    <div className="grid grid-cols-3 gap-2" aria-hidden="true">
+      <div className="rounded-full h-10 flex items-center justify-center text-xs font-bold" style={{ background: m[1], color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,.5)' }}>{t('Button')}</div>
+      <div className="rounded-xl h-10" style={{ border: '3px solid transparent', background: `linear-gradient(rgba(128,128,128,.15),rgba(128,128,128,.15)) padding-box, ${m[1]} border-box` }} />
+      <div className="h-10 flex items-center justify-center text-lg font-black" style={{ background: m[1], WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Aa Bb</div></div>
+    <div dir="ltr" className="flex flex-wrap gap-1.5">{(m[1].match(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g) || []).map((c, i) => <span key={i} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-mono" style={{ border: '1px solid rgba(128,128,128,.35)' }}><i className="inline-block w-3 h-3 rounded-full" style={{ background: c }} />{c}</span>)}</div>
     <p dir="ltr" className="text-xs opacity-70 break-all">{m[1]}</p></div>);
 };
 
