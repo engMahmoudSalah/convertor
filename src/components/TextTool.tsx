@@ -9,6 +9,7 @@ import { AdGate, PageAd } from './Ads';
 import { useAuth } from '../lib/auth';
 import { TEXT_FNS } from '../tools/textTools';
 import { fmtSize } from '../lib/util';
+import { CalcChart, hasChart } from './CalcChart';
 import { ContrastVisual, GradientVisual, ShadesVisual } from './DesignVisual';
 import { StatStrip, JsonTree, tryParseJson, exampleFor } from './TextExtras';
 import { ClipboardPaste, FileUp, ArrowLeftRight, Link2, Wand2 } from 'lucide-react';
@@ -96,6 +97,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
           {gate && <div className="mb-4 rounded-xl border border-white/10 p-4"><AdGate steps={adSteps} onDone={() => { setGate(false); kindPng ? downloadPng() : download(); }} onBack={() => setGate(false)} /></div>}
           {parsed !== undefined && !inp.diff && <div className="flex gap-1 mb-3" role="tablist" aria-label={tr('Result view')}>{(['text', 'tree'] as const).map((v) => <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => setView(v)} className={`${view === v ? 'flow-next' : 'flow-ghost'} px-3 py-1 rounded-lg text-xs font-semibold`}>{v === 'text' ? tr('Text') : tr('Tree')}</button>)}</div>}
           {err && <p role="alert" className="text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm mb-3">{tr(err)}</p>}
+          {hasChart(tool.id) && out && <div className="mb-4"><CalcChart id={tool.id} opts={opts} t={tr} /></div>}
           {tool.id === 'contrast-checker' && <div className="mb-4"><ContrastVisual opts={opts} setOpts={setOpts} t={tr} /></div>}
           {tool.id === 'gradient-generator' && out && <div className="mb-4"><GradientVisual out={out} t={tr} /></div>}
           {tool.id === 'color-shades' && out && <div className="mb-4"><ShadesVisual out={out} t={tr} /></div>}
