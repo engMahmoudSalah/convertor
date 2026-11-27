@@ -14,8 +14,8 @@ export const ResizePresets: React.FC<{ opts: any; setOpts: (o: any) => void; t: 
       <div key={gr.g} className="mb-2"><p className="text-xs opacity-70 mb-1">{t(gr.g)}</p>
         <div className="flex flex-wrap gap-2">{gr.items.map(([n, w, h]) => {
           const on = opts.mode === 'pixels' && Number(opts.width) === w && Number(opts.height) === h && opts.keep;
-          return (<button key={n} type="button" aria-pressed={on} onClick={() => setOpts({ ...opts, mode: 'pixels', width: w, height: h, keep: true })}
+          return (<button key={n} type="button" aria-pressed={on} onClick={() => setOpts({ ...opts, mode: 'pixels', width: w, height: h, keep: true, fit: opts.fit ?? 'inside' })}
             className="flow-ghost px-3 py-1.5 rounded-lg text-xs font-semibold" style={on ? { background: '#0c2b22', color: '#d4f53c', borderColor: '#0c2b22' } : undefined}>{t(n)} <span dir="ltr" className={on ? '' : 'opacity-70'}>{w}×{h}</span></button>);
         })}</div></div>))}
-    <p className="text-xs opacity-70 mt-1">{t('The picture fits inside the size. It is never stretched.')}</p>
+    <p className="text-xs opacity-70 mt-1">{t('The picture is never stretched. Choose above whether it fits inside, fills and crops, or gets padded.')}</p>
   </div>);

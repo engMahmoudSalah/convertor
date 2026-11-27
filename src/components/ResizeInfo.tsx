@@ -18,6 +18,7 @@ export const ResizeInfo: React.FC<{ files: File[]; opts: any; ar: boolean }> = (
     if (opts.mode === 'percent') return [Math.max(1, Math.round(d.w * opts.percent / 100)), Math.max(1, Math.round(d.h * opts.percent / 100))];
     let w = Number(opts.width) || 0, h = Number(opts.height) || 0;
     if (w && !h) h = Math.round(d.h * w / d.w); else if (h && !w) w = Math.round(d.w * h / d.h);
+    else if (w && h && (opts.fit === 'fill' || opts.fit === 'pad')) { /* exact box */ }
     else if (w && h && opts.keep) { const s = Math.min(w / d.w, h / d.h); w = Math.round(d.w * s); h = Math.round(d.h * s); }
     return w && h ? [w, h] : null;
   };

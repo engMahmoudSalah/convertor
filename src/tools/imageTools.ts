@@ -24,16 +24,25 @@ export async function resizeImages(files: File[], o: any, c: Ctx): Promise<Out[]
   for (let i = 0; i < files.length; i++) {
     c.progress(i, files.length);
     const img = await loadImage(files[i]); const ow = img.naturalWidth, oh = img.naturalHeight;
-    let w = ow, h = oh;
+    let w = ow, h = oh; let box: [number, number] | null = null;
     if (o.mode === 'percent') { w = Math.round(ow * o.percent / 100); h = Math.round(oh * o.percent / 100); }
     else {
       w = Number(o.width) || 0; h = Number(o.height) || 0;
       if (w && !h) h = Math.round(oh * w / ow); else if (h && !w) w = Math.round(ow * h / oh);
+      else if (w && h && (o.fit === 'fill' || o.fit === 'pad')) { box = [w, h]; }
       else if (w && h && o.keep) { const s = Math.min(w / ow, h / oh); w = Math.round(ow * s); h = Math.round(oh * s); }
       if (!w || !h) throw new Error('Enter a width or a height');
     }
     const ext = files[i].name.split('.').pop()!.toLowerCase(); const fmt = ext === 'jpeg' ? 'jpg' : MIME[ext] ? ext : 'png';
-    outs.push({ name: `${baseName(files[i].name)}-${w}x${h}.${fmt}`, blob: await encode(drawImage(img, w, h, fmt === 'jpg' ? '#fff' : undefined), fmt, 0.92), note: `${ow}x${oh} to ${w}x${h}` });
+    let cv: HTMLCanvasElement;
+    if (box) {
+      const [bw, bh] = box; cv = document.createElement('canvas'); cv.width = bw; cv.height = bh; const g = cv.getContext('2d')!;
+      if (fmt === 'jpg' || o.fit === 'pad') { g.fillStyle = fmt === 'jpg' ? '#fff' : (o.padColor || '#ffffff'); if (fmt === 'jpg' || o.padColor) g.fillRect(0, 0, bw, bh); }
+      if (o.fit === 'fill') { const sc = Math.max(bw / ow, bh / oh); const sw = bw / sc, sh = bh / sc; g.drawImage(img, (ow - sw) / 2, (oh - sh) / 2, sw, sh, 0, 0, bw, bh); }
+      else { const sc = Math.min(bw / ow, bh / oh); const dw = Math.round(ow * sc), dh = Math.round(oh * sc); g.drawImage(img, Math.round((bw - dw) / 2), Math.round((bh - dh) / 2), dw, dh); }
+      w = bw; h = bh;
+    } else cv = drawImage(img, w, h, fmt === 'jpg' ? '#fff' : undefined);
+    outs.push({ name: `${baseName(files[i].name)}-${w}x${h}.${fmt}`, blob: await encode(cv, fmt, 0.92), note: `${ow}x${oh} to ${w}x${h}` });
   }
   return outs;
 }
