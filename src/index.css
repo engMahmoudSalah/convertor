@@ -469,3 +469,6 @@ html:not([data-id=forest]) .plan-pro { border-color: var(--ac) !important; backg
   .seg > button:first-child:nth-last-child(n+3), .seg > button:first-child:nth-last-child(n+3) ~ button { flex-basis: 100%; }
 }
 html[data-id=forest] button.bg-gradient-to-r.w-full:hover { transform: translateY(-1px); }
+@container (max-width: 26rem) {
+  .seg-long > button { flex-basis: 100%; }
+}
