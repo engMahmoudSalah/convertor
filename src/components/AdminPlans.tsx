@@ -9,17 +9,19 @@ const inp = 'w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 t
 
 export const AdminPlans: React.FC<{ plans: Row[]; usersByPlan: Record<string, number>; advancedCount: number; toast: (m: string) => void; refresh: () => Promise<void> }> = ({ plans, usersByPlan, advancedCount, toast, refresh }) => {
   const { t } = useT();
-  const [pl, setPl] = useState<Row[]>([]); const [rate, setRate] = useState('50'); const [rateSet, setRateSet] = useState(true); const [state, setState] = useState<Record<string, string>>({}); const timers = useRef<Record<string, any>>({});
+  const [pl, setPl] = useState<Row[]>([]); const [rate, setRate] = useState('54.8'); const [rateSet, setRateSet] = useState(true); const [state, setState] = useState<Record<string, string>>({}); const timers = useRef<Record<string, any>>({});
   useEffect(() => setPl(plans.map((p) => ({ ...p }))), [plans]);
   useEffect(() => { api('/admin/rate').then((r) => { if (r.rate) { setRate(String(r.rate)); setRateSet(!!r.set); } }); }, []);
   const saveRate = async () => { const r = await api('/admin/rate', { rate: Number(rate) }); toast(r.error ? String(r.error) : t('Exchange rate saved')); if (!r.error) setRateSet(true); };
+  const [fxNote, setFxNote] = useState('');
+  const liveRate = async () => { const r = await api('/admin/rate', { fetch: true }); if (r.error) return toast(String(r.error)); setRate(String(r.live)); setFxNote(`${r.live} · ${r.source}`); };
   const autosave = (row: Row) => {
     clearTimeout(timers.current[row.id]); setState((m) => ({ ...m, [row.id]: 'pending' }));
     timers.current[row.id] = setTimeout(async () => { const r = await api('/admin/plan', row); setState((m) => ({ ...m, [row.id]: r.error ? 'error' : 'saved' })); if (r.error) { toast(String(r.error)); await refresh(); } }, 1200);
   };
   const edit = (id: string, patch: Row) => { const row = { ...pl.find((x) => x.id === id), ...patch }; setPl(pl.map((x) => (x.id === id ? row : x))); if (Object.values(patch).every((v) => v !== '')) autosave(row); };
-  const setPrice = (id: string, k: 'price_usd' | 'price_egp', v: string) => { const r = Number(rate) || 50; const n = Number(v); if (v === '' || !Number.isFinite(n)) return edit(id, { [k]: v }); edit(id, k === 'price_usd' ? { price_usd: v, price_egp: Math.round(n * r) } : { price_egp: v, price_usd: Math.round((n / r) * 100) / 100 }); };
-  const repriceAll = async () => { const r = Number(rate) || 50; let bad = ''; for (const p of pl.filter((x) => x.price_usd > 0)) { const res = await api('/admin/plan', { id: p.id, price_egp: Math.round(p.price_usd * r) }); if (res.error) bad = String(res.error); } toast(bad || t('Prices updated at this rate')); await refresh(); };
+  const setPrice = (id: string, k: 'price_usd' | 'price_egp', v: string) => { const r = Number(rate) || 54.8; const n = Number(v); if (v === '' || !Number.isFinite(n)) return edit(id, { [k]: v }); edit(id, k === 'price_usd' ? { price_usd: v, price_egp: Math.round(n * r) } : { price_egp: v, price_usd: Math.round((n / r) * 100) / 100 }); };
+  const repriceAll = async () => { const r = Number(rate) || 54.8; let bad = ''; for (const p of pl.filter((x) => x.price_usd > 0)) { const res = await api('/admin/plan', { id: p.id, price_egp: Math.round(p.price_usd * r) }); if (res.error) bad = String(res.error); } toast(bad || t('Prices updated at this rate')); await refresh(); };
   const num = (p: Row, k: string, label: string, unit?: string) => <label className="block text-xs"><span className="opacity-70 block mb-1">{label}{unit ? <span className="opacity-60"> · {unit}</span> : null}</span><input aria-label={`${p.name} ${k}`} className={inp} type="number" min={0} value={p[k]} onChange={(e) => (k === 'price_usd' || k === 'price_egp' ? setPrice(p.id, k, e.target.value) : edit(p.id, { [k]: e.target.value }))} /></label>;
   const Sec: React.FC<{ icon: React.ReactNode; title: string; children: React.ReactNode }> = ({ icon, title, children }) => <div className="border-t border-black/10 pt-3 mt-3"><p className="text-[11px] uppercase tracking-wider opacity-60 flex items-center gap-1.5 mb-2">{icon}{title}</p><div className="grid grid-cols-2 gap-2.5">{children}</div></div>;
   const adsLabel = (n: number) => (n === 0 ? t('No ads') : n === 1 ? t('1 ad step') : t('2 ad steps'));
@@ -28,6 +30,8 @@ export const AdminPlans: React.FC<{ plans: Row[]; usersByPlan: Record<string, nu
       <div className="flow-panel p-4 mb-4 flex flex-wrap items-center gap-3 text-sm">
         <label htmlFor="fx-rate" className="font-semibold">{t('Exchange rate: EGP per 1 USD')}</label>
         <input id="fx-rate" className={`${inp} !w-24`} type="number" min="1" step="0.01" value={rate} onChange={(e) => setRate(e.target.value)} />
+        <button type="button" className="flow-ghost px-3 py-1.5 rounded-lg text-xs font-semibold" onClick={liveRate}>{t("Get today's market rate")}</button>
+        {fxNote && <span className="text-xs opacity-80" dir="ltr">{fxNote}</span>}
         <button type="button" className="flow-ghost px-3 py-1.5 rounded-lg text-xs font-semibold" onClick={saveRate}>{t('Save rate')}</button>
         <button type="button" className="flow-ghost px-3 py-1.5 rounded-lg text-xs font-semibold" onClick={repriceAll} title={t('Set every paid plan EGP price from its USD price')}>{t('Apply rate to all paid plans')}</button>
         <span className="opacity-70 text-xs grow basis-64">{rateSet ? t('Editing USD updates EGP, and EGP updates USD, at this rate.') : t("Default rate, please set today's rate.")}</span>

@@ -433,11 +433,14 @@ export class AppDB extends DurableObject<any> {
       }
       if (path === '/admin/rate' && (method === 'GET' || method === 'POST')) {
         this.sql.exec('CREATE TABLE IF NOT EXISTS settings(k TEXT PRIMARY KEY, v TEXT)');
+        if (method === 'POST' && body.fetch) {
+          try { const x: any = await (await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(6000) })).json(); const v = Number(x?.rates?.EGP); if (!Number.isFinite(v) || v < 1 || v > 10000) throw new Error('bad'); return json({ live: Math.round(v * 100) / 100, source: 'open.er-api.com', at: x.time_last_update_utc || '' }); } catch { return json({ error: 'Could not fetch the live rate. Enter it by hand.' }, 502); }
+        }
         if (method === 'POST') {
           const r = Number(body.rate); if (!Number.isFinite(r) || r < 1 || r > 10000) return json({ error: 'Rate must be between 1 and 10000 EGP per USD' }, 400);
           this.sql.exec("INSERT INTO settings VALUES('usd_egp',?) ON CONFLICT(k) DO UPDATE SET v=?", String(r), String(r)); this.audit(u.email, 'set_rate', 'usd_egp', String(r)); return json({ ok: true, rate: r });
         }
-        const row = this.rows("SELECT v FROM settings WHERE k='usd_egp'")[0]; return json({ rate: row ? Number(row.v) : 50, set: !!row });
+        const row = this.rows("SELECT v FROM settings WHERE k='usd_egp'")[0]; return json({ rate: row ? Number(row.v) : 54.8, set: !!row });
       }
       if (path === '/admin/flags' && method === 'POST') {
         const list = Array.isArray(body.tools) ? body.tools.map(String) : [];
