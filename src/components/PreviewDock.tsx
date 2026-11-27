@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GripVertical, Check, X, Plus, Scissors } from 'lucide-react';
-import { fmtSize } from '../lib/util';
+import { fmtSize, parseRanges, flatPages } from '../lib/util';
 import { useT } from '../lib/i18n';
 import type { Tool } from '../tools/types';
 import { loadImage } from '../lib/util';
@@ -46,16 +46,20 @@ export const FileCards: React.FC<{ files: File[]; setFiles: (f: File[]) => void;
       <p className="text-[11px] mt-1.5 truncate">{f.name}</p><p dir="ltr" className="text-[10px] opacity-60 text-start">{fmtSize(f.size)}{pg[f.name + f.size] ? ` · ${pg[f.name + f.size]}p` : ''}</p></div>))}
     {addMore && <button type="button" onClick={() => add.current?.click()} className="mc-drop grid place-items-center min-h-[11rem] text-sm font-semibold"><span className="grid place-items-center gap-1"><Plus size={20} />{tr('Add files')}</span><input ref={add} type="file" multiple accept={accept} hidden onChange={(e) => { const n = Array.from(e.target.files ?? []); if (n.length) setFiles([...files, ...n]); e.target.value = ''; }} /></button>}</div></div>);
 };
-export const PageGrid: React.FC<{ file: File; mode: 'select' | 'sort'; selected: Set<number>; onSelect: (s: Set<number>) => void; onOrder: (o: number[]) => void }> = ({ file, mode, selected, onSelect, onOrder }) => {
+export const PageGrid: React.FC<{ file: File; mode: 'select' | 'sort'; selected: Set<number>; onSelect: (s: Set<number>) => void; onOrder: (o: number[]) => void; rotate?: { angle: number; pages: string } }> = ({ file, mode, selected, onSelect, onOrder, rotate }) => { const { t: tr } = useT(); const [dims, setDims] = useState<Record<number, [number, number]>>({});
   const [items, setItems] = useState<Th[]>([]); const [order, setOrder] = useState<number[]>([]);
-  useEffect(() => { let dead = false; setItems([]); const acc: Th[] = []; thumbsFor(file, file.name, 80, 0.28, (t) => { acc.push(t); if (!dead) setItems([...acc]); }, () => dead).then(() => { if (!dead) { const o = acc.map((_, i) => i); setOrder(o); } }); return () => { dead = true; }; }, [file]);
+  useEffect(() => { let dead = false; setItems([]); setDims({}); const acc: Th[] = []; thumbsFor(file, file.name, 80, 0.28, (t) => { acc.push(t); if (!dead) setItems([...acc]); }, () => dead).then(() => { if (!dead) { const o = acc.map((_, i) => i); setOrder(o); } }); return () => { dead = true; }; }, [file]);
   useEffect(() => { if (mode === 'sort' && order.length) onOrder(order.map((i) => i + 1)); }, [order, mode]);
   const dnd = useDnd(order, setOrder); const list = mode === 'sort' && order.length === items.length ? order : items.map((_, i) => i);
-  return (<div><p className="text-xs text-gray-400 mb-2">{mode === 'select' ? 'Click pages to select them' : 'Drag pages to reorder'} · {items.length} pages{selected.size > 0 && mode === 'select' ? ` · ${selected.size} selected` : ''}</p>
-    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">{list.map((idx, pos) => { const t = items[idx]; if (!t) return null; const n = idx + 1; const sel = selected.has(n);
+  let turned = new Set<number>(); if (rotate) { try { turned = new Set(flatPages(parseRanges(rotate.pages || 'all', items.length))); } catch { /* bad range: no preview turn */ } }
+  return (<div><p className="text-xs text-gray-400 mb-2">{mode === 'select' ? tr('Click pages to select them') : tr('Drag pages to reorder')} · {items.length} {tr('pages')}{selected.size > 0 && mode === 'select' ? ` · ${selected.size} ${tr('selected')}` : ''}</p>
+    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 items-start">{list.map((idx, pos) => { const t = items[idx]; if (!t) return null; const n = idx + 1; const sel = selected.has(n);
+      const deg = rotate && turned.has(idx) ? ((rotate.angle % 360) + 360) % 360 : 0; const d = dims[idx]; const swap = deg === 90 || deg === 270;
       return (<div key={idx} {...(mode === 'sort' ? dnd(pos) : {})} onClick={() => { if (mode !== 'select') return; const s = new Set(selected); sel ? s.delete(n) : s.add(n); onSelect(s); }}
         className={`relative rounded-lg overflow-hidden border-2 ${mode === 'sort' ? 'cursor-grab' : 'cursor-pointer'} ${sel ? 'border-violet-400' : 'border-transparent hover:border-white/30'}`}>
-        <img src={t.url} className="w-full bg-white" draggable={false} /><span className="absolute bottom-1 left-1 text-[10px] bg-black/70 rounded px-1">{mode === 'sort' ? pos + 1 : n}{mode === 'sort' && n !== pos + 1 ? ` (was ${n})` : ''}</span>
+        {deg && d ? <div className="relative bg-white" style={{ aspectRatio: swap ? `${d[1]} / ${d[0]}` : `${d[0]} / ${d[1]}` }}><img src={t.url} alt="" draggable={false} style={{ position: 'absolute', left: '50%', top: '50%', width: swap ? `${(100 * d[0]) / d[1]}%` : '100%', transform: `translate(-50%,-50%) rotate(${deg}deg)`, transition: 'transform .25s' }} /></div>
+          : <img src={t.url} alt="" className="w-full bg-white" draggable={false} onLoad={(e) => { const im = e.currentTarget; setDims((x) => (x[idx] ? x : { ...x, [idx]: [im.naturalWidth, im.naturalHeight] })); }} />}
+        <span className="absolute bottom-1 left-1 text-[10px] bg-black/70 rounded px-1">{mode === 'sort' ? pos + 1 : n}{mode === 'sort' && n !== pos + 1 ? ` (${tr('was')} ${n})` : ''}</span>
         {sel && <span className="absolute top-1 right-1 bg-violet-500 rounded-full p-0.5"><Check size={12} /></span>}</div>); })}</div></div>);
 };
 export const BackgroundPreview: React.FC<{ file: File; opts: Record<string, any> }> = ({ file, opts }) => {
