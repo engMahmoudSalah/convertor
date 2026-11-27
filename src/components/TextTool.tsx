@@ -12,6 +12,7 @@ import { fmtSize } from '../lib/util';
 import { CalcChart, hasChart } from './CalcChart';
 import { SeoPreview, hasSeoPreview } from './SeoPreview';
 import { UtmHelper, hasUtm } from './UtmHelper';
+import { StatsVisual, hasStatsVisual } from './StatsVisual';
 import { BmiGauge, hasBmiGauge } from './BmiGauge';
 import { RobotsHelper, hasRobotsHelper } from './RobotsHelper';
 import { QrHelper, hasQrHelper } from './QrHelper';
@@ -104,6 +105,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
           {gate && <div className="mb-4 rounded-xl border border-white/10 p-4"><AdGate steps={adSteps} onDone={() => { setGate(false); kindPng ? downloadPng() : download(); }} onBack={() => setGate(false)} /></div>}
           {parsed !== undefined && !inp.diff && <div className="flex gap-1 mb-3" role="tablist" aria-label={tr('Result view')}>{(['text', 'tree'] as const).map((v) => <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => setView(v)} className={`${view === v ? 'flow-next' : 'flow-ghost'} px-3 py-1 rounded-lg text-xs font-semibold`}>{v === 'text' ? tr('Text') : tr('Tree')}</button>)}</div>}
           {err && <p role="alert" className="text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm mb-3">{tr(err)}</p>}
+          {hasStatsVisual(tool.id) && out && !err && <div className="mb-4"><StatsVisual text={text} t={tr} /></div>}
           {hasBmiGauge(tool.id) && out && !err && <div className="mb-4"><BmiGauge opts={opts} t={tr} /></div>}
           {hasChart(tool.id) && out && <div className="mb-4"><CalcChart id={tool.id} opts={opts} t={tr} /></div>}
           {hasTimeVisual(tool.id) && out && !err && <div className="mb-4"><TimeVisual out={out} t={tr} /></div>}
