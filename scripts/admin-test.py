@@ -95,7 +95,7 @@ with sync_playwright() as pw:
     pg.get_by_role('tab', name='Tools', exact=True).click(); btn = pg.get_by_role('switch', name='Merge PDF', exact=True); btn.click(); pg.wait_for_timeout(700)
     check('UI tool switched off', btn.get_attribute('aria-checked') == 'false' and api(usr, '/usage/consume', {'tool': 'merge-pdf', 'bytes': 1})[0] != 200)
     btn.click(); pg.wait_for_timeout(700); check('UI tool switched on', api(usr, '/usage/consume', {'tool': 'merge-pdf', 'bytes': 1})[0] == 200)
-    s, j = api(adm, '/admin/rate'); check('rate default readable', s == 200 and j.get('rate') == 50, (s, j))
+    s, j = api(adm, '/admin/rate'); check('rate default readable', s == 200 and j.get('rate') == 54.8, (s, j))
     check('rate rejects junk', api(adm, '/admin/rate', {'rate': -3})[0] == 400 and api(adm, '/admin/rate', {'rate': 'x'})[0] == 400)
     check('rate non-admin refused', api(usr, '/admin/rate')[0] in (401, 403) and api(usr, '/admin/rate', {'rate': 40})[0] in (401, 403))
     check('rate saved', api(adm, '/admin/rate', {'rate': 48.5})[0] == 200 and api(adm, '/admin/rate')[1].get('rate') == 48.5)

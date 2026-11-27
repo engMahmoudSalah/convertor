@@ -60,6 +60,7 @@ export const AdminUsers: React.FC<{ plans: { id: string; name: string }[]; toast
             <div className="min-w-0"><p className="text-sm font-medium truncate" dir="ltr" style={{ textAlign: 'start' }}>{x.email}</p>
               <p className="flex flex-wrap items-center gap-1.5 mt-0.5"><span className="text-xs opacity-70">{x.name || ''}</span>
                 {x.me && <Badge tone="border-stone-400/60">{t('You')}</Badge>}{x.role === 'admin' && <Badge tone="border-amber-600/60 text-amber-700"><Shield size={10} aria-hidden="true" />{t('Administrator')}</Badge>}
+                {x.delete_at ? <Badge tone="border-amber-500/60 text-amber-600">{t('Deleting on')} <span dir="ltr">{new Date(x.delete_at).toLocaleDateString()}</span></Badge> : null}
                 {x.banned ? <Badge tone="border-red-500/60 text-red-600">{t('Suspended')}</Badge> : null}{x.email_verified ? <Badge tone="border-emerald-600/50 text-emerald-700"><BadgeCheck size={10} aria-hidden="true" />{t('Verified')}</Badge> : <Badge tone="border-stone-400/50 opacity-70">{t('Not verified')}</Badge>}
                 {x.google ? <Badge tone="border-sky-600/50 text-sky-700">Google</Badge> : null}</p></div>
             <div className="col-start-2 md:col-start-auto flex items-center gap-2"><select aria-label={`${t('Plan')} ${x.email}`} className={`${field} !py-1.5 w-full`} value={x.plan} disabled={busy === 'plan' + x.id} onChange={(e) => act(x.id, { plan: e.target.value }, 'plan')}>{plans.filter((p) => p.id !== 'guest').map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>

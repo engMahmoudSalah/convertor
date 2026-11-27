@@ -411,7 +411,7 @@ export class AppDB extends DurableObject<any> {
         const order = ({ newest: 'created_at DESC', oldest: 'created_at ASC', login: 'coalesce(last_login,0) DESC', email: 'lower(email) ASC' } as Record<string, string>)[sp.get('sort') ?? 'newest'] ?? 'created_at DESC';
         const W = where.join(' AND ');
         const total = this.rows(`SELECT count(*) n FROM users WHERE ${W}`, ...args)[0].n;
-        const users = this.rows(`SELECT id,email,name,plan,plan_until,role,banned,email_verified,(google_sub IS NOT NULL) AS google,created_at,last_login FROM users WHERE ${W} ORDER BY ${order} LIMIT ? OFFSET ?`, ...args, size, (page - 1) * size);
+        const users = this.rows(`SELECT id,email,name,plan,plan_until,role,banned,delete_at,email_verified,(google_sub IS NOT NULL) AS google,created_at,last_login FROM users WHERE ${W} ORDER BY ${order} LIMIT ? OFFSET ?`, ...args, size, (page - 1) * size);
         if (users.length) {
           const ids = users.map((x: any) => x.id); const ph = ids.map(() => '?').join(',');
           const jobs: Record<string, number> = {}; this.rows(`SELECT subject, count(*) n FROM history WHERE subject IN (${ph}) AND ts>? GROUP BY subject`, ...ids, now() - 30 * 864e5).forEach((r: any) => (jobs[r.subject] = r.n));
