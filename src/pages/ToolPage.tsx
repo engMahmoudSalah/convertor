@@ -6,6 +6,7 @@ import { addRecent, takePending, guessType, setPending } from '../lib/handoff';
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
+import { WatermarkPreview } from '../components/WatermarkPreview';
 import { CompressInfo } from '../components/CompressInfo';
 import { ResizeInfo } from '../components/ResizeInfo';
 import { CropPreview } from '../components/CropPreview';
@@ -119,6 +120,7 @@ const FileToolPage: React.FC = () => {
             : o.type === 'check' ? <span className="flex gap-2 items-center"><input type="checkbox" className="accent-violet-500 w-4 h-4" checked={!!opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.checked })} />{tr(o.label)}</span>
             : <div className="flex items-center gap-3">{o.type === 'number' && (o as any).min !== undefined && (o as any).max !== undefined && (o as any).max - (o as any).min >= 20 && <input type="range" aria-hidden="true" tabIndex={-1} className="flex-1 min-w-0 accent-violet-500" min={(o as any).min} max={(o as any).max} value={opts[o.key] ?? (o as any).min} onChange={(e) => setOpts({ ...opts, [o.key]: Number(e.target.value) })} />}<input className={o.type === 'number' ? field + ' !w-20 shrink-0' : field} type={o.type} min={(o as any).min} max={(o as any).max} value={opts[o.key] ?? ''} onChange={(e) => setOpts({ ...opts, [o.key]: o.type === 'number' ? Number(e.target.value) : e.target.value })} /></div>}
         </label>))}</div></div>}
+      {tool.id === 'watermark-image' && files.length > 0 && <WatermarkPreview files={files as any} opts={opts} ar={ar} />}
       {tool.id === 'compress-image' && files.length > 0 && <CompressInfo files={files as any} opts={opts} ar={ar} />}
       {tool.id === 'crop-image' && files.length > 0 && <CropPreview files={files} opts={opts} setOpts={setOpts} t={tr} />}
       {tool.id === 'resize-image' && files.length > 0 && <ResizePresets opts={opts} setOpts={setOpts} t={tr} />}
