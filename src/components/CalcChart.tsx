@@ -32,7 +32,12 @@ export const CalcChart: React.FC<{ id: string; opts: Record<string, any>; t: (s:
       {rows.map((r, i) => { const a = loan ? r.principal : r.principal, b2 = loan ? r.interest : r.interest; const hp = ((a) / max) * (H - B - 6), hi = ((b2) / max) * (H - B - 6); const x = L + i * bw + 1.5;
         return (<g key={r.year}><rect x={x} width={Math.max(2, bw - 3)} y={H - B - hp} height={hp} fill={C1} rx="1.5" /><rect x={x} width={Math.max(2, bw - 3)} y={H - B - hp - hi} height={hi} fill={C2} rx="1.5" />
           {i % step === 0 && <text x={x + (bw - 3) / 2} y={H - 8} textAnchor="middle" fontSize="11" fill="currentColor" opacity=".7">{r.year}</text>}<title>{`${t('Year')} ${r.year}: ${fmt(a)} + ${fmt(b2)}`}</title></g>); })}
+      {loan && <polyline fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="4 3" opacity=".7" points={rows.map((r, i) => `${L + i * bw + bw / 2},${H - B - (r.balance / max) * (H - B - 6)}`).join(' ')} />}
       <line x1={L} x2={W - L} y1={H - B} y2={H - B} stroke="currentColor" opacity=".25" /></svg>
+    {loan && (() => { const P = last.principal || 1; const half = rows.find((r) => r.principal >= P / 2); const eq = rows.find((r) => r.principal >= r.interest && false);
+      return (<div className="grid grid-cols-2 gap-2 text-xs" dir="auto">
+        <div className="rounded-lg p-2" style={{ background: 'rgba(128,128,128,.1)', border: '1px solid rgba(128,128,128,.35)' }}><div className="opacity-70">{t('Half of the loan is paid off in year')}</div><b dir="ltr" className="text-base">{half ? half.year : '-'}</b></div>
+        <div className="rounded-lg p-2" style={{ background: 'rgba(128,128,128,.1)', border: '1px solid rgba(128,128,128,.35)' }}><div className="opacity-70">{t('Dashed line: balance left')}</div><b dir="ltr" className="text-base">{fmt(rows[0].balance)} → 0</b></div></div>); })()}
     <div className="overflow-x-auto"><table dir="ltr" className="w-full text-xs text-end">
       <caption className="sr-only">{t('Year by year')}</caption>
       <thead><tr className="opacity-70"><th className="text-start py-1">{t('Year')}</th><th>{loan ? t('Principal paid') : t('Your deposits')}</th><th>{loan ? t('Interest paid') : t('Interest earned')}</th><th>{loan ? t('Balance left') : t('Balance')}</th></tr></thead>
