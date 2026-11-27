@@ -7,11 +7,16 @@ export const countStats = (s: string) => {
 };
 
 /** Small strip of live counters under a text area. */
+const AR: Record<string, [string, string, string]> = { 'حرف': ['حرف', 'حرفان', 'أحرف'], 'كلمات': ['كلمة', 'كلمتان', 'كلمات'], 'أسطر': ['سطر', 'سطران', 'أسطر'], 'بايت': ['بايت', 'بايتان', 'بايتات'] };
+export const unitLabel = (n: number, l: string) => {
+    const f = AR[l];
+    if (f) { const m = n % 100; return n === 2 ? f[1] : (m >= 3 && m <= 10) || n === 0 ? f[2] : f[0]; }
+    return n === 1 && /^[a-z]+s$/.test(l) ? l.slice(0, -1) : l;
+};
 export const StatStrip: React.FC<{ text: string; labels: { chars: string; words: string; lines: string; bytes: string } }> = ({ text, labels }) => {
   const s = countStats(text);
-  const one = (n: number, l: string) => (n === 1 && /^[a-z]+s$/.test(l) ? l.slice(0, -1) : l);
   return (<div dir="ltr" className="flex flex-wrap gap-x-4 gap-y-1 text-xs opacity-70 mt-2" aria-label="counts">
-    <span>{s.chars} {one(s.chars, labels.chars)}</span><span>{s.words} {one(s.words, labels.words)}</span><span>{s.lines} {one(s.lines, labels.lines)}</span><span>{s.bytes} {one(s.bytes, labels.bytes)}</span></div>);
+    <span>{s.chars} {unitLabel(s.chars, labels.chars)}</span><span>{s.words} {unitLabel(s.words, labels.words)}</span><span>{s.lines} {unitLabel(s.lines, labels.lines)}</span><span>{s.bytes} {unitLabel(s.bytes, labels.bytes)}</span></div>);
 };
 
 const KEY = 'tj-key';
