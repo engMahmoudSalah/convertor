@@ -29,15 +29,21 @@ export const CropPreview: React.FC<{ files: File[]; opts: any; setOpts?: (o: any
     commit({ l: cl(o.l), t: cl(o.t), r: cl(o.r), b: cl(o.b) });
   };
   const up = () => { drag.current = null; };
+  const key = (e: React.KeyboardEvent) => {
+    if (!setOpts || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return; e.preventDefault();
+    const st = e.altKey ? 0.2 : 1, dx = e.key === 'ArrowRight' ? st : e.key === 'ArrowLeft' ? -st : 0, dy = e.key === 'ArrowDown' ? st : e.key === 'ArrowUp' ? -st : 0; const cl = (v: number) => Math.max(0, Math.min(45, v)); const o = { l: pct.l, t: pct.t, r: pct.r, b: pct.b };
+    if (e.shiftKey) { o.r = cl(o.r - dx); o.b = cl(o.b - dy); } else { const mx = Math.max(-o.l, Math.min(o.r, dx)), my = Math.max(-o.t, Math.min(o.b, dy)); o.l += mx; o.r -= mx; o.t += my; o.b -= my; }
+    commit({ l: cl(o.l), t: cl(o.t), r: cl(o.r), b: cl(o.b) });
+  };
   const p = (n: number, d: number) => `${(n / d) * 100}%`;
   return (<div className="mt-4" aria-live="polite">
     <p className="text-xs uppercase tracking-widest opacity-70 mb-2">{t('Crop preview')}</p>
     <div ref={box} className="relative rounded-xl overflow-hidden border touch-none select-none" onPointerMove={move} onPointerUp={up} onPointerCancel={up} style={{ width: `min(100%, ${Math.min(22, (20 * W) / H).toFixed(2)}rem)`, borderColor: 'rgba(128,128,128,.4)' }}>
       <img src={url} alt={t('Crop preview')} className="block" style={{ width: '100%', aspectRatio: `${W} / ${H}`, height: 'auto' }} />
-      <div className="absolute" onPointerDown={down('move')} data-crop-frame="1" style={{ cursor: setOpts ? 'move' : undefined, left: p(x, W), top: p(y, H), width: p(w, W), height: p(h, H), outline: '2px solid #fff', boxShadow: '0 0 0 9999px rgba(0,0,0,.55)' }}>
+      <div className="absolute" onPointerDown={down('move')} data-crop-frame="1" tabIndex={setOpts ? 0 : undefined} role={setOpts ? 'group' : undefined} aria-label={setOpts ? t('Crop frame. Arrow keys move it, Shift plus arrows resize it.') : undefined} onKeyDown={key} style={{ cursor: setOpts ? 'move' : undefined, left: p(x, W), top: p(y, H), width: p(w, W), height: p(h, H), outline: '2px solid #fff', boxShadow: '0 0 0 9999px rgba(0,0,0,.55)' }}>
         <span className="absolute inset-0 pointer-events-none" style={{ outline: '1px dashed #e0643f' }} />
         {setOpts && (['nw', 'ne', 'sw', 'se'] as const).map((k) => <span key={k} data-crop-handle={k} onPointerDown={down(k)} className="absolute" style={{ width: 22, height: 22, [k.includes('n') ? 'top' : 'bottom']: 2, [k.includes('w') ? 'left' : 'right']: 2, cursor: k === 'nw' || k === 'se' ? 'nwse-resize' : 'nesw-resize', background: '#fff', border: '2px solid #e0643f', borderRadius: 6, boxShadow: '0 1px 4px rgba(0,0,0,.4)' }} />)}</div></div>
     <p dir="ltr" className="text-sm mt-2">{W}×{H} → <b>{w}×{h}</b></p>
-    {setOpts && <p className="text-xs opacity-70 mt-1">{t('Drag the frame to move it, drag a corner to resize. This switches to custom trim.')}</p>}
+    {setOpts && <p className="text-xs opacity-70 mt-1">{t('Drag the frame to move it, drag a corner to resize. This switches to custom trim.')} {t('Keyboard: click the frame, then arrow keys move it and Shift plus arrows resize it.')}</p>}
     {files.length > 1 && <p className="text-xs opacity-70 mt-1">{t('Showing the first image. The same crop is applied to every image.')}</p>}</div>);
 };

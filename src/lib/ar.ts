@@ -186,6 +186,9 @@ export const AR: Record<string, string> = {
   'Restore': 'استعادة',
   'Suspend': 'إيقاف',
   'Save': 'حفظ', 
+  'Crop frame. Arrow keys move it, Shift plus arrows resize it.': 'إطار القص. الأسهم تحركه وShift مع الأسهم تغيّر حجمه.',
+  'Keyboard: click the frame, then arrow keys move it and Shift plus arrows resize it.': 'الكيبورد: اضغط على الإطار، وبعدها الأسهم تحركه وShift مع الأسهم تغيّر حجمه.',
+
   'Copy all as CSS variables': 'انسخ الكل كمتغيرات CSS',
 
   'Closest text color that passes AA': 'أقرب لون نص ينجح في AA',
