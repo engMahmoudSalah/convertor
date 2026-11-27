@@ -41,6 +41,8 @@ export const JsonTree: React.FC<{ data: any; more: string }> = ({ data, more }) 
   <div dir="ltr" className="font-mono text-sm min-h-[240px] max-h-[70vh] overflow-auto" role="tree"><Node v={data} depth={0} more={more} /></div>);
 
 export const EXAMPLES: { test: RegExp; text: string }[] = [
+  { test: /^gradient-generator$/, text: '#ff7e5f\n#feb47b' },
+  { test: /^color-shades$/, text: '#b4391f' },
   { test: /^(json-(?!escape)|jwt|yaml-to-json$)/, text: '{"name":"Magic Convertor","version":2,"tags":["pdf","images","text"],"owner":{"name":"Mahmoud","active":true},"price":null}' },
   { test: /^csv-/, text: 'name,city,score\nAhmed,Cairo,92\nSara,Alexandria,88\nOmar,Giza,75' },
   { test: /^(word|char|text|case|line|sort|remove|reverse|slug|count|find|trim|extra|dup)/, text: 'Hello world.  Hello Cairo!\nthe quick brown fox jumps over the lazy dog\nthe quick brown fox jumps over the lazy dog' },

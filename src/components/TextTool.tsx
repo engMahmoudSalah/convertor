@@ -9,6 +9,7 @@ import { AdGate, PageAd } from './Ads';
 import { useAuth } from '../lib/auth';
 import { TEXT_FNS } from '../tools/textTools';
 import { fmtSize } from '../lib/util';
+import { ContrastVisual, GradientVisual, ShadesVisual } from './DesignVisual';
 import { StatStrip, JsonTree, tryParseJson, exampleFor } from './TextExtras';
 import { ClipboardPaste, FileUp, ArrowLeftRight, Link2, Wand2 } from 'lucide-react';
 import type { Tool } from '../tools/types';
@@ -95,6 +96,9 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
           {gate && <div className="mb-4 rounded-xl border border-white/10 p-4"><AdGate steps={adSteps} onDone={() => { setGate(false); kindPng ? downloadPng() : download(); }} onBack={() => setGate(false)} /></div>}
           {parsed !== undefined && !inp.diff && <div className="flex gap-1 mb-3" role="tablist" aria-label={tr('Result view')}>{(['text', 'tree'] as const).map((v) => <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => setView(v)} className={`${view === v ? 'flow-next' : 'flow-ghost'} px-3 py-1 rounded-lg text-xs font-semibold`}>{v === 'text' ? tr('Text') : tr('Tree')}</button>)}</div>}
           {err && <p role="alert" className="text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm mb-3">{tr(err)}</p>}
+          {tool.id === 'contrast-checker' && <div className="mb-4"><ContrastVisual opts={opts} setOpts={setOpts} t={tr} /></div>}
+          {tool.id === 'gradient-generator' && out && <div className="mb-4"><GradientVisual out={out} t={tr} /></div>}
+          {tool.id === 'color-shades' && out && <div className="mb-4"><ShadesVisual out={out} t={tr} /></div>}
           {inp.svg && out && <div className="grid place-items-center mb-4"><div className="rounded-xl p-3 bg-white border border-black/10"><img alt={tr('QR code preview')} width={240} height={240} className="block" style={{ imageRendering: 'pixelated' }} src={'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(out)} /></div>
             <button type="button" onClick={() => { setKindPng(true); if (adSteps > 0) setGate(true); else downloadPng(); }} className="flow-ghost mt-3 px-3 py-1.5 rounded-lg text-sm font-semibold inline-flex items-center gap-1.5"><Download size={15} /> PNG</button></div>}
           {inp.svg ? null : inp.diff

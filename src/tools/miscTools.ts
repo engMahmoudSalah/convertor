@@ -108,8 +108,8 @@ const gradient: Fn = safe((t, o) => {
 });
 const shades: Fn = safe((t) => {
   const c = hexRgb(t.split('\n')[0]); const mix = (w: number[], k: number) => c.map((v, i) => v + (w[i] - v) * k); const out: string[] = [];
-  for (let k = 0.9; k >= 0.1; k -= 0.2) out.push(`${Math.round(k * 100)}% lighter  ${toHex(mix([255, 255, 255], k))}`);
-  out.push(`base         ${toHex(c)}`); for (let k = 0.1; k <= 0.9; k += 0.2) out.push(`${Math.round(k * 100)}% darker   ${toHex(mix([0, 0, 0], k))}`);
+  for (const pc of [90, 70, 50, 30, 10]) out.push(`${pc}% lighter  ${toHex(mix([255, 255, 255], pc / 100))}`);
+  out.push(`base         ${toHex(c)}`); for (const pc of [10, 30, 50, 70, 90]) out.push(`${pc}% darker   ${toHex(mix([0, 0, 0], pc / 100))}`);
   return out.join('\n');
 });
 const pxRem: Fn = safe((t, o) => { const base = num(o.base, 16) || 16; return nums(t).map((v) => (o.mode === 'rem' ? `${fmt(v)}rem = ${fmt(v * base)}px` : `${fmt(v)}px = ${fmt(v / base)}rem`)).join('\n'); });
