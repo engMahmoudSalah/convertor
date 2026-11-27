@@ -186,6 +186,12 @@ export const AR: Record<string, string> = {
   'Restore': 'استعادة',
   'Suspend': 'إيقاف',
   'Save': 'حفظ', 
+  'Sheets in the result': 'عدد الورق في الناتج',
+
+  'First sheet': 'أول ورقة',
+  'Preview of the first sheet': 'معاينة أول ورقة',
+  'sheets': 'ورقة',
+
   'Page 1 with the number': 'الصفحة 1 مع الرقم',
   'Page 1 with the watermark': 'الصفحة 1 مع العلامة المائية',
   'Preview of page 1': 'معاينة الصفحة 1',

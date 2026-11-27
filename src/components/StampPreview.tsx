@@ -30,3 +30,31 @@ export const StampPreview: React.FC<{ id: string; file?: File; opts: Record<stri
     <canvas ref={cv} role="img" aria-label={t('Preview of page 1')} className="block rounded-lg shadow-lg mx-auto max-w-full h-auto" style={{ background: '#fff', maxHeight: '28rem', width: 'auto' }} />
     <p className="text-xs opacity-70 mt-2 text-center">{t('Shown on page 1 of')} {base.n}. {t('Position and size match the saved file.')}</p></div>);
 };
+
+export const hasNupPreview = (id: string) => id === 'nup-pdf';
+/** First sheet of "pages per sheet": same grid, margins, gaps and fit as the PDF code. */
+export const NupPreview: React.FC<{ file?: File; opts: Record<string, any>; t: (s: string) => string }> = ({ file, opts, t }) => {
+  const cv = useRef<HTMLCanvasElement>(null); const K = 0.7;
+  const [pages, setPages] = useState<{ imgs: HTMLCanvasElement[]; n: number } | null>(null);
+  useEffect(() => {
+    setPages(null); if (!file || !(file.type === 'application/pdf' || /\.pdf$/i.test(file.name))) return; let dead = false;
+    (async () => { try { const { openPdf, renderPage } = await import('../lib/pdfjs'); const doc = await openPdf(file); const imgs: HTMLCanvasElement[] = [];
+      for (let i = 1; i <= Math.min(9, doc.numPages); i++) imgs.push(await renderPage(doc, i, 0.6)); if (!dead) setPages({ imgs, n: doc.numPages }); } catch { /* unreadable */ } })();
+    return () => { dead = true; };
+  }, [file]);
+  useEffect(() => {
+    const c = cv.current; if (!c || !pages) return; const per = Number(opts.per) || 2; const grid: Record<number, [number, number]> = { 2: [2, 1], 4: [2, 2], 6: [3, 2], 9: [3, 3] }; const [cols, rows] = grid[per] ?? [2, 1];
+    const land = opts.layout === 'landscape' || ((opts.layout ?? 'auto') === 'auto' && cols > rows); const W = land ? 842 : 595, H = land ? 595 : 842; const m = 18, gap = 8;
+    const cw = (W - 2 * m - gap * (cols - 1)) / cols, ch = (H - 2 * m - gap * (rows - 1)) / rows;
+    c.width = W * K; c.height = H * K; const g = c.getContext('2d'); if (!g) return; g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+    pages.imgs.slice(0, per).forEach((im, k) => {
+      const pw = im.width / 0.6, ph = im.height / 0.6; const s = Math.min(cw / pw, ch / ph); const w = pw * s, h = ph * s; const col = k % cols, row = Math.floor(k / cols);
+      const x = m + col * (cw + gap) + (cw - w) / 2, y = m + row * (ch + gap) + (ch - h) / 2; g.drawImage(im, x * K, y * K, w * K, h * K);
+      if (opts.border !== false) { g.strokeStyle = 'rgb(153,153,153)'; g.lineWidth = 0.5 * K + 0.5; g.strokeRect(x * K, y * K, w * K, h * K); }
+    });
+  }, [pages, opts.per, opts.layout, opts.border]);
+  if (!pages) return null; const per = Number(opts.per) || 2; const sheets = Math.ceil(pages.n / per);
+  return (<div><p className="text-xs uppercase tracking-widest opacity-70 mb-2">{t('First sheet')}</p>
+    <canvas ref={cv} role="img" aria-label={t('Preview of the first sheet')} className="block rounded-lg shadow-lg mx-auto max-w-full h-auto" style={{ background: '#fff', maxHeight: '28rem', width: 'auto' }} />
+    <p className="text-xs opacity-70 mt-2 text-center">{t('Sheets in the result')}: <b dir="ltr">{sheets}</b></p></div>);
+};
