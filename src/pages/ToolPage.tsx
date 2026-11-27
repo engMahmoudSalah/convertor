@@ -140,7 +140,7 @@ const FileToolPage: React.FC = () => {
           {mode === 'files' && <FileCards files={files} setFiles={setFiles} addMore={tool.multiple} accept={tool.accept.join(',')} />}
           {mode === 'frame' && <div className="space-y-4"><PageFrame file={files[0]} opts={opts} /><FileCards files={files} setFiles={setFiles} /></div>}
           {mode === 'background' && <div className="space-y-4"><BackgroundPreview file={files[0]} opts={opts} />{files.length > 1 && <FileCards files={files} setFiles={setFiles} />}</div>}
-          {(mode === 'select' || mode === 'sort') && <PageGrid file={files[0]} mode={mode} selected={sel} onSelect={(x) => { setSel(x); setOpts((o) => ({ ...o, pages: compressPages(x) })); }} onOrder={(o) => setOpts((p) => ({ ...p, order: o.join(',') }))} rotate={tool.id === 'rotate-pdf' ? { angle: Number(opts.angle) || 90, pages: String(opts.pages ?? 'all') } : undefined} />}
+          {(mode === 'select' || mode === 'sort') && <PageGrid file={files[0]} mode={mode} selected={sel} onSelect={(x) => { setSel(x); setOpts((o) => ({ ...o, pages: compressPages(x) })); }} onOrder={(o) => setOpts((p) => ({ ...p, order: o.join(',') }))} intent={tool.id === 'remove-pages' ? 'remove' : tool.id === 'extract-pages' ? 'extract' : undefined} rotate={tool.id === 'rotate-pdf' ? { angle: Number(opts.angle) || 90, pages: String(opts.pages ?? 'all') } : undefined} />}
           {mode === 'first' && hasStampPreview(tool.id) && <StampPreview id={tool.id} file={files[0]} opts={opts} t={tr} />}
           {mode === 'first' && hasNupPreview(tool.id) && <NupPreview file={files[0]} opts={opts} t={tr} />}
           {mode === 'first' && hasPdfImgPreview(tool.id) && <PdfImgPreview file={files[0]} opts={opts} t={tr} />}
