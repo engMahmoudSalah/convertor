@@ -9,8 +9,9 @@ export const countStats = (s: string) => {
 /** Small strip of live counters under a text area. */
 export const StatStrip: React.FC<{ text: string; labels: { chars: string; words: string; lines: string; bytes: string } }> = ({ text, labels }) => {
   const s = countStats(text);
+  const one = (n: number, l: string) => (n === 1 && /^[a-z]+s$/.test(l) ? l.slice(0, -1) : l);
   return (<div dir="ltr" className="flex flex-wrap gap-x-4 gap-y-1 text-xs opacity-70 mt-2" aria-label="counts">
-    <span>{s.chars} {labels.chars}</span><span>{s.words} {labels.words}</span><span>{s.lines} {labels.lines}</span><span>{s.bytes} {labels.bytes}</span></div>);
+    <span>{s.chars} {one(s.chars, labels.chars)}</span><span>{s.words} {one(s.words, labels.words)}</span><span>{s.lines} {one(s.lines, labels.lines)}</span><span>{s.bytes} {one(s.bytes, labels.bytes)}</span></div>);
 };
 
 const KEY = 'tj-key';
