@@ -22,5 +22,5 @@ with sync_playwright() as pw:
     pg.locator('section[aria-label="Needs attention"] button', has_text='Users').first.click(); pg.wait_for_timeout(800); check('alert button opens Users tab', pg.get_by_role('tab', name='Users', exact=True).get_attribute('aria-selected') == 'true')
     check('no overflow', pg.evaluate('document.documentElement.scrollWidth') <= 1280); check('no JS errors', not errs, errs)
     f('/admin/orders/seed', {}, 'DELETE'); f('/admin/audit/seed', {}, 'DELETE'); f('/admin/usage/seed', {}, 'DELETE')
-    f('/auth/delete', {'password': PW}); b.close()
+    f('/auth/delete', {'immediate': True, 'password': PW}); b.close()
 print('ALL PASS' if ok else 'FAILED: ' + ', '.join(fails)); sys.exit(0 if ok else 1)

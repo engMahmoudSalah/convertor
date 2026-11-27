@@ -74,5 +74,5 @@ check('login lockout after repeated failures (429)', 429 in codes, codes)
 # purge test users
 for em_, pw in [(emA, 'N3wPassw0rd!x'), (emB, 'Passw0rd!long')]:
     c, j, h = call('POST', '/api/auth/login', {'email': em_, 'password': pw}); ck = h.get('set-cookie', '').split(';')[0]
-    c, _, _ = call('POST', '/api/auth/delete', {'password': pw}, cookie=ck); check('purge test user', c == 200, (c, j))
+    c, _, _ = call('POST', '/api/auth/delete', {'immediate': True, 'password': pw}, cookie=ck); check('purge test user', c == 200, (c, j))
 print(f'{sum(res)}/{len(res)} passed'); sys.exit(0 if all(res) else 1)

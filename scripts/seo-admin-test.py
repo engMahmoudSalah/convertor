@@ -23,5 +23,5 @@ with sync_playwright() as pw:
     pg.screenshot(path='/downloads/seo-seo-d.png')
     pg.get_by_role('button', name='Integrations').click(); check('integrations shown', pg.get_by_text('Google sign-in').count() == 1)
     check('no overflow', pg.evaluate('document.documentElement.scrollWidth') <= 1280); check('no JS errors', not errs, errs)
-    f('/auth/delete', {'password': PW}); b.close()
+    f('/auth/delete', {'immediate': True, 'password': PW}); b.close()
 print('ALL PASS' if ok else 'FAILED: ' + ', '.join(fails)); sys.exit(0 if ok else 1)

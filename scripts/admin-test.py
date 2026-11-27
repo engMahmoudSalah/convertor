@@ -135,7 +135,7 @@ with sync_playwright() as pw:
     # cleanup: delete test users via the account API
     for c, e in [(adm, f'adm{tag}'), (usr, f'usr{tag}'), (vic, f'vic{tag}')]:
         api(c, '/auth/login', {'email': e + '@example.com', 'password': PW})
-        s, j = api(c, '/auth/delete', {'password': PW}); check(f'purge {e}', s == 200 or (e.startswith('adm') and s == 400), (s, j))
+        s, j = api(c, '/auth/delete', {'immediate': True, 'password': PW}); check(f'purge {e}', s == 200 or (e.startswith('adm') and s == 400), (s, j))
     s, j = api(ctx(), '/health') if False else (0, 0)
     b.close()
 print('ALL PASS' if ok else 'FAILED: ' + ', '.join(fails)); sys.exit(0 if ok else 1)

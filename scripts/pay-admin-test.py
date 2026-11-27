@@ -45,6 +45,6 @@ with sync_playwright() as pw:
     check('no JS errors', not errs, errs)
     check('seed purge', api(adm, '/admin/orders/seed', {}, method='DELETE')[0] == 200 and api(adm, '/admin/orders')[1]['total'] == 0)
     for c, e in [(usr, f'pusr{tag}')]:
-        api(c, '/auth/login', {'email': e + '@example.com', 'password': PW}); check('purge user', api(c, '/auth/delete', {'password': PW})[0] == 200)
+        api(c, '/auth/login', {'email': e + '@example.com', 'password': PW}); check('purge user', api(c, '/auth/delete', {'immediate': True, 'password': PW})[0] == 200)
     b.close()
 print('ALL PASS' if ok else 'FAILED: ' + ', '.join(fails)); sys.exit(0 if ok else 1)

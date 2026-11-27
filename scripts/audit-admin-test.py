@@ -42,6 +42,6 @@ with sync_playwright() as pw:
     check('no overflow', pg.evaluate('document.documentElement.scrollWidth') <= 1280); check('no JS errors', not errs, errs)
     pg.screenshot(path='/downloads/audit-d.png')
     check('purge', api(adm, '/admin/audit/seed', {}, 'DELETE')[0] == 200 and api(adm, '/admin/audit?q=seedtest')[1]['total'] == 0)
-    api(usr, '/auth/login', {'email': f'ausr{tag}@example.com', 'password': PW}); api(usr, '/auth/delete', {'password': PW})
+    api(usr, '/auth/login', {'email': f'ausr{tag}@example.com', 'password': PW}); api(usr, '/auth/delete', {'immediate': True, 'password': PW})
     b.close()
 print('ALL PASS' if ok else 'FAILED: ' + ', '.join(fails)); sys.exit(0 if ok else 1)

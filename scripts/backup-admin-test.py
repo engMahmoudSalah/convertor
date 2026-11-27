@@ -31,5 +31,5 @@ with sync_playwright() as pw:
     pg.get_by_role('button', name='Select all').click()
     check('no overflow', pg.evaluate('document.documentElement.scrollWidth') <= 1280); check('no JS errors', not errs, errs)
     pg.screenshot(path='/downloads/backup-d.png')
-    f(usr, '/auth/login', {'email': f'busr{tag}@example.com', 'password': PW}); f(usr, '/auth/delete', {'password': PW}); b.close()
+    f(usr, '/auth/login', {'email': f'busr{tag}@example.com', 'password': PW}); f(usr, '/auth/delete', {'immediate': True, 'password': PW}); b.close()
 print('ALL PASS' if ok else 'FAILED: ' + ', '.join(fails)); sys.exit(0 if ok else 1)

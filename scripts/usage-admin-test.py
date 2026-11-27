@@ -43,6 +43,6 @@ with sync_playwright() as pw:
     pg.screenshot(path='/downloads/usage-d.png')
     check('no JS errors', not errs, errs)
     check('purge seed', api(adm, '/admin/usage/seed', {}, 'DELETE')[0] == 200 and api(adm, '/admin/usage?days=7')[1]['cur']['jobs'] == base['cur']['jobs'])
-    api(usr, '/auth/login', {'email': f'uusr{tag}@example.com', 'password': PW}); check('purge user', api(usr, '/auth/delete', {'password': PW})[0] == 200)
+    api(usr, '/auth/login', {'email': f'uusr{tag}@example.com', 'password': PW}); check('purge user', api(usr, '/auth/delete', {'immediate': True, 'password': PW})[0] == 200)
     b.close()
 print('ALL PASS' if ok else 'FAILED: ' + ', '.join(fails)); sys.exit(0 if ok else 1)

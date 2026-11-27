@@ -42,6 +42,7 @@ export class AppDB extends DurableObject<any> {
       CREATE TABLE IF NOT EXISTS attempts(k TEXT PRIMARY KEY, n INTEGER, reset_at INTEGER);
     `);
     try { this.sql.exec('ALTER TABLE users ADD COLUMN plan_until INTEGER'); } catch { /* exists */ }
+    try { this.sql.exec('ALTER TABLE users ADD COLUMN delete_at INTEGER'); } catch { /* exists */ }
     try { this.sql.exec('ALTER TABLE users ADD COLUMN google_sub TEXT'); } catch { /* exists */ }
     try { this.sql.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0'); } catch { /* exists */ }
     for (const c of ['max_files INTEGER', 'saved_max INTEGER', 'saved_mb INTEGER', 'ads INTEGER']) { try { this.sql.exec('ALTER TABLE plans ADD COLUMN ' + c); } catch { /* exists */ } }
@@ -83,7 +84,16 @@ export class AppDB extends DurableObject<any> {
     const t = await this.makeToken(u.id, 'verify', 48 * 3600e3), link = `${origin}/verify?token=${t}`;
     return this.mail(u.email, 'Confirm your email for Magic Convertor', `Confirm your email: ${link}\n\nThis link works for 48 hours. If you did not sign up, ignore this email.`, `<p>Confirm your email for Magic Convertor:</p><p><a href="${link}">Confirm email</a></p><p>This link works for 48 hours. If you did not sign up, ignore this email.</p>`);
   }
-  pub(u: any) { return u && { id: u.id, email: u.email, name: u.name, plan: u.plan, plan_until: u.plan_until ?? null, role: u.role, created_at: u.created_at, email_verified: !!u.email_verified, has_password: !!u.pass_hash, google: !!u.google_sub }; }
+  purgeUser(id: string) {
+    this.sql.exec('DELETE FROM saved_blob WHERE saved_id IN (SELECT id FROM saved WHERE user_id=?)', id); this.sql.exec('DELETE FROM saved WHERE user_id=?', id);
+    this.sql.exec('DELETE FROM history WHERE subject=?', id); this.sql.exec('DELETE FROM sessions WHERE user_id=?', id); this.sql.exec('DELETE FROM users WHERE id=?', id);
+  }
+  lastPurge = 0;
+  purgeDue() {
+    if (Date.now() - this.lastPurge < 600e3) return; this.lastPurge = Date.now();
+    for (const r of this.rows('SELECT id,email FROM users WHERE delete_at IS NOT NULL AND delete_at<=? AND role!=? LIMIT 50', now(), 'admin')) { this.purgeUser(r.id); this.audit(r.email, 'delete_account_final', r.email, ''); }
+  }
+  pub(u: any) { return u && { delete_at: u.delete_at ?? null, id: u.id, email: u.email, name: u.name, plan: u.plan, plan_until: u.plan_until ?? null, role: u.role, created_at: u.created_at, email_verified: !!u.email_verified, has_password: !!u.pass_hash, google: !!u.google_sub }; }
   limit(key: string, max: number, windowMs: number) {
     const r = this.rows('SELECT * FROM attempts WHERE k=?', key)[0];
     if (!r || r.reset_at < now()) { this.sql.exec('INSERT OR REPLACE INTO attempts VALUES(?,?,?)', key, 1, now() + windowMs); return true; }
@@ -115,6 +125,7 @@ export class AppDB extends DurableObject<any> {
       const email = String(body.email ?? '').trim().toLowerCase(), pw = String(body.password ?? ''), name = String(body.name ?? '').trim().slice(0, 60);
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 120) return json({ error: 'Enter a valid email' }, 400);
       if (pw.length < 8 || pw.length > 200) return json({ error: 'Password must be at least 8 characters' }, 400);
+      this.purgeDue();
       if (this.rows('SELECT 1 FROM users WHERE email=?', email).length) return json({ error: 'Email already registered' }, 409);
       const id = 'u_' + rnd(8), salt = rnd(16); this.sql.exec('INSERT INTO users(id,email,name,pass_hash,salt,created_at,last_login) VALUES(?,?,?,?,?,?,?)', id, email, name, await pbkdf2(pw, salt), salt, now(), now());
       this.audit(id, 'signup', email);
@@ -126,10 +137,16 @@ export class AppDB extends DurableObject<any> {
       if (u.role === 'admin') return json({ error: 'Admin accounts cannot be deleted here' }, 400);
       if (!this.limit(`del:${u.id}`, 5, 900e3)) return json({ error: 'Too many attempts, try again later' }, 429);
       if (u.pass_hash ? !safeEq(await pbkdf2(String(body.password ?? ''), u.salt), u.pass_hash) : String(body.password ?? '').trim().toLowerCase() !== u.email) return json({ error: u.pass_hash ? 'Wrong password' : 'Type your account email to confirm' }, 401);
-      this.sql.exec('DELETE FROM saved_blob WHERE saved_id IN (SELECT id FROM saved WHERE user_id=?)', u.id); this.sql.exec('DELETE FROM saved WHERE user_id=?', u.id);
-      this.sql.exec('DELETE FROM history WHERE subject=?', u.id); this.sql.exec('DELETE FROM sessions WHERE user_id=?', u.id); this.sql.exec('DELETE FROM users WHERE id=?', u.id);
-      this.audit(u.email, 'delete_account', u.email, '');
-      return json({ ok: true }, 200, { 'set-cookie': 'mc_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0' });
+      if (body.immediate === true && this.env.ALLOW_TEST_SEED === '1') { this.purgeUser(u.id); this.audit(u.email, 'delete_account_final', u.email, 'test'); return json({ ok: true }, 200, { 'set-cookie': 'mc_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0' }); }
+      const at = u.delete_at ?? now() + 7 * 86400e3; this.sql.exec('UPDATE users SET delete_at=? WHERE id=?', at, u.id);
+      this.audit(u.email, 'delete_account_scheduled', u.email, String(at));
+      return json({ ok: true, delete_at: at });
+    }
+    if (path === '/auth/restore' && method === 'POST') {
+      if (!u) return json({ error: 'Sign in first' }, 401);
+      if (!u.delete_at) return json({ ok: true });
+      this.sql.exec('UPDATE users SET delete_at=NULL WHERE id=?', u.id); this.audit(u.email, 'delete_account_restored', u.email, '');
+      return json({ ok: true });
     }
     if (path === '/auth/google/start' && method === 'GET') {
       if (!this.env.GOOGLE_CLIENT_ID || !this.env.GOOGLE_CLIENT_SECRET) return new Response(null, { status: 302, headers: { location: '/login?error=google_off' } });
@@ -170,6 +187,7 @@ export class AppDB extends DurableObject<any> {
       return new Response(null, { status: 302, headers: h });
     }
     if (path === '/auth/login' && method === 'POST') {
+      this.purgeDue();
       const email = String(body.email ?? '').trim().toLowerCase();
       if (!this.limit(`li:${ip}:${email}`, 8, 900e3)) return json({ error: 'Too many attempts, try again in 15 minutes' }, 429);
       const r = this.rows('SELECT * FROM users WHERE email=?', email)[0];
@@ -229,6 +247,7 @@ export class AppDB extends DurableObject<any> {
     }
     if (path === '/me' && method === 'GET') {
       const p = this.plan(u ? u.plan : 'guest');
+      this.purgeDue();
       return json({ user: this.pub(u), plan: p, usage: this.usageToday(subject), adminExists: this.adminExists() });
     }
     if (path === '/usage/consume' && method === 'POST') {
