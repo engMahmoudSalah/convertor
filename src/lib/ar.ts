@@ -186,6 +186,13 @@ export const AR: Record<string, string> = {
   'Restore': 'استعادة',
   'Suspend': 'إيقاف',
   'Save': 'حفظ', 
+  'pages': 'صفحة',
+
+  'Page 1 as an image': 'الصفحة 1 كصورة',
+  'Pixels': 'البكسلات',
+  'This page': 'الصفحة دي',
+  'Estimate for all pages': 'تقدير لكل الصفحات',
+
   'Sheets in the result': 'عدد الورق في الناتج',
 
   'First sheet': 'أول ورقة',

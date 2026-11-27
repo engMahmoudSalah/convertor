@@ -58,3 +58,23 @@ export const NupPreview: React.FC<{ file?: File; opts: Record<string, any>; t: (
     <canvas ref={cv} role="img" aria-label={t('Preview of the first sheet')} className="block rounded-lg shadow-lg mx-auto max-w-full h-auto" style={{ background: '#fff', maxHeight: '28rem', width: 'auto' }} />
     <p className="text-xs opacity-70 mt-2 text-center">{t('Sheets in the result')}: <b dir="ltr">{sheets}</b></p></div>);
 };
+
+export const hasPdfImgPreview = (id: string) => id === 'pdf-to-images';
+const kb = (n: number) => (n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
+/** Renders page 1 with the same DPI, format and quality (0.9) as the tool and shows pixel size, file size and a total estimate. */
+export const PdfImgPreview: React.FC<{ file?: File; opts: Record<string, any>; t: (s: string) => string }> = ({ file, opts, t }) => {
+  const [r, setR] = useState<{ url: string; w: number; h: number; size: number; n: number } | null>(null); const [busy, setBusy] = useState(false);
+  const fmt = opts.format === 'png' ? 'image/png' : opts.format === 'webp' ? 'image/webp' : 'image/jpeg'; const dpi = Math.max(72, Math.min(300, Number(opts.dpi) || 150));
+  useEffect(() => {
+    if (!file || !(file.type === 'application/pdf' || /\.pdf$/i.test(file.name))) { setR(null); return; } let dead = false; let url = '';
+    const id = setTimeout(async () => { setBusy(true); try { const { openPdf, renderPage } = await import('../lib/pdfjs'); const doc = await openPdf(file); const cv = await renderPage(doc, 1, dpi / 72);
+      const blob: Blob = await new Promise((res) => cv.toBlob((x) => res(x!), fmt, 0.9)); if (dead) return; url = URL.createObjectURL(blob); setR({ url, w: cv.width, h: cv.height, size: blob.size, n: doc.numPages }); } catch { /* unreadable */ } if (!dead) setBusy(false); }, 350);
+    return () => { dead = true; clearTimeout(id); if (url) URL.revokeObjectURL(url); };
+  }, [file, fmt, dpi]);
+  if (!r) return null;
+  return (<div aria-live="polite"><p className="text-xs uppercase tracking-widest opacity-70 mb-2">{t('Page 1 as an image')}</p>
+    <div className="flex gap-4 items-start flex-wrap"><img src={r.url} alt={t('Preview of page 1')} className="rounded-lg shadow-lg max-w-full" style={{ maxHeight: '18rem', background: '#fff', opacity: busy ? 0.6 : 1 }} />
+      <dl className="text-sm space-y-1" dir="auto"><div><dt className="text-xs opacity-70">{t('Pixels')}</dt><dd dir="ltr"><b>{r.w} × {r.h}</b></dd></div>
+        <div><dt className="text-xs opacity-70">{t('This page')}</dt><dd dir="ltr"><b>{kb(r.size)}</b></dd></div>
+        <div><dt className="text-xs opacity-70">{t('Estimate for all pages')}</dt><dd dir="ltr"><b>~{kb(r.size * r.n)}</b> · {r.n} {t('pages')}</dd></div></dl></div></div>);
+};
