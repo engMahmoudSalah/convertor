@@ -186,6 +186,12 @@ export const AR: Record<string, string> = {
   'Restore': 'استعادة',
   'Suspend': 'إيقاف',
   'Save': 'حفظ', 
+  'Page 1 with the number': 'الصفحة 1 مع الرقم',
+  'Page 1 with the watermark': 'الصفحة 1 مع العلامة المائية',
+  'Preview of page 1': 'معاينة الصفحة 1',
+  'Shown on page 1 of': 'معروضة على الصفحة 1 من',
+  'Position and size match the saved file.': 'المكان والحجم زي الملف المحفوظ.',
+
   'Crop frame. Arrow keys move it, Shift plus arrows resize it.': 'إطار القص. الأسهم تحركه وShift مع الأسهم تغيّر حجمه.',
   'Keyboard: click the frame, then arrow keys move it and Shift plus arrows resize it.': 'الكيبورد: اضغط على الإطار، وبعدها الأسهم تحركه وShift مع الأسهم تغيّر حجمه.',
 
