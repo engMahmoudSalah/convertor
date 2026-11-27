@@ -9,6 +9,7 @@ import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { CompressInfo } from '../components/CompressInfo';
 import { ResizeInfo } from '../components/ResizeInfo';
 import { CropPreview } from '../components/CropPreview';
+import { ResizePresets } from '../components/ResizePresets';
 import { Gauge } from 'lucide-react';
 import { isHeavy as isAdv } from '../lib/heavy';
 import { PlanHint, PaidNotice, upgradePlan, unlockPlan } from '../components/PlanBadge';
@@ -120,6 +121,7 @@ const FileToolPage: React.FC = () => {
         </label>))}</div></div>}
       {tool.id === 'compress-image' && files.length > 0 && <CompressInfo files={files as any} opts={opts} ar={ar} />}
       {tool.id === 'crop-image' && files.length > 0 && <CropPreview files={files} opts={opts} setOpts={setOpts} t={tr} />}
+      {tool.id === 'resize-image' && files.length > 0 && <ResizePresets opts={opts} setOpts={setOpts} t={tr} />}
       {tool.id === 'resize-image' && files.length > 0 && <ResizeInfo files={files as any} opts={opts} ar={ar} />}
       {upgrade && <div role="status" className="mt-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm"><p className="font-bold text-base">{tr("You've used today's free runs for this tool")}</p><p className="mt-1 opacity-80">{tr('Nothing is wrong. Free visitors get a few advanced runs per day. Your file is untouched and still here.')}</p><div className="mt-3 flex flex-wrap gap-2"><Link className="flow-next px-4 py-2 rounded-xl font-semibold" to="/signup">{tr('Create a free account')}</Link><Link className="px-4 py-2 rounded-xl font-semibold border border-current/30" to="/pricing">{tr('See plans')}</Link></div></div>}
       {err && !upgrade && <p className="mt-4 text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm">{err}</p>}
