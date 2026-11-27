@@ -186,6 +186,9 @@ export const AR: Record<string, string> = {
   'Restore': 'استعادة',
   'Suspend': 'إيقاف',
   'Save': 'حفظ', 
+  'Closest text color that passes AA': 'أقرب لون نص ينجح في AA',
+  'Use it': 'استخدمه',
+
   'Button': 'زر',
 
   'Very weak': 'ضعيفة جداً',

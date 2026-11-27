@@ -25,6 +25,11 @@ export const ContrastVisual: React.FC<{ opts: Opts; setOpts: (o: Opts) => void; 
       <button type="button" className="flow-ghost px-3 py-1.5 rounded-lg text-sm font-semibold inline-flex items-center gap-1.5" onClick={() => setOpts({ ...opts, fg: bg, bg: fg })}><ArrowLeftRight size={14} aria-hidden="true" />{t('Swap colors')}</button>
       <label className="flex items-center gap-2 text-sm"><span>{t('Background color')}</span><input type="color" aria-label={t('Background color')} value={bg} onChange={(e) => set('bg', e.target.value)} className="h-9 w-12 bg-transparent" /></label></div>
     <p dir="ltr" className="text-4xl font-bold" aria-live="polite">{rr}:1</p>
+    {rr < 4.5 && (() => { const toward = lumOf(bg) > 0.4 ? 0 : 255; const f0 = [1, 3, 5].map((i) => parseInt(fg.slice(i, i + 2), 16)); let fix = ''; for (let k = 1; k <= 40; k++) { const h = '#' + f0.map((v) => Math.round(v + (toward - v) * (k / 40)).toString(16).padStart(2, '0')).join(''); const l = lumOf(h); if ((Math.max(l, b) + 0.05) / (Math.min(l, b) + 0.05) >= 4.5) { fix = h; break; } }
+      return fix ? (<div className="flex flex-wrap items-center gap-3 rounded-xl p-3" style={{ border: '1px solid rgba(128,128,128,.35)', background: 'rgba(128,128,128,.1)' }}>
+        <span className="rounded-lg px-3 py-1.5 text-sm font-bold" style={{ background: bg, color: fix }}>Aa</span>
+        <span className="text-sm">{t('Closest text color that passes AA')}: <b dir="ltr" className="font-mono">{fix}</b></span>
+        <button type="button" className="flow-ghost px-3 py-1.5 rounded-lg text-sm font-semibold ms-auto" onClick={() => set('fg', fix)}>{t('Use it')}</button></div>) : null; })()}
     <ul className="grid sm:grid-cols-2 gap-2">
       <Chip ok={r >= 4.5} label={t('Normal text, AA')} pass={t('Pass')} fail={t('Fail')} /><Chip ok={r >= 3} label={t('Large text, AA')} pass={t('Pass')} fail={t('Fail')} />
       <Chip ok={r >= 7} label={t('Normal text, AAA')} pass={t('Pass')} fail={t('Fail')} /><Chip ok={r >= 4.5} label={t('Large text, AAA')} pass={t('Pass')} fail={t('Fail')} />
