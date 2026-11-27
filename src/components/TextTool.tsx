@@ -13,6 +13,7 @@ import { CalcChart, hasChart } from './CalcChart';
 import { SeoPreview, hasSeoPreview } from './SeoPreview';
 import { UtmHelper, hasUtm } from './UtmHelper';
 import { TimeVisual, hasTimeVisual } from './TimeVisual';
+import { DateVisual, hasDateVisual } from './DateVisual';
 import { ContrastVisual, GradientVisual, ShadesVisual } from './DesignVisual';
 import { StatStrip, JsonTree, tryParseJson, exampleFor } from './TextExtras';
 import { ClipboardPaste, FileUp, ArrowLeftRight, Link2, Wand2 } from 'lucide-react';
@@ -102,6 +103,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
           {err && <p role="alert" className="text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm mb-3">{tr(err)}</p>}
           {hasChart(tool.id) && out && <div className="mb-4"><CalcChart id={tool.id} opts={opts} t={tr} /></div>}
           {hasTimeVisual(tool.id) && out && !err && <div className="mb-4"><TimeVisual out={out} t={tr} /></div>}
+          {hasDateVisual(tool.id) && out && !err && <div className="mb-4"><DateVisual id={tool.id} out={out} t={tr} /></div>}
           {hasUtm(tool.id) && <div className="mb-4"><UtmHelper opts={opts} setOpts={setOpts} t={tr} /></div>}
           {hasSeoPreview(tool.id) && <div className="mb-4"><SeoPreview opts={opts} t={tr} /></div>}
           {tool.id === 'contrast-checker' && <div className="mb-4"><ContrastVisual opts={opts} setOpts={setOpts} t={tr} /></div>}
