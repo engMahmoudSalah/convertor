@@ -129,7 +129,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
             ? <pre dir="auto" className="text-sm font-mono whitespace-pre-wrap break-words min-h-[240px] max-h-[70vh] overflow-auto">{lines.map((l, i) => <span key={i} className={`block px-1 ${l.startsWith('+ ') ? 'bg-emerald-500/15 text-emerald-300' : l.startsWith('- ') ? 'bg-red-500/15 text-red-300' : i === 0 ? 'font-bold' : 'opacity-70'}`}>{l || ' '}</span>)}</pre>
             : view === 'tree' && parsed !== undefined ? <JsonTree data={parsed} more={tr('Show more')} />
             : <pre dir="auto" className="text-sm font-mono whitespace-pre-wrap break-words min-h-[240px] max-h-[70vh] overflow-auto">{out || (err ? '' : <span className="opacity-50">{inp.none ? '' : tr('Your result appears here as you type.')}</span>)}</pre>}
-          {out && !inp.svg && !inp.diff && <label className="flex items-center gap-2 mt-3 text-sm"><span className="opacity-70 shrink-0">{tr('Use this result in')}</span><select className={field} value="" onChange={(e) => sendTo(e.target.value)}><option value="">{tr('Choose a tool')}</option>{targets.map((x) => <option key={x.id} value={x.id}>{tr(x.title)}</option>)}</select></label>}
+          {out && !inp.svg && !inp.diff && tool.id !== 'password-generator' && <label className="flex items-center gap-2 mt-3 text-sm"><span className="opacity-70 shrink-0">{tr('Use this result in')}</span><select className={field} value="" onChange={(e) => sendTo(e.target.value)}><option value="">{tr('Choose a tool')}</option>{targets.map((x) => <option key={x.id} value={x.id}>{tr(x.title)}</option>)}</select></label>}
           {out && <div className="mt-2"><StatStrip text={out} labels={labels} /></div>}
         </section>
       </div>
