@@ -39,5 +39,5 @@ c, txt, hd = call('GET', '/nonexistent-' + uuid.uuid4().hex[:6]); t('unknown pat
 c, txt, hd = call('GET', '/api/auth/google/callback?code=x&state=y'); t('google callback with junk state not 5xx and no session', c < 500 and 'set-cookie' not in {k.lower() for k in hd.keys()})
 c, _, hd = call('POST', '/api/auth/login', {'email': email, 'password': 'x'}, origin='https://evil.example'); t('login from foreign origin refused', c in (400, 401, 403))
 call('POST', '/api/auth/delete', {'password': 'Passw0rd!xyz9'}, cookie=ck, origin=B)
-c, _, _ = call('GET', '/api/me', cookie=ck); t('purged: session gone', c in (401, 403))
+c, txt, _ = call('GET', '/api/me', cookie=ck); t('purged: session gone (user null)', '"user":null' in txt.replace(' ', ''))
 print(f'{sum(res)}/{len(res)} passed'); sys.exit(0 if all(res) else 1)
