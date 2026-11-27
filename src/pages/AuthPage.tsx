@@ -10,7 +10,7 @@ export const AuthPage: React.FC<{ mode: 'login' | 'signup' }> = ({ mode }) => {
   const submit = async (e: React.FormEvent) => { e.preventDefault(); setBusy(true); setErr('');
     const r = await api(`/auth/${mode}`, f); setBusy(false);
     if (r._status >= 400) return setErr(r.error ?? 'Something went wrong');
-    await refresh(); const nx = new URLSearchParams(window.location.search).get('next'); nav(nx && nx.startsWith('/') && !nx.startsWith('//') ? nx : '/account'); };
+    await refresh(); const nx = new URLSearchParams(window.location.search).get('next'); nav(nx && /^\/(?![\/\\])[A-Za-z0-9\-_./?=&%#]*$/.test(nx) ? nx : '/account'); };
   return (<div className="pt-28 pb-16 max-w-5xl mx-auto px-4 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
     <div className="hidden md:block"><p className="ed-kicker mb-5">{t('Magic Convertor')}</p><p className="font-display text-5xl leading-[1.08] mb-6">{t('Your files stay yours.')}</p>
       <ul className="space-y-3 text-gray-400">{['History of your jobs', 'Higher limits on advanced tools', 'Works in Arabic and English'].map((x, i) => <li key={x} className="flex gap-3 items-baseline"><span className="font-display italic text-2xl text-[color:var(--ac)]">{i + 1}.</span>{t(x)}</li>)}</ul></div>
