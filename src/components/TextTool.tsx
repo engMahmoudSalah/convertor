@@ -11,6 +11,7 @@ import { TEXT_FNS } from '../tools/textTools';
 import { fmtSize } from '../lib/util';
 import { CalcChart, hasChart } from './CalcChart';
 import { SeoPreview, hasSeoPreview } from './SeoPreview';
+import { UtmHelper, hasUtm } from './UtmHelper';
 import { ContrastVisual, GradientVisual, ShadesVisual } from './DesignVisual';
 import { StatStrip, JsonTree, tryParseJson, exampleFor } from './TextExtras';
 import { ClipboardPaste, FileUp, ArrowLeftRight, Link2, Wand2 } from 'lucide-react';
@@ -64,7 +65,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
       <p className="text-gray-400 mb-2">{tr(tool.desc)}</p>
       {piped && <p className="text-xs mb-2 opacity-80">{tr('Input came from')}: {tr(piped)}</p>}
       <p className="text-xs text-emerald-300/80 flex items-center gap-1 mb-6"><ShieldCheck size={13} /> {tr('Runs in your browser. Your text is not uploaded.')}</p>
-      <div className="grid lg:grid-cols-2 gap-6 items-start">
+      <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-2 gap-6 items-start">
         <div className="space-y-4">
           {!inp.none && <div className="flow-panel p-4">
             <label className="flex items-center justify-between text-xs uppercase tracking-wider opacity-70 mb-2" htmlFor="tt-in"><span>{tr(inp.label)}</span>
@@ -99,6 +100,7 @@ export const TextTool: React.FC<{ tool: Tool }> = ({ tool }) => {
           {parsed !== undefined && !inp.diff && <div className="flex gap-1 mb-3" role="tablist" aria-label={tr('Result view')}>{(['text', 'tree'] as const).map((v) => <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => setView(v)} className={`${view === v ? 'flow-next' : 'flow-ghost'} px-3 py-1 rounded-lg text-xs font-semibold`}>{v === 'text' ? tr('Text') : tr('Tree')}</button>)}</div>}
           {err && <p role="alert" className="text-red-300 bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm mb-3">{tr(err)}</p>}
           {hasChart(tool.id) && out && <div className="mb-4"><CalcChart id={tool.id} opts={opts} t={tr} /></div>}
+          {hasUtm(tool.id) && <div className="mb-4"><UtmHelper opts={opts} setOpts={setOpts} t={tr} /></div>}
           {hasSeoPreview(tool.id) && <div className="mb-4"><SeoPreview opts={opts} t={tr} /></div>}
           {tool.id === 'contrast-checker' && <div className="mb-4"><ContrastVisual opts={opts} setOpts={setOpts} t={tr} /></div>}
           {tool.id === 'gradient-generator' && out && <div className="mb-4"><GradientVisual out={out} t={tr} /></div>}
