@@ -137,6 +137,7 @@ const FileToolPage: React.FC = () => {
         {tab === 'after' && outs.length > 0 ? <AfterView files={files} outs={outs} /> : <>
           {mode === 'compress' && <CompressPreview file={files[0]} level={opts.level ?? 'med'} setLevel={(k) => setOpts((o) => ({ ...o, level: k }))} />}
           {mode === 'split' && <SplitPreview file={files[0]} opts={opts} setOpts={setOpts as any} />}
+          {tool.id === 'resize-image' && <ResizeInfo files={files as any} opts={opts} ar={ar} part="boxes" className="hidden lg:block mt-4" />}
           {mode === 'files' && <FileCards files={files} setFiles={setFiles} addMore={tool.multiple} accept={tool.accept.join(',')} />}
           {mode === 'frame' && <div className="space-y-4"><PageFrame file={files[0]} opts={opts} /><FileCards files={files} setFiles={setFiles} /></div>}
           {mode === 'background' && <div className="space-y-4"><BackgroundPreview file={files[0]} opts={opts} />{files.length > 1 && <FileCards files={files} setFiles={setFiles} />}</div>}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MoveDiagonal } from 'lucide-react';
 type Dim = { name: string; w: number; h: number };
 /** Shows the exact output size for Resize image, using the same maths as the tool. */
-export const ResizeInfo: React.FC<{ files: File[]; opts: any; ar: boolean }> = ({ files, opts, ar }) => {
+export const ResizeInfo: React.FC<{ files: File[]; opts: any; ar: boolean; part?: 'text' | 'boxes'; className?: string }> = ({ files, opts, ar, part, className }) => {
   const [dims, setDims] = useState<Dim[]>([]);
   useEffect(() => {
     let dead = false;
@@ -22,8 +22,10 @@ export const ResizeInfo: React.FC<{ files: File[]; opts: any; ar: boolean }> = (
     else if (w && h && opts.keep) { const s = Math.min(w / d.w, h / d.h); w = Math.round(d.w * s); h = Math.round(d.h * s); }
     return w && h ? [w, h] : null;
   };
+  const boxEl = (() => { const d = dims[0], o = out(d); if (!o) return null; const m = Math.max(d.w, d.h, o[0], o[1]); const big = part === 'boxes'; const k = (big ? 150 : 72) / m; const bx = (w: number, h: number, solid: boolean) => <span aria-hidden="true" style={{ width: Math.max(3, w * k), height: Math.max(3, h * k), border: solid ? '2px solid #84cc16' : '2px dashed rgba(128,128,128,.6)', background: solid ? 'rgba(132,204,22,.18)' : 'transparent' }} className="block rounded-sm" />; return <div dir="ltr" aria-hidden="true" className="mt-2 flex items-end gap-4 px-3 py-2 rounded-xl" style={{ height: big ? 168 : 84, background: 'rgba(128,128,128,.1)', border: '1px solid rgba(128,128,128,.35)' }}>{bx(d.w, d.h, false)}<span className="opacity-60 text-xs pb-1">→</span>{bx(o[0], o[1], true)}<span className="text-[10px] opacity-60 ms-auto self-end">{Math.round((o[0] * o[1]) / (d.w * d.h) * 100)}%</span></div>; })();
+  if (part === 'boxes') return <div className={className}>{boxEl}</div>;
   return (<div className="mt-3 text-sm flex flex-col gap-1" aria-live="polite"><p className="text-xs uppercase tracking-widest opacity-70 flex items-center gap-2"><MoveDiagonal size={13} aria-hidden="true" /> {ar ? 'الحجم الناتج' : 'Result size'}</p>
     {dims.map((d) => { const o = out(d); return <p key={d.name} className="flex flex-wrap gap-x-2"><span className="opacity-70 truncate max-w-[10rem]">{d.name}</span><span dir="ltr">{d.w}×{d.h}</span><span aria-hidden="true">→</span><span dir="ltr" className="font-semibold">{o ? `${o[0]}×${o[1]}` : (ar ? 'أدخل العرض أو الارتفاع' : 'Enter a width or height')}</span></p>; })}
-    {(() => { const d = dims[0], o = out(d); if (!o) return null; const m = Math.max(d.w, d.h, o[0], o[1]); const k = 72 / m; const bx = (w: number, h: number, solid: boolean) => <span aria-hidden="true" style={{ width: Math.max(3, w * k), height: Math.max(3, h * k), border: solid ? '2px solid #84cc16' : '2px dashed rgba(128,128,128,.6)', background: solid ? 'rgba(132,204,22,.18)' : 'transparent' }} className="block rounded-sm" />; return <div dir="ltr" aria-hidden="true" className="mt-2 flex items-end gap-4 h-[84px] px-3 py-2 rounded-xl" style={{ background: 'rgba(128,128,128,.1)', border: '1px solid rgba(128,128,128,.35)' }}>{bx(d.w, d.h, false)}<span className="opacity-60 text-xs pb-1">→</span>{bx(o[0], o[1], true)}<span className="text-[10px] opacity-60 ms-auto self-end">{Math.round((o[0] * o[1]) / (d.w * d.h) * 100)}%</span></div>; })()}
+    {part !== 'boxes' && <div className="lg:hidden">{boxEl}</div>}
     {files.length > 3 && <p className="text-xs opacity-70">{ar ? `و${files.length - 3} ملفات أخرى بنفس الإعدادات` : `and ${files.length - 3} more with the same settings`}</p>}</div>);
 };
