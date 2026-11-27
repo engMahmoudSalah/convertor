@@ -19,7 +19,7 @@ export const WatermarkPreview: React.FC<{ files: File[]; opts: any; ar: boolean 
   }, [files, opts.text, opts.size, opts.opacity, opts.position, opts.color]);
   return (<div className="mt-3 text-sm" aria-live="polite">
     <p className="text-xs uppercase tracking-widest opacity-70 flex items-center gap-2 mb-2"><Eye size={13} aria-hidden="true" /> {ar ? 'معاينة العلامة' : 'Live preview'}</p>
-    {url ? <img src={url} alt={ar ? 'معاينة الصورة مع العلامة المائية' : 'Preview of the picture with the watermark'} className="w-full max-h-72 object-contain rounded-xl border border-black/10" />
+    {url ? <img src={url} alt={ar ? 'معاينة الصورة مع العلامة المائية' : 'Preview of the picture with the watermark'} className="w-full max-h-72 object-contain rounded-xl border border-[rgba(128,128,128,.35)]" />
       : <p className="text-xs opacity-70">{err ? (ar ? 'اكتب نص العلامة لتظهر المعاينة.' : 'Type the watermark text to see the preview.') : '...'}</p>}
     <p className="text-xs opacity-60 mt-1">{ar ? 'المعاينة بحجم صغير. الملف النهائي بالجودة الكاملة.' : 'Small preview. The final file keeps the full quality.'}</p></div>);
 };
