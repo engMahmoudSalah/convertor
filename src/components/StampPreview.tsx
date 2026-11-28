@@ -5,7 +5,7 @@ export const hasStampPreview = (id: string) => id === 'page-numbers' || id === '
 /** Page 1 drawn with the page number or watermark exactly where the tool will put it (same positions and sizes as the PDF code). */
 export const StampPreview: React.FC<{ id: string; file?: File; opts: Record<string, any>; t: (s: string) => string }> = ({ id, file, opts, t }) => {
   const cv = useRef<HTMLCanvasElement>(null);
-  const [base, setBase] = useState<{ img: HTMLCanvasElement; n: number } | null>(null);
+  const [base, setBase] = useState<{ img: HTMLCanvasElement; n: number } | null>(null); const [shrunk, setShrunk] = useState(false);
   useEffect(() => {
     setBase(null); if (!file || !(file.type === 'application/pdf' || /\.pdf$/i.test(file.name))) return; let dead = false;
     (async () => { try { const { openPdf, renderPage } = await import('../lib/pdfjs'); const doc = await openPdf(file); const img = await renderPage(doc, 1, 1); if (!dead) setBase({ img, n: doc.numPages }); } catch { /* encrypted or unreadable: no preview */ } })();
@@ -13,7 +13,8 @@ export const StampPreview: React.FC<{ id: string; file?: File; opts: Record<stri
   }, [file]);
   useEffect(() => {
     const c = cv.current; if (!c || !base) return; const W = base.img.width, H = base.img.height; c.width = W; c.height = H;
-    const g = c.getContext('2d'); if (!g) return; g.drawImage(base.img, 0, 0);
+    const g = c.getContext('2d'); if (!g) return; g.drawImage(base.img, 0, 0); g.direction = 'ltr'; g.textAlign = 'left';
+    setShrunk(false);
     if (id === 'page-numbers') {
       const start = Number(opts.start ?? 1) || 0; const txt = String(opts.format ?? 'Page {n} of {total}').replace('{n}', String(start)).replace('{total}', String(base.n + start - 1));
       g.font = '11px Helvetica, Arial, sans-serif'; g.fillStyle = '#333'; const w = g.measureText(txt).width; const [v, h] = String(opts.position ?? 'bottom-center').split('-');
@@ -22,7 +23,7 @@ export const StampPreview: React.FC<{ id: string; file?: File; opts: Record<stri
     } else {
       const text = String(opts.text ?? '').replace(/[^\x20-\x7e]/g, '?') || 'WATERMARK'; const want = Number(opts.size) || 60; const ang = ((Number(opts.angle) || 0) * Math.PI) / 180;
       const wAt = (z: number) => { g.font = `bold ${z}px Helvetica, Arial, sans-serif`; return g.measureText(text).width; };
-      const size = fitStampSize(wAt, want, Number(opts.angle) || 0, W, H); g.font = `bold ${size}px Helvetica, Arial, sans-serif`; const w = g.measureText(text).width;
+      const size = fitStampSize(wAt, want, Number(opts.angle) || 0, W, H); setShrunk(size < want - 0.5); g.font = `bold ${size}px Helvetica, Arial, sans-serif`; const w = g.measureText(text).width;
       g.save(); g.globalAlpha = Math.max(0.05, Math.min(1, Number(opts.opacity) || 0.25)); g.fillStyle = '#808080';
       g.translate(W / 2 - (w / 2) * Math.cos(ang), H / 2 + (w / 2) * Math.sin(ang)); g.rotate(-ang); g.fillText(text, 0, 0); g.restore();
     }
@@ -30,7 +31,7 @@ export const StampPreview: React.FC<{ id: string; file?: File; opts: Record<stri
   if (!base) return null;
   return (<div><p className="text-xs uppercase tracking-widest opacity-70 mb-2">{id === 'page-numbers' ? t('Page 1 with the number') : t('Page 1 with the watermark')}</p>
     <canvas ref={cv} role="img" aria-label={t('Preview of page 1')} className="block rounded-lg shadow-lg mx-auto max-w-full h-auto" style={{ background: '#fff', maxHeight: '28rem', width: 'auto' }} />
-    <p className="text-xs opacity-70 mt-2 text-center">{t('Shown on page 1 of')} {base.n}. {t('Position and size match the saved file.')}</p></div>);
+    <p className="text-xs opacity-70 mt-2 text-center">{t('Shown on page 1 of')} {base.n}. {t('Position and size match the saved file.')}</p>{shrunk && <p className="text-xs mt-1 text-center" style={{ color: '#d97706' }}>{t('The text is smaller than the size you set so it fits the page.')}</p>}</div>);
 };
 
 export const hasNupPreview = (id: string) => id === 'nup-pdf';
