@@ -72,9 +72,10 @@ export const BackgroundPreview: React.FC<{ file: File; opts: Record<string, any>
     <div className="rounded-xl overflow-hidden border border-white/10 inline-block max-w-full" style={{ backgroundImage: 'conic-gradient(#9ca3af 25%, #e5e7eb 0 50%, #9ca3af 0 75%, #e5e7eb 0)', backgroundSize: '16px 16px' }}><canvas ref={ref} className="max-w-full h-auto block" /></div></div>);
 };
 export const PageFrame: React.FC<{ file?: File; opts: Record<string, any> }> = ({ file, opts }) => {
+  const { t: tr } = useT();
   const [url, setUrl] = useState(''); useEffect(() => { if (!file) return; const u = URL.createObjectURL(file); setUrl(u); return () => URL.revokeObjectURL(u); }, [file]);
   const land = opts.size === 'a4-landscape'; const m = Number(opts.margin) / (land ? 842 : 595) * 100;
-  return (<div><p className="text-xs text-gray-400 mb-2">Page layout ({opts.size === 'fit' ? 'matches image' : land ? 'A4 landscape' : 'A4 portrait'}, margin {opts.margin} pt)</p>
+  return (<div><p className="text-xs text-gray-400 mb-2">{tr('Page layout')} ({opts.size === 'fit' ? tr('matches image') : land ? tr('A4 landscape') : tr('A4 portrait')}, {tr('margin')} <bdi dir="ltr">{opts.margin} pt</bdi>)</p>
     <div className="bg-white rounded shadow-lg mx-auto" style={{ aspectRatio: opts.size === 'fit' ? undefined : land ? '842/595' : '595/842', width: land ? '100%' : '60%', padding: `${m}%` }}>{url && <img src={url} className="w-full h-full object-contain" style={{ background: '#e5e7eb' }} />}</div></div>);
 };
 export function usePreviewMode(tool: Tool) {
