@@ -88,11 +88,12 @@ export async function pageNumbers(files: File[], o: any): Promise<Out[]> {
   });
   return [{ name: `${baseName(files[0].name)}-numbered.pdf`, blob: await toBlob(d) }];
 }
+import { fitStampSize } from '../lib/fitStamp';
 export async function watermark(files: File[], o: any): Promise<Out[]> {
   const d = await loadPdf(files[0]); const f = await d.embedFont(StandardFonts.HelveticaBold);
   const text = String(o.text).replace(/[^\x20-\x7e]/g, '?') || 'WATERMARK';
   d.getPages().forEach((p) => {
-    const { width, height } = p.getSize(); const size = Number(o.size);
+    const { width, height } = p.getSize(); const size = fitStampSize((z) => f.widthOfTextAtSize(text, z), Number(o.size), Number(o.angle), width, height);
     const w = f.widthOfTextAtSize(text, size); const ang = (Number(o.angle) * Math.PI) / 180;
     p.drawText(text, {
       x: width / 2 - (w / 2) * Math.cos(ang), y: height / 2 - (w / 2) * Math.sin(ang), size, font: f,

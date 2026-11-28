@@ -1,3 +1,4 @@
+import { fitStampSize } from '../lib/fitStamp';
 import React, { useEffect, useRef, useState } from 'react';
 
 export const hasStampPreview = (id: string) => id === 'page-numbers' || id === 'watermark-pdf';
@@ -19,8 +20,9 @@ export const StampPreview: React.FC<{ id: string; file?: File; opts: Record<stri
       const x = h === 'left' ? 30 : h === 'right' ? W - 30 - w : (W - w) / 2; const y = v === 'top' ? H - (H - 30) : H - 22;
       g.fillStyle = 'rgba(224,100,63,.2)'; g.fillRect(x - 4, y - 12, w + 8, 17); g.fillStyle = '#222'; g.fillText(txt, x, y);
     } else {
-      const text = String(opts.text ?? '').replace(/[^\x20-\x7e]/g, '?') || 'WATERMARK'; const size = Number(opts.size) || 60; const ang = ((Number(opts.angle) || 0) * Math.PI) / 180;
-      g.font = `bold ${size}px Helvetica, Arial, sans-serif`; const w = g.measureText(text).width;
+      const text = String(opts.text ?? '').replace(/[^\x20-\x7e]/g, '?') || 'WATERMARK'; const want = Number(opts.size) || 60; const ang = ((Number(opts.angle) || 0) * Math.PI) / 180;
+      const wAt = (z: number) => { g.font = `bold ${z}px Helvetica, Arial, sans-serif`; return g.measureText(text).width; };
+      const size = fitStampSize(wAt, want, Number(opts.angle) || 0, W, H); g.font = `bold ${size}px Helvetica, Arial, sans-serif`; const w = g.measureText(text).width;
       g.save(); g.globalAlpha = Math.max(0.05, Math.min(1, Number(opts.opacity) || 0.25)); g.fillStyle = '#808080';
       g.translate(W / 2 - (w / 2) * Math.cos(ang), H / 2 + (w / 2) * Math.sin(ang)); g.rotate(-ang); g.fillText(text, 0, 0); g.restore();
     }
