@@ -63,12 +63,13 @@ export const PageGrid: React.FC<{ file: File; mode: 'select' | 'sort'; selected:
         {sel && <span className={`absolute top-1 right-1 rounded-full p-0.5 ${intent === 'remove' ? 'bg-red-500' : 'bg-violet-500'}`}>{intent === 'remove' ? <X size={12} /> : <Check size={12} />}</span>}</div>); })}</div></div>);
 };
 export const BackgroundPreview: React.FC<{ file: File; opts: Record<string, any> }> = ({ file, opts }) => {
+  const { t: tr } = useT();
   const ref = useRef<HTMLCanvasElement>(null); const key = JSON.stringify({ ...opts, bgfile: (opts.bgfile as File | null)?.name });
   useEffect(() => { let dead = false; const t = setTimeout(async () => { try {
     const img = await loadImage(file); const bg = opts.mode === 'image' && opts.bgfile ? await loadImage(opts.bgfile) : null; const s = Math.min(1, 520 / Math.max(img.naturalWidth, img.naturalHeight));
     const out = processBackground(img, Math.round(img.naturalWidth * s), Math.round(img.naturalHeight * s), opts, bg); if (dead || !ref.current) return;
     ref.current.width = out.width; ref.current.height = out.height; ref.current.getContext('2d')!.drawImage(out, 0, 0); } catch { /* ignore */ } }, 150); return () => { dead = true; clearTimeout(t); }; }, [file, key]);
-  return (<div><p className="text-xs text-gray-400 mb-2">Live result (checkerboard = transparent)</p>
+  return (<div><p className="text-xs text-gray-400 mb-2">{tr('Live result (checkerboard = transparent)')}</p>
     <div className="rounded-xl overflow-hidden border border-white/10 inline-block max-w-full" style={{ backgroundImage: 'conic-gradient(#9ca3af 25%, #e5e7eb 0 50%, #9ca3af 0 75%, #e5e7eb 0)', backgroundSize: '16px 16px' }}><canvas ref={ref} className="max-w-full h-auto block" /></div></div>);
 };
 export const PageFrame: React.FC<{ file?: File; opts: Record<string, any> }> = ({ file, opts }) => {
