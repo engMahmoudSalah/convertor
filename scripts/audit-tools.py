@@ -3,10 +3,11 @@ import re, json, sys
 from playwright.sync_api import sync_playwright
 B='http://localhost:8787'
 ids=re.findall(r"/tools/([a-z0-9-]+)", open('/tmp/ids.txt').read()); ids=sorted(set(ids))
+if len(sys.argv)>3: k,n=map(int,sys.argv[3].split('/')); ids=ids[k::n]
 rows=[]
 with sync_playwright() as pw:
     b=pw.chromium.launch()
-    for lang in ['en','ar']:
+    for lang in (sys.argv[2:3] or ['en','ar']):
         for w in ([390] if len(sys.argv)>1 and sys.argv[1]=='mobile' else [1280,390]):
             c=b.new_context(viewport={'width':w,'height':800}); c.add_init_script(f"localStorage.setItem('mc_consent','essential')")
             for i in ids:
@@ -20,7 +21,7 @@ with sync_playwright() as pw:
                 except Exception as e: rows.append(dict(id=i,lang=lang,w=w,fail=str(e)[:60]))
                 p.close()
             c.close()
-json.dump(rows,open('/tmp/audit.json','w'))
+json.dump(rows,open('/tmp/audit-%s.json'%'-'.join(sys.argv[2:4] or ['all']).replace('/','of'),'w'))
 bad=[r for r in rows if r.get('fail') or r.get('overflow') or r.get('errs') or r.get('latin',0)>3 or r.get('h1')!=1]
 print(len(rows),'checks',len(bad),'flagged')
 for r in bad[:40]: print(r)
